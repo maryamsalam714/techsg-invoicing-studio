@@ -1,0 +1,2051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports | TechSG Invoicing</title>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --danger: #b91c1c;
+      --warning: #b45309;
+      --radius: 14px;
+      --shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page-container {
+      width: min(1400px, 100%);
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+      margin: 0 0 7px;
+      font-size: clamp(25px, 3vw, 34px);
+      letter-spacing: -0.7px;
+    }
+
+    .page-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 10px 15px;
+      font-weight: 700;
+      font-size: 13px;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+    }
+
+    .btn:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.25);
+      outline-offset: 2px;
+    }
+
+    .notice {
+      display: none;
+      margin-bottom: 18px;
+      padding: 12px 15px;
+      border-radius: 9px;
+      font-size: 14px;
+    }
+
+    .notice.show {
+      display: block;
+    }
+
+    .notice.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .notice.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .notice.info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .filter-card,
+    .content-card,
+    .chart-card,
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .filter-card {
+      padding: 20px;
+      margin-bottom: 22px;
+    }
+
+    .section-heading {
+      margin: 0 0 16px;
+      font-size: 17px;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 15px;
+      align-items: end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 11px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .summary-card {
+      padding: 19px;
+      min-width: 0;
+    }
+
+    .summary-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .summary-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: var(--primary);
+      font-size: 19px;
+    }
+
+    .summary-value {
+      font-size: clamp(21px, 2.5vw, 29px);
+      font-weight: 800;
+      letter-spacing: -0.7px;
+      overflow-wrap: anywhere;
+    }
+
+    .summary-foot {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .reports-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .chart-card {
+      padding: 21px;
+      min-width: 0;
+    }
+
+    .chart-card h2 {
+      margin: 0 0 5px;
+      font-size: 17px;
+    }
+
+    .chart-description {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0 0 20px;
+    }
+
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(85px, 115px) minmax(30px, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bar-label {
+      color: #475569;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .bar-track {
+      height: 12px;
+      border-radius: 20px;
+      background: #edf2f7;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      min-width: 0;
+      border-radius: 20px;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    .bar-fill.green {
+      background: #16a34a;
+    }
+
+    .bar-fill.orange {
+      background: #f59e0b;
+    }
+
+    .bar-fill.red {
+      background: #ef4444;
+    }
+
+    .bar-value {
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .empty-chart {
+      padding: 28px 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    .content-card {
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+
+    .content-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .content-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .content-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .table-tools {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .table-tools input,
+    .table-tools select {
+      min-height: 39px;
+      max-width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    thead {
+      background: #f8fafc;
+    }
+
+    th {
+      padding: 13px 16px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.45px;
+      color: #64748b;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 15px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    tbody tr:hover {
+      background: #fafcff;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .record-title {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .record-subtitle {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .status-paid {
+      color: #166534;
+      background: #dcfce7;
+    }
+
+    .status-pending {
+      color: #92400e;
+      background: #fef3c7;
+    }
+
+    .status-overdue {
+      color: #991b1b;
+      background: #fee2e2;
+    }
+
+    .status-draft {
+      color: #475569;
+      background: #e2e8f0;
+    }
+
+    .status-other {
+      color: #1d4ed8;
+      background: #dbeafe;
+    }
+
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 15px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .results-count {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .page-btn {
+      min-width: 34px;
+      height: 34px;
+      padding: 0 9px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .page-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .page-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .empty-state {
+      padding: 35px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .insight-card {
+      padding: 18px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: var(--radius);
+    }
+
+    .insight-card h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .insight-value {
+      font-size: 21px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .insight-card p {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 7px 0 0;
+    }
+
+    .page-footer {
+      padding: 10px 0 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1050px) {
+      .filters-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .insights-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .page-container {
+        padding: 17px;
+      }
+
+      .reports-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        align-items: stretch;
+      }
+
+      .header-actions {
+        width: 100%;
+      }
+
+      .header-actions .btn {
+        flex: 1;
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-actions .btn {
+        flex: 1;
+      }
+
+      .content-header {
+        align-items: stretch;
+      }
+
+      .table-tools {
+        width: 100%;
+      }
+
+      .table-tools input,
+      .table-tools select {
+        flex: 1;
+        min-width: 130px;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .summary-grid,
+      .insights-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-card {
+        padding: 16px;
+      }
+
+      .bar-row {
+        grid-template-columns: 80px minmax(25px, 1fr) auto;
+        gap: 7px;
+      }
+
+      .bar-label,
+      .bar-value {
+        font-size: 11px;
+      }
+
+      .table-footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+
+    <link rel="stylesheet" href="professional.css">
+<link rel="stylesheet" href="fbr.css">
+<script src="fbr.js" defer></script>
+<link rel="stylesheet" href="techsg-theme.css">
+<link rel="stylesheet" href="layout-fix.css">
+<link rel="stylesheet" href="app.css">
+<script src="qr.js"></script>
+<script src="core.js"></script>
+<script src="advanced.js" defer></script>
+</head>
+
+<body>
+  <main class="page-container">
+    <header class="page-header">
+      <div>
+        <h1>Reports &amp; Analytics</h1>
+        <p>Track invoices, revenue, payments and outstanding balances.</p>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="btn btn-secondary" id="refreshBtn">
+          Refresh Reports
+        </button>
+        <button type="button" class="btn btn-primary" id="exportBtn">
+          Export CSV
+        </button>
+      </div>
+    </header>
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+    <section class="filter-card" aria-labelledby="filterHeading">
+      <h2 class="section-heading" id="filterHeading">Report Filters</h2>
+
+      <div class="filters-grid">
+        <div class="field">
+          <label for="startDate">Start Date</label>
+          <input type="date" id="startDate">
+        </div>
+
+        <div class="field">
+          <label for="endDate">End Date</label>
+          <input type="date" id="endDate">
+        </div>
+
+        <div class="field">
+          <label for="statusFilter">Invoice Status</label>
+          <select id="statusFilter">
+            <option value="all">All Statuses</option>
+            <option value="paid">Paid</option>
+            <option value="pending">Pending</option>
+            <option value="overdue">Overdue</option>
+            <option value="draft">Draft</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="reportType">Report Type</label>
+          <select id="reportType">
+            <option value="all">All Records</option>
+            <option value="invoices">Invoices Only</option>
+            <option value="payments">Payments Only</option>
+          </select>
+        </div>
+
+        <div class="filter-actions">
+          <button type="button" class="btn btn-primary" id="applyFiltersBtn">
+            Apply Filters
+          </button>
+          <button type="button" class="btn btn-secondary" id="resetFiltersBtn">
+            Reset
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="Report summary">
+      <article class="summary-card">
+        <div class="summary-top">
+          <span class="summary-label">Total Invoiced</span>
+          <span class="summary-icon" aria-hidden="true">$</span>
+        </div>
+        <div class="summary-value" id="totalInvoiced">Rs. 0.00</div>
+        <div class="summary-foot" id="invoiceCountNote">0 invoices</div>
+      </article>
+
+      <article class="summary-card">
+        <div class="summary-top">
+          <span class="summary-label">Total Collected</span>
+          <span class="summary-icon" aria-hidden="true">✓</span>
+        </div>
+        <div class="summary-value" id="totalCollected">Rs. 0.00</div>
+        <div class="summary-foot" id="paymentCountNote">0 payment records</div>
+      </article>
+
+      <article class="summary-card">
+        <div class="summary-top">
+          <span class="summary-label">Outstanding</span>
+          <span class="summary-icon" aria-hidden="true">◷</span>
+        </div>
+        <div class="summary-value" id="outstandingAmount">Rs. 0.00</div>
+        <div class="summary-foot">Estimated unpaid invoice balance</div>
+      </article>
+
+      <article class="summary-card">
+        <div class="summary-top">
+          <span class="summary-label">Overdue Invoices</span>
+          <span class="summary-icon" aria-hidden="true">!</span>
+        </div>
+        <div class="summary-value" id="overdueCount">0</div>
+        <div class="summary-foot" id="overdueValueNote">Rs. 0.00 overdue</div>
+      </article>
+    </section>
+
+    <section class="reports-grid" aria-label="Report charts">
+      <article class="chart-card">
+        <h2>Invoice Status Breakdown</h2>
+        <p class="chart-description">Invoices grouped by their current status.</p>
+        <div class="bar-chart" id="statusChart"></div>
+      </article>
+
+      <article class="chart-card">
+        <h2>Revenue Overview</h2>
+        <p class="chart-description">Collected and outstanding amounts.</p>
+        <div class="bar-chart" id="revenueChart"></div>
+      </article>
+
+      <article class="chart-card">
+        <h2>Invoice Activity</h2>
+        <p class="chart-description">Invoice records grouped by month.</p>
+        <div class="bar-chart" id="activityChart"></div>
+      </article>
+
+      <article class="chart-card">
+        <h2>Payment Methods</h2>
+        <p class="chart-description">Recorded payments by payment method.</p>
+        <div class="bar-chart" id="methodChart"></div>
+      </article>
+    </section>
+
+    <section class="insights-grid" aria-label="Additional insights">
+      <article class="insight-card">
+        <h3>Average Invoice Value</h3>
+        <div class="insight-value" id="averageInvoice">Rs. 0.00</div>
+        <p>Average value of filtered invoices.</p>
+      </article>
+
+      <article class="insight-card">
+        <h3>Collection Rate</h3>
+        <div class="insight-value" id="collectionRate">0%</div>
+        <p>Collected amount compared with invoiced total.</p>
+      </article>
+
+      <article class="insight-card">
+        <h3>Largest Invoice</h3>
+        <div class="insight-value" id="largestInvoice">Rs. 0.00</div>
+        <p id="largestInvoiceName">No invoice records available.</p>
+      </article>
+    </section>
+
+    <section class="content-card" aria-labelledby="recordsHeading">
+      <div class="content-header">
+        <div>
+          <h2 id="recordsHeading">Report Records</h2>
+          <p>Review and export the records matching your filters.</p>
+        </div>
+
+        <div class="table-tools">
+          <input
+            type="search"
+            id="searchInput"
+            placeholder="Search records..."
+            aria-label="Search report records"
+          >
+
+          <select id="tableStatusFilter" aria-label="Filter table by status">
+            <option value="all">All Statuses</option>
+            <option value="paid">Paid</option>
+            <option value="pending">Pending</option>
+            <option value="overdue">Overdue</option>
+            <option value="draft">Draft</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Record</th>
+              <th scope="col">Customer</th>
+              <th scope="col">Date</th>
+              <th scope="col">Type</th>
+              <th scope="col">Status</th>
+              <th scope="col">Amount</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" id="emptyState" hidden>
+        No records match your current filters.
+      </div>
+
+      <div class="table-footer">
+        <div class="results-count" id="resultsCount">Showing 0 records</div>
+        <nav class="pagination" id="pagination" aria-label="Report pages"></nav>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      TechSG Invoicing · Reports &amp; Analytics
+    </footer>
+<script>
+      (function () {
+        "use strict";
+
+        const PAGE_SIZE = 8;
+        const STORAGE_KEYS = {
+          invoices: [
+            "techsg_invoices_v1",
+            "techsg_invoices",
+            "invoices"
+          ],
+          payments: [
+            "techsg_payments_v1",
+            "techsg_payments",
+            "payments"
+          ]
+        };
+
+        let invoices = [];
+        let payments = [];
+        let filteredRecords = [];
+        let currentPage = 1;
+        let noticeTimer = null;
+
+        const $ = function (id) {
+          return document.getElementById(id);
+        };
+
+        function readStorage(keys) {
+          for (const key of keys) {
+            try {
+              const raw = localStorage.getItem(key);
+
+              if (raw === null) {
+                continue;
+              }
+
+              const parsed = JSON.parse(raw);
+
+              if (Array.isArray(parsed)) {
+                return parsed;
+              }
+
+              if (parsed && typeof parsed === "object") {
+                for (const property of [
+                  "records",
+                  "invoices",
+                  "payments",
+                  "data",
+                  "items"
+                ]) {
+                  if (Array.isArray(parsed[property])) {
+                    return parsed[property];
+                  }
+                }
+              }
+            } catch (error) {
+              console.warn("Could not read storage key:", key, error);
+            }
+          }
+
+          return [];
+        }
+
+        function firstValue(object, keys, fallback) {
+          for (const key of keys) {
+            if (
+              object &&
+              object[key] !== undefined &&
+              object[key] !== null &&
+              object[key] !== ""
+            ) {
+              return object[key];
+            }
+          }
+
+          return fallback;
+        }
+
+        function toNumber(value) {
+          if (typeof value === "number") {
+            return Number.isFinite(value) ? value : 0;
+          }
+
+          if (typeof value === "string") {
+            const cleaned = value.replace(/[^0-9.-]/g, "");
+            const number = Number(cleaned);
+            return Number.isFinite(number) ? number : 0;
+          }
+
+          return 0;
+        }
+
+        function normalizeStatus(value) {
+          const status = String(value || "").trim().toLowerCase();
+
+          if (
+            ["paid", "complete", "completed", "success", "successful"]
+              .includes(status)
+          ) {
+            return "paid";
+          }
+
+          if (
+            ["pending", "unpaid", "sent", "partial", "partially paid"]
+              .includes(status)
+          ) {
+            return "pending";
+          }
+
+          if (
+            ["overdue", "late", "past due"]
+              .includes(status)
+          ) {
+            return "overdue";
+          }
+
+          if (
+            ["draft", "new"]
+              .includes(status)
+          ) {
+            return "draft";
+          }
+
+          return "other";
+        }
+
+        function formatMoney(value) {
+          const amount = Number.isFinite(value) ? value : 0;
+
+          return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).format(amount);
+        }
+
+        function parseDate(value) {
+          if (!value) {
+            return null;
+          }
+
+          if (value instanceof Date) {
+            return Number.isNaN(value.getTime()) ? null : value;
+          }
+
+          const text = String(value).trim();
+
+          if (!text) {
+            return null;
+          }
+
+          const date = new Date(text);
+
+          return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function dateOnly(date) {
+          if (!date) {
+            return "";
+          }
+
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+
+          return year + "-" + month + "-" + day;
+        }
+
+        function formatDate(value) {
+          const date = parseDate(value);
+
+          if (!date) {
+            return "—";
+          }
+
+          return new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+          }).format(date);
+        }
+
+        function showNotice(message, type) {
+          const notice = $("notice");
+
+          notice.textContent = message;
+          notice.className = "notice show " + (type || "info");
+
+          if (noticeTimer) {
+            clearTimeout(noticeTimer);
+          }
+
+          noticeTimer = setTimeout(function () {
+            notice.className = "notice";
+          }, 4000);
+        }
+
+        function getInvoiceDate(invoice) {
+          return firstValue(invoice, [
+            "issueDate",
+            "invoiceDate",
+            "date",
+            "createdAt",
+            "created_at"
+          ], "");
+        }
+
+        function getDueDate(invoice) {
+          return firstValue(invoice, [
+            "dueDate",
+            "due_date",
+            "paymentDueDate"
+          ], "");
+        }
+
+        function getInvoiceAmount(invoice) {
+          return Math.max(0, toNumber(firstValue(invoice, [
+            "total",
+            "totalAmount",
+            "amount",
+            "grandTotal",
+            "grand_total",
+            "invoiceTotal",
+            "price"
+          ], 0)));
+        }
+
+        function getPaidAmount(invoice) {
+          return Math.max(0, toNumber(firstValue(invoice, [
+            "paidAmount",
+            "amountPaid",
+            "amount_paid",
+            "totalPaid",
+            "receivedAmount"
+          ], 0)));
+        }
+
+        function getInvoiceStatus(invoice) {
+          const rawStatus = firstValue(invoice, [
+            "status",
+            "paymentStatus",
+            "payment_status",
+            "invoiceStatus"
+          ], "");
+
+          const status = normalizeStatus(rawStatus);
+          const dueDate = parseDate(getDueDate(invoice));
+          const amount = getInvoiceAmount(invoice);
+          const paid = getPaidAmount(invoice);
+
+          if (status === "paid" || (amount > 0 && paid >= amount)) {
+            return "paid";
+          }
+
+          if (
+            dueDate &&
+            dueDate < new Date(new Date().setHours(0, 0, 0, 0)) &&
+            amount > paid
+          ) {
+            return "overdue";
+          }
+
+          return status;
+        }
+
+        function getInvoiceCustomer(invoice) {
+          const customer = firstValue(invoice, [
+            "customerName",
+            "customer",
+            "clientName",
+            "client",
+            "customer_name",
+            "client_name"
+          ], "Unknown Customer");
+
+          if (typeof customer === "object" && customer !== null) {
+            return firstValue(customer, [
+              "name",
+              "fullName",
+              "company",
+              "email"
+            ], "Unknown Customer");
+          }
+
+          return String(customer);
+        }
+
+        function getInvoiceTitle(invoice, index) {
+          return String(firstValue(invoice, [
+            "invoiceNumber",
+            "invoiceNo",
+            "number",
+            "reference",
+            "title",
+            "id"
+          ], "Invoice " + (index + 1)));
+        }
+
+        function getPaymentAmount(payment) {
+          return Math.max(0, toNumber(firstValue(payment, [
+            "amount",
+            "paymentAmount",
+            "paidAmount",
+            "total",
+            "value"
+          ], 0)));
+        }
+
+        function getPaymentDate(payment) {
+          return firstValue(payment, [
+            "paymentDate",
+            "date",
+            "createdAt",
+            "created_at"
+          ], "");
+        }
+
+        function getPaymentCustomer(payment) {
+          const customer = firstValue(payment, [
+            "customerName",
+            "customer",
+            "clientName",
+            "client",
+            "customer_name",
+            "client_name"
+          ], "Unknown Customer");
+
+          if (typeof customer === "object" && customer !== null) {
+            return firstValue(customer, [
+              "name",
+              "fullName",
+              "company",
+              "email"
+            ], "Unknown Customer");
+          }
+
+          return String(customer);
+        }
+
+        function getPaymentTitle(payment, index) {
+          return String(firstValue(payment, [
+            "paymentNumber",
+            "receiptNumber",
+            "reference",
+            "transactionId",
+            "id",
+            "title"
+          ], "Payment " + (index + 1)));
+        }
+
+        function getPaymentMethod(payment) {
+          return String(firstValue(payment, [
+            "method",
+            "paymentMethod",
+            "payment_method",
+            "type",
+            "channel"
+          ], "Other"));
+        }
+
+        function getPaymentStatus(payment) {
+          return normalizeStatus(firstValue(payment, [
+            "status",
+            "paymentStatus",
+            "payment_status"
+          ], "paid"));
+        }
+
+        function normalizeInvoice(invoice, index) {
+          return {
+            id: String(firstValue(invoice, ["id", "invoiceId", "invoice_id"], "invoice-" + index)),
+            title: getInvoiceTitle(invoice, index),
+            customer: getInvoiceCustomer(invoice),
+            date: getInvoiceDate(invoice),
+            dueDate: getDueDate(invoice),
+            amount: getInvoiceAmount(invoice),
+            paidAmount: getPaidAmount(invoice),
+            status: getInvoiceStatus(invoice),
+            type: "Invoice",
+            source: invoice
+          };
+        }
+
+        function normalizePayment(payment, index) {
+          return {
+            id: String(firstValue(payment, ["id", "paymentId", "payment_id"], "payment-" + index)),
+            title: getPaymentTitle(payment, index),
+            customer: getPaymentCustomer(payment),
+            date: getPaymentDate(payment),
+            amount: getPaymentAmount(payment),
+            status: getPaymentStatus(payment),
+            method: getPaymentMethod(payment),
+            type: "Payment",
+            source: payment
+          };
+        }
+
+        function loadData() {
+          invoices = readStorage(STORAGE_KEYS.invoices);
+          payments = readStorage(STORAGE_KEYS.payments);
+        }
+
+        function getDateRange() {
+          return {
+            start: $("startDate").value,
+            end: $("endDate").value
+          };
+        }
+
+        function isWithinDateRange(value, range) {
+          const date = parseDate(value);
+
+          if (!date) {
+            return !range.start && !range.end;
+          }
+
+          const current = dateOnly(date);
+
+          if (range.start && current < range.start) {
+            return false;
+          }
+
+          if (range.end && current > range.end) {
+            return false;
+          }
+
+          return true;
+        }
+
+        function getAllRecords() {
+          const invoiceRecords = invoices.map(normalizeInvoice);
+          const paymentRecords = payments.map(normalizePayment);
+
+          return invoiceRecords.concat(paymentRecords);
+        }
+
+        function getFilteredData() {
+          const range = getDateRange();
+          const statusFilter = $("statusFilter").value;
+          const reportType = $("reportType").value;
+          const search = $("searchInput").value.trim().toLowerCase();
+          const tableStatus = $("tableStatusFilter").value;
+
+          return getAllRecords().filter(function (record) {
+            if (reportType === "invoices" && record.type !== "Invoice") {
+              return false;
+            }
+
+            if (reportType === "payments" && record.type !== "Payment") {
+              return false;
+            }
+
+            if (!isWithinDateRange(record.date, range)) {
+              return false;
+            }
+
+            if (statusFilter !== "all" && record.status !== statusFilter) {
+              return false;
+            }
+
+            if (tableStatus !== "all" && record.status !== tableStatus) {
+              return false;
+            }
+
+            const searchable = [
+              record.title,
+              record.customer,
+              record.type,
+              record.status,
+              record.method || ""
+            ].join(" ").toLowerCase();
+
+            return !search || searchable.includes(search);
+          });
+        }
+
+        function getFilteredInvoices() {
+          const range = getDateRange();
+          const statusFilter = $("statusFilter").value;
+          const search = $("searchInput").value.trim().toLowerCase();
+
+          return invoices.map(normalizeInvoice).filter(function (record) {
+            if (!isWithinDateRange(record.date, range)) {
+              return false;
+            }
+
+            if (statusFilter !== "all" && record.status !== statusFilter) {
+              return false;
+            }
+
+            const searchable = [
+              record.title,
+              record.customer,
+              record.status
+            ].join(" ").toLowerCase();
+
+            return !search || searchable.includes(search);
+          });
+        }
+
+        function getFilteredPayments() {
+          const range = getDateRange();
+          const statusFilter = $("statusFilter").value;
+          const search = $("searchInput").value.trim().toLowerCase();
+
+          return payments.map(normalizePayment).filter(function (record) {
+            if (!isWithinDateRange(record.date, range)) {
+              return false;
+            }
+
+            if (statusFilter !== "all" && record.status !== statusFilter) {
+              return false;
+            }
+
+            const searchable = [
+              record.title,
+              record.customer,
+              record.status,
+              record.method
+            ].join(" ").toLowerCase();
+
+            return !search || searchable.includes(search);
+          });
+        }
+
+        function setText(id, value) {
+          $(id).textContent = value;
+        }
+
+        function updateSummary() {
+          const filteredInvoices = getFilteredInvoices();
+          const filteredPayments = getFilteredPayments();
+
+          const totalInvoiced = filteredInvoices.reduce(function (sum, item) {
+            return sum + item.amount;
+          }, 0);
+
+          const totalCollected = filteredPayments.reduce(function (sum, item) {
+            if (item.status === "paid") {
+              return sum + item.amount;
+            }
+
+            return sum;
+          }, 0);
+
+          const outstanding = filteredInvoices.reduce(function (sum, item) {
+            if (item.status === "paid") {
+              return sum;
+            }
+
+            return sum + Math.max(0, item.amount - item.paidAmount);
+          }, 0);
+
+          const overdueInvoices = filteredInvoices.filter(function (item) {
+            return item.status === "overdue";
+          });
+
+          const overdueValue = overdueInvoices.reduce(function (sum, item) {
+            return sum + Math.max(0, item.amount - item.paidAmount);
+          }, 0);
+
+          setText("totalInvoiced", formatMoney(totalInvoiced));
+          setText("invoiceCountNote", filteredInvoices.length + " invoices");
+
+          setText("totalCollected", formatMoney(totalCollected));
+          setText("paymentCountNote", filteredPayments.length + " payment records");
+
+          setText("outstandingAmount", formatMoney(outstanding));
+          setText("overdueCount", String(overdueInvoices.length));
+          setText("overdueValueNote", formatMoney(overdueValue) + " overdue");
+
+          const average = filteredInvoices.length
+            ? totalInvoiced / filteredInvoices.length
+            : 0;
+
+          setText("averageInvoice", formatMoney(average));
+
+          const rate = totalInvoiced > 0
+            ? Math.min(100, (totalCollected / totalInvoiced) * 100)
+            : 0;
+
+          setText("collectionRate", rate.toFixed(1) + "%");
+
+          const largest = filteredInvoices.reduce(function (best, item) {
+            return !best || item.amount > best.amount ? item : best;
+          }, null);
+
+          setText("largestInvoice", largest ? formatMoney(largest.amount) : "$0.00");
+          setText(
+            "largestInvoiceName",
+            largest ? largest.title + " · " + largest.customer : "No invoice records available."
+          );
+        }
+
+        function makeBarRow(label, value, maxValue, colorClass, formatter) {
+          const row = document.createElement("div");
+          row.className = "bar-row";
+
+          const labelElement = document.createElement("div");
+          labelElement.className = "bar-label";
+          labelElement.textContent = label;
+
+          const track = document.createElement("div");
+          track.className = "bar-track";
+
+          const fill = document.createElement("div");
+          fill.className = "bar-fill" + (colorClass ? " " + colorClass : "");
+
+          const width = maxValue > 0
+            ? Math.max(0, Math.min(100, (value / maxValue) * 100))
+            : 0;
+
+          fill.style.width = width + "%";
+          track.appendChild(fill);
+
+          const valueElement = document.createElement("div");
+          valueElement.className = "bar-value";
+          valueElement.textContent = formatter ? formatter(value) : String(value);
+
+          row.append(labelElement, track, valueElement);
+
+          return row;
+        }
+
+        function renderStatusChart() {
+          const container = $("statusChart");
+          container.replaceChildren();
+
+          const records = getFilteredInvoices();
+
+          if (!records.length) {
+            container.innerHTML = '<div class="empty-chart">No invoice data available.</div>';
+            return;
+          }
+
+          const groups = [
+            { key: "paid", label: "Paid", color: "green" },
+            { key: "pending", label: "Pending", color: "orange" },
+            { key: "overdue", label: "Overdue", color: "red" },
+            { key: "draft", label: "Draft", color: "" },
+            { key: "other", label: "Other", color: "" }
+          ];
+
+          groups.forEach(function (group) {
+            const count = records.filter(function (record) {
+              return record.status === group.key;
+            }).length;
+
+            container.appendChild(
+              makeBarRow(group.label, count, records.length, group.color)
+            );
+          });
+        }
+
+        function renderRevenueChart() {
+          const container = $("revenueChart");
+          container.replaceChildren();
+
+          const records = getFilteredInvoices();
+
+          const invoiced = records.reduce(function (sum, record) {
+            return sum + record.amount;
+          }, 0);
+
+          const outstanding = records.reduce(function (sum, record) {
+            if (record.status === "paid") {
+              return sum;
+            }
+
+            return sum + Math.max(0, record.amount - record.paidAmount);
+          }, 0);
+
+          const collected = Math.max(0, invoiced - outstanding);
+          const maxValue = Math.max(invoiced, outstanding, collected, 1);
+
+          container.appendChild(
+            makeBarRow("Invoiced", invoiced, maxValue, "", formatMoney)
+          );
+
+          container.appendChild(
+            makeBarRow("Collected*", collected, maxValue, "green", formatMoney)
+          );
+
+          container.appendChild(
+            makeBarRow("Outstanding", outstanding, maxValue, "orange", formatMoney)
+          );
+
+          const note = document.createElement("p");
+          note.className = "chart-description";
+          note.textContent = "*Estimated from invoice balances. See payment records for recorded collections.";
+          container.appendChild(note);
+        }
+        function renderActivityChart() {
+          const container = $("activityChart");
+          container.replaceChildren();
+
+          const records = getFilteredInvoices();
+          const counts = {};
+
+          records.forEach(function (record) {
+            const date = parseDate(record.date);
+
+            if (!date) {
+              return;
+            }
+
+            const key = date.getFullYear() + "-" +
+              String(date.getMonth() + 1).padStart(2, "0");
+
+            counts[key] = (counts[key] || 0) + 1;
+          });
+
+          const months = Object.keys(counts).sort().slice(-6);
+
+          if (!months.length) {
+            container.innerHTML =
+              '<div class="empty-chart">No dated invoice records available.</div>';
+            return;
+          }
+
+          const maxCount = Math.max.apply(
+            null,
+            months.map(function (key) {
+              return counts[key];
+            })
+          );
+
+          months.forEach(function (key) {
+            const parts = key.split("-");
+            const date = new Date(
+              Number(parts[0]),
+              Number(parts[1]) - 1,
+              1
+            );
+
+            const label = new Intl.DateTimeFormat("en-US", {
+              month: "short",
+              year: "2-digit"
+            }).format(date);
+
+            container.appendChild(
+              makeBarRow(
+                label,
+                counts[key],
+                maxCount,
+                "",
+                function (value) {
+                  return value + (value === 1 ? " invoice" : " invoices");
+                }
+              )
+            );
+          });
+        }
+
+        function renderMethodChart() {
+          const container = $("methodChart");
+          container.replaceChildren();
+
+          const records = getFilteredPayments().filter(function (record) {
+            return record.status === "paid";
+          });
+
+          if (!records.length) {
+            container.innerHTML =
+              '<div class="empty-chart">No recorded payment data available.</div>';
+            return;
+          }
+
+          const totals = {};
+
+          records.forEach(function (record) {
+            const method = record.method || "Other";
+            totals[method] = (totals[method] || 0) + record.amount;
+          });
+
+          const methods = Object.keys(totals)
+            .sort(function (a, b) {
+              return totals[b] - totals[a];
+            })
+            .slice(0, 6);
+
+          const maxValue = Math.max.apply(
+            null,
+            methods.map(function (method) {
+              return totals[method];
+            })
+          );
+
+          methods.forEach(function (method) {
+            container.appendChild(
+              makeBarRow(
+                method,
+                totals[method],
+                maxValue,
+                "green",
+                formatMoney
+              )
+            );
+          });
+        }
+
+        function escapeHTML(value) {
+          return String(value == null ? "" : value).replace(
+            /[&<>"']/g,
+            function (char) {
+              const entities = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+              };
+
+              return entities[char];
+            }
+          );
+        }
+
+        function statusClass(status) {
+          const classes = {
+            paid: "status-paid",
+            pending: "status-pending",
+            overdue: "status-overdue",
+            draft: "status-draft",
+            other: "status-other"
+          };
+
+          return classes[status] || "status-other";
+        }
+
+        function renderRecords() {
+          filteredRecords = getFilteredData();
+          currentPage = Math.max(1, currentPage);
+
+          const totalPages = Math.max(
+            1,
+            Math.ceil(filteredRecords.length / PAGE_SIZE)
+          );
+
+          if (currentPage > totalPages) {
+            currentPage = totalPages;
+          }
+
+          const startIndex = (currentPage - 1) * PAGE_SIZE;
+
+          const pageRecords = filteredRecords.slice(
+            startIndex,
+            startIndex + PAGE_SIZE
+          );
+
+          const tbody = $("recordsTableBody");
+          tbody.replaceChildren();
+
+          pageRecords.forEach(function (record) {
+            const tr = document.createElement("tr");
+
+            const recordCell = document.createElement("td");
+            recordCell.innerHTML =
+              '<span class="record-title">' +
+              escapeHTML(record.title) +
+              '</span><span class="record-subtitle">' +
+              escapeHTML(record.id) +
+              "</span>";
+
+            const customerCell = document.createElement("td");
+            customerCell.textContent = record.customer;
+
+            const dateCell = document.createElement("td");
+            dateCell.textContent = formatDate(record.date);
+
+            const typeCell = document.createElement("td");
+            typeCell.textContent = record.type;
+
+            const statusCell = document.createElement("td");
+            const statusBadge = document.createElement("span");
+
+            statusBadge.className =
+              "status " + statusClass(record.status);
+
+            statusBadge.textContent =
+              record.status.charAt(0).toUpperCase() +
+              record.status.slice(1);
+
+            statusCell.appendChild(statusBadge);
+
+            const amountCell = document.createElement("td");
+            amountCell.textContent = formatMoney(record.amount);
+
+            tr.append(
+              recordCell,
+              customerCell,
+              dateCell,
+              typeCell,
+              statusCell,
+              amountCell
+            );
+
+            tbody.appendChild(tr);
+          });
+
+          $("emptyState").hidden = filteredRecords.length !== 0;
+
+          if (!filteredRecords.length) {
+            setText("resultsCount", "Showing 0 records");
+          } else {
+            setText(
+              "resultsCount",
+              "Showing " +
+                (startIndex + 1) +
+                "–" +
+                Math.min(
+                  startIndex + PAGE_SIZE,
+                  filteredRecords.length
+                ) +
+                " of " +
+                filteredRecords.length +
+                " records"
+            );
+          }
+
+          renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+          const container = $("pagination");
+          container.replaceChildren();
+
+          function addButton(label, page, disabled, active) {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className =
+              "page-btn" + (active ? " active" : "");
+            button.textContent = label;
+            button.disabled = disabled;
+
+            if (active) {
+              button.setAttribute("aria-current", "page");
+            }
+
+            button.addEventListener("click", function () {
+              currentPage = page;
+              renderRecords();
+            });
+
+            container.appendChild(button);
+          }
+
+          addButton(
+            "Prev",
+            Math.max(1, currentPage - 1),
+            currentPage === 1,
+            false
+          );
+
+          for (let page = 1; page <= totalPages; page++) {
+            addButton(
+              String(page),
+              page,
+              false,
+              page === currentPage
+            );
+          }
+
+          addButton(
+            "Next",
+            Math.min(totalPages, currentPage + 1),
+            currentPage === totalPages,
+            false
+          );
+        }
+
+        function escapeCSV(value) {
+          let text = String(value == null ? "" : value);
+
+          if (/^[\s\u0000-\u001f]*[=+\-@]/.test(text)) {
+            text = "'" + text;
+          }
+
+          return '"' + text.replace(/"/g, '""') + '"';
+        }
+
+        function exportCSV() {
+          const records = getFilteredData();
+
+          if (!records.length) {
+            showNotice(
+              "There are no matching records to export.",
+              "info"
+            );
+            return;
+          }
+
+          const headers = [
+            "Record ID",
+            "Record Title",
+            "Customer",
+            "Date",
+            "Type",
+            "Status",
+            "Amount",
+            "Payment Method"
+          ];
+
+          const rows = records.map(function (record) {
+            return [
+              record.id,
+              record.title,
+              record.customer,
+              record.date,
+              record.type,
+              record.status,
+              record.amount.toFixed(2),
+              record.method || ""
+            ];
+          });
+
+          const csv = [headers].concat(rows).map(function (row) {
+            return row.map(escapeCSV).join(",");
+          }).join("\r\n");
+
+          const blob = new Blob(["\uFEFF" + csv], {
+            type: "text/csv;charset=utf-8;"
+          });
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+
+          link.href = url;
+          link.download =
+            "techsg-reports-" +
+            dateOnly(new Date()) +
+            ".csv";
+
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+
+          URL.revokeObjectURL(url);
+
+          showNotice(
+            "Report CSV exported successfully.",
+            "success"
+          );
+        }
+
+        function applyFilters() {
+          currentPage = 1;
+
+          updateSummary();
+          renderStatusChart();
+          renderRevenueChart();
+          renderActivityChart();
+          renderMethodChart();
+          renderRecords();
+        }
+
+        function resetFilters() {
+          $("startDate").value = "";
+          $("endDate").value = "";
+          $("statusFilter").value = "all";
+          $("reportType").value = "all";
+          $("searchInput").value = "";
+          $("tableStatusFilter").value = "all";
+
+          currentPage = 1;
+          applyFilters();
+
+          showNotice("Filters have been reset.", "info");
+        }
+
+        function refreshReports() {
+          loadData();
+          applyFilters();
+
+          showNotice(
+            "Reports refreshed from browser storage.",
+            "success"
+          );
+        }
+
+        function initialize() {
+          loadData();
+
+          $("applyFiltersBtn").addEventListener(
+            "click",
+            function () {
+              const start = $("startDate").value;
+              const end = $("endDate").value;
+
+              if (start && end && start > end) {
+                showNotice(
+                  "Start date cannot be later than end date.",
+                  "error"
+                );
+                return;
+              }
+
+              applyFilters();
+            }
+          );
+
+          $("resetFiltersBtn").addEventListener(
+            "click",
+            resetFilters
+          );
+
+          $("refreshBtn").addEventListener(
+            "click",
+            refreshReports
+          );
+
+          $("exportBtn").addEventListener(
+            "click",
+            exportCSV
+          );
+
+          $("searchInput").addEventListener(
+            "input",
+            function () {
+              currentPage = 1;
+              renderRecords();
+            }
+          );
+
+          $("tableStatusFilter").addEventListener(
+            "change",
+            function () {
+              currentPage = 1;
+              renderRecords();
+            }
+          );
+
+          $("statusFilter").addEventListener(
+            "change",
+            function () {
+              currentPage = 1;
+              applyFilters();
+            }
+          );
+
+          $("reportType").addEventListener(
+            "change",
+            function () {
+              currentPage = 1;
+              applyFilters();
+            }
+          );
+
+          $("startDate").addEventListener(
+            "change",
+            function () {
+              const start = $("startDate").value;
+              const end = $("endDate").value;
+
+              if (start && end && start > end) {
+                showNotice(
+                  "Start date cannot be later than end date.",
+                  "error"
+                );
+                return;
+              }
+
+              applyFilters();
+            }
+          );
+
+          $("endDate").addEventListener(
+            "change",
+            function () {
+              const start = $("startDate").value;
+              const end = $("endDate").value;
+
+              if (start && end && start > end) {
+                showNotice(
+                  "End date cannot be earlier than start date.",
+                  "error"
+                );
+                return;
+              }
+
+              applyFilters();
+            }
+          );
+
+          applyFilters();
+        }
+
+        initialize();
+      })();
+    </script>
+  </main>
+<script src="enhancements.js"></script>
+</body>
+</html>

@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects | TechSG Invoicing</title>
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --bg: #f5f7fb;
+      --white: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --warning: #b45309;
+      --danger: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page-container {
+      width: 100%;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      margin-top: 5px;
+      color: var(--muted);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 15px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-danger {
+      background: #fff1f2;
+      color: var(--danger);
+      border-color: #fecdd3;
+    }
+
+    .btn-small {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 27px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .stat-description {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .form-control {
+      width: 100%;
+      min-width: 0;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: white;
+      color: var(--text);
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .search-input {
+      width: 250px;
+    }
+
+    .filter-select {
+      width: 165px;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .projects-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .projects-table th {
+      padding: 13px 18px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .projects-table td {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .projects-table tbody tr:hover {
+      background: #fafbff;
+    }
+
+    .projects-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .project-name {
+      font-weight: 700;
+    }
+
+    .sub-cell {
+      display: block;
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .project-id {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .status-planning {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .status-active {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .status-on-hold {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-completed {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-cancelled {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .progress-cell {
+      min-width: 130px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .progress-track {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 10px;
+    }
+
+    .progress-bar.complete {
+      background: #16a34a;
+    }
+
+    .amount {
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state h3 {
+      color: var(--text);
+      font-size: 16px;
+      margin-bottom: 7px;
+    }
+
+    .empty-state p {
+      margin-bottom: 16px;
+    }
+
+    .table-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .table-count {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .page-btn {
+      min-width: 34px;
+      height: 34px;
+      padding: 0 9px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: white;
+      color: var(--text);
+    }
+
+    .page-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .page-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .notice {
+      display: none;
+      margin-bottom: 18px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .notice.show {
+      display: block;
+    }
+
+    .notice.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .notice.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.55);
+      overflow-y: auto;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 680px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 7px;
+      background: #f1f5f9;
+      color: var(--text);
+      font-size: 22px;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 17px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .required {
+      color: var(--danger);
+    }
+
+    textarea.form-control {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 17px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 1000px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filters {
+        width: 100%;
+      }
+
+      .search-input {
+        flex: 1;
+        min-width: 180px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .page-container {
+        padding: 16px;
+      }
+
+      .page-title {
+        font-size: 23px;
+      }
+
+      .stats-grid {
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 15px;
+      }
+
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-input,
+      .filter-select {
+        width: 100%;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full-width {
+        grid-column: auto;
+      }
+
+      .modal {
+        padding: 10px;
+      }
+
+      .modal-body {
+        padding: 18px;
+      }
+
+      .modal-header,
+      .modal-footer {
+        padding: 16px 18px;
+      }
+    }
+  </style>
+
+    <link rel="stylesheet" href="professional.css">
+<link rel="stylesheet" href="fbr.css">
+<script src="fbr.js" defer></script>
+<link rel="stylesheet" href="techsg-theme.css">
+<link rel="stylesheet" href="layout-fix.css">
+<link rel="stylesheet" href="app.css">
+<script src="qr.js"></script>
+<script src="core.js"></script>
+<script src="advanced.js" defer></script>
+</head>
+<body>
+  <main class="page-container">
+
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Projects</h1>
+        <p class="page-subtitle">
+          Manage your projects, budgets, deadlines and progress.
+        </p>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="btn btn-secondary" id="exportProjectsBtn">
+          Export CSV
+        </button>
+
+        <button type="button" class="btn btn-primary" id="addProjectBtn">
+          + Add Project
+        </button>
+      </div>
+    </header>
+
+    <div id="projectsNotice" class="notice" role="status" aria-live="polite"></div>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-label">Total Projects</div>
+        <div class="stat-value" id="totalProjects">0</div>
+        <div class="stat-description">All registered projects</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-label">Active Projects</div>
+        <div class="stat-value" id="activeProjects">0</div>
+        <div class="stat-description">Currently in progress</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-label">Completed Projects</div>
+        <div class="stat-value" id="completedProjects">0</div>
+        <div class="stat-description">Successfully completed</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-label">Total Budget</div>
+        <div class="stat-value" id="totalBudget">PKR 0</div>
+        <div class="stat-description">Combined project budgets</div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">All Projects</h2>
+
+        <div class="filters">
+          <input
+            type="search"
+            id="projectSearch"
+            class="form-control search-input"
+            placeholder="Search projects, clients..."
+            aria-label="Search projects"
+          >
+
+          <select id="projectStatusFilter" class="form-control filter-select"
+            aria-label="Filter by project status">
+            <option value="">All Statuses</option>
+            <option value="Planning">Planning</option>
+            <option value="Active">Active</option>
+            <option value="On Hold">On Hold</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+
+          <button type="button" class="btn btn-secondary" id="resetProjectsBtn">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="projects-table">
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>Client</th>
+              <th>Start Date</th>
+              <th>Deadline</th>
+              <th>Budget</th>
+              <th>Progress</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="projectsTableBody"></tbody>
+        </table>
+      </div>
+
+      <div id="projectsEmpty" class="empty-state" hidden>
+        <h3>No projects found</h3>
+        <p>Try changing your search or add a new project.</p>
+        <button type="button" class="btn btn-primary" id="emptyAddProjectBtn">
+          + Add Project
+        </button>
+      </div>
+
+      <footer class="table-footer">
+        <div class="table-count" id="projectsCount">Showing 0 projects</div>
+        <nav class="pagination" id="projectsPagination"
+          aria-label="Projects pagination"></nav>
+      </footer>
+    </section>
+  </main>
+
+  <div
+    class="modal"
+    id="projectModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="projectModalTitle"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="projectModalTitle">Add Project</h2>
+
+        <button type="button" class="modal-close"
+          id="closeProjectModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="projectForm">
+        <div class="modal-body">
+          <input type="hidden" id="projectId">
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="projectName">
+                Project Name <span class="required">*</span>
+              </label>
+              <input type="text" id="projectName" class="form-control"
+                maxlength="100" required placeholder="Website Development">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="projectClient">
+                Client Name <span class="required">*</span>
+              </label>
+              <input type="text" id="projectClient" class="form-control"
+                maxlength="100" required placeholder="Enter client name">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="projectStartDate">
+                Start Date <span class="required">*</span>
+              </label>
+              <input type="date" id="projectStartDate"
+                class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="projectDeadline">
+                Deadline <span class="required">*</span>
+              </label>
+              <input type="date" id="projectDeadline"
+                class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="projectBudget">
+                Budget (PKR) <span class="required">*</span>
+              </label>
+              <input type="number" id="projectBudget" class="form-control"
+                min="0" max="999999999999" step="0.01"
+                required placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="projectStatus">Status</label>
+              <select id="projectStatus" class="form-control" required>
+                <option value="Planning">Planning</option>
+                <option value="Active">Active</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="projectProgress">Progress (%)</label>
+              <input type="number" id="projectProgress" class="form-control"
+                min="0" max="100" step="1" value="0" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="projectManager">Project Manager</label>
+              <input type="text" id="projectManager" class="form-control"
+                maxlength="100" placeholder="Manager name (optional)">
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="projectDescription">Description</label>
+              <textarea id="projectDescription" class="form-control"
+                maxlength="1000"
+                placeholder="Project details, scope or notes..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelProjectBtn">
+            Cancel
+          </button>
+
+          <button type="submit" class="btn btn-primary" id="saveProjectBtn">
+            Save Project
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+const STORAGE_KEY = "techsg_projects_v1";
+      const PAGE_SIZE = 8;
+
+      let projects = [];
+      let currentPage = 1;
+      let noticeTimer = null;
+
+      const $ = (id) => document.getElementById(id);
+
+      const VALID_STATUSES = [
+        "Planning",
+        "Active",
+        "On Hold",
+        "Completed",
+        "Cancelled"
+      ];
+
+      function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (char) {
+          const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+          };
+
+          return entities[char];
+        });
+      }
+
+      function formatMoney(value) {
+        const amount = Number(value) || 0;
+
+        return "PKR " + amount.toLocaleString("en-PK", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function formatDate(value) {
+        if (!value) return "—";
+
+        const parts = String(value).split("-");
+
+        if (parts.length !== 3) return "—";
+
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+
+      function getToday() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+      }
+
+      function generateProjectId() {
+        let highestNumber = 1000;
+
+        projects.forEach(function (project) {
+          const match = String(project.id).match(/^PRJ-(\d+)$/);
+
+          if (match) {
+            highestNumber = Math.max(
+              highestNumber,
+              Number(match[1])
+            );
+          }
+        });
+
+        return `PRJ-${highestNumber + 1}`;
+      }
+
+      function showNotice(message, type = "success") {
+        const notice = $("projectsNotice");
+
+        notice.textContent = message;
+        notice.className = `notice show ${type}`;
+
+        clearTimeout(noticeTimer);
+
+        noticeTimer = setTimeout(function () {
+          notice.classList.remove("show");
+        }, 3500);
+      }
+
+      function getDemoProjects() {
+        const today = getToday();
+
+        return [
+          {
+            id: "PRJ-1001",
+            name: "Website Development",
+            client: "ABC Technologies",
+            startDate: "2026-09-01",
+            deadline: "2026-11-15",
+            budget: 250000,
+            progress: 65,
+            status: "Active",
+            manager: "Ali Khan",
+            description: "Corporate website design and development.",
+            createdAt: today
+          },
+          {
+            id: "PRJ-1002",
+            name: "Mobile App UI Design",
+            client: "Bright Solutions",
+            startDate: "2026-08-10",
+            deadline: "2026-10-30",
+            budget: 180000,
+            progress: 80,
+            status: "Active",
+            manager: "Sara Ahmed",
+            description: "Mobile application UI and UX design.",
+            createdAt: today
+          },
+          {
+            id: "PRJ-1003",
+            name: "Inventory Management System",
+            client: "City Traders",
+            startDate: "2026-07-01",
+            deadline: "2026-10-10",
+            budget: 320000,
+            progress: 100,
+            status: "Completed",
+            manager: "Usman Malik",
+            description: "Inventory tracking and reporting system.",
+            createdAt: today
+          },
+          {
+            id: "PRJ-1004",
+            name: "E-commerce Store",
+            client: "Fashion Hub",
+            startDate: "2026-10-01",
+            deadline: "2026-12-20",
+            budget: 400000,
+            progress: 25,
+            status: "Planning",
+            manager: "Ayesha Noor",
+            description: "Online store with product catalogue and checkout.",
+            createdAt: today
+          },
+          {
+            id: "PRJ-1005",
+            name: "Accounting Dashboard",
+            client: "Prime Consultants",
+            startDate: "2026-09-15",
+            deadline: "2026-12-01",
+            budget: 150000,
+            progress: 40,
+            status: "On Hold",
+            manager: "Hamza Ali",
+            description: "Financial reports and accounting dashboard.",
+            createdAt: today
+          }
+        ];
+      }
+
+      function loadProjects() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+
+          if (stored !== null) {
+            const parsed = JSON.parse(stored);
+
+            if (!Array.isArray(parsed)) {
+              throw new Error("Invalid projects data.");
+            }
+
+            projects = parsed;
+            return;
+          }
+
+          projects = getDemoProjects();
+          saveProjectsToStorage();
+        } catch (error) {
+          console.error("Unable to load projects:", error);
+
+          projects = getDemoProjects();
+
+          showNotice(
+            "Projects load nahi huay. Browser storage check karein.",
+            "error"
+          );
+        }
+      }
+
+      function saveProjectsToStorage() {
+        try {
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(projects)
+          );
+
+          return true;
+        } catch (error) {
+          console.error("Unable to save projects:", error);
+
+          showNotice(
+            "Projects save nahi huay. Browser storage full ya unavailable ho sakti hai.",
+            "error"
+          );
+
+          return false;
+        }
+      }
+
+      function getFilteredProjects() {
+        const searchTerm = $("projectSearch").value
+          .trim()
+          .toLowerCase();
+
+        const selectedStatus = $("projectStatusFilter").value;
+
+        return projects
+          .filter(function (project) {
+            const searchableText = [
+              project.id,
+              project.name,
+              project.client,
+              project.manager,
+              project.description
+            ].join(" ").toLowerCase();
+
+            const matchesSearch =
+              !searchTerm || searchableText.includes(searchTerm);
+
+            const matchesStatus =
+              !selectedStatus || project.status === selectedStatus;
+
+            return matchesSearch && matchesStatus;
+          })
+          .sort(function (a, b) {
+            return String(b.startDate || "").localeCompare(
+              String(a.startDate || "")
+            );
+          });
+      }
+
+      function getStatusClass(status) {
+        const classes = {
+          "Planning": "status-planning",
+          "Active": "status-active",
+          "On Hold": "status-on-hold",
+          "Completed": "status-completed",
+          "Cancelled": "status-cancelled"
+        };
+
+        return classes[status] || "status-planning";
+      }
+
+      function updateProjectStats() {
+        $("totalProjects").textContent = projects.length;
+
+        $("activeProjects").textContent = projects.filter(
+          (project) => project.status === "Active"
+        ).length;
+
+        $("completedProjects").textContent = projects.filter(
+          (project) => project.status === "Completed"
+        ).length;
+
+        const totalBudget = projects.reduce(function (total, project) {
+          return total + (Number(project.budget) || 0);
+        }, 0);
+
+        $("totalBudget").textContent = "PKR " +
+          totalBudget.toLocaleString("en-PK", {
+            maximumFractionDigits: 0
+          });
+      }
+
+      function renderProjects() {
+        updateProjectStats();
+
+        const filteredProjects = getFilteredProjects();
+
+        const totalPages = Math.max(
+          1,
+          Math.ceil(filteredProjects.length / PAGE_SIZE)
+        );
+
+        if (currentPage > totalPages) {
+          currentPage = totalPages;
+        }
+
+        const startIndex = (currentPage - 1) * PAGE_SIZE;
+
+        const visibleProjects = filteredProjects.slice(
+          startIndex,
+          startIndex + PAGE_SIZE
+        );
+
+        const tableBody = $("projectsTableBody");
+        tableBody.innerHTML = "";
+
+        visibleProjects.forEach(function (project) {
+          tableBody.appendChild(createProjectRow(project));
+        });
+
+        const hasProjects = filteredProjects.length > 0;
+
+        $("projectsEmpty").hidden = hasProjects;
+        $("projectsTableBody").parentElement.style.display =
+          hasProjects ? "" : "none";
+
+        if (hasProjects) {
+          $("projectsCount").textContent =
+            `Showing ${startIndex + 1}–${Math.min(
+              startIndex + PAGE_SIZE,
+              filteredProjects.length
+            )} of ${filteredProjects.length} projects`;
+        } else {
+          $("projectsCount").textContent = "Showing 0 projects";
+        }
+
+        renderProjectPagination(totalPages);
+      }
+function createProjectRow(project) {
+        const tr = document.createElement("tr");
+
+        const progress = Math.max(
+          0,
+          Math.min(100, Number(project.progress) || 0)
+        );
+
+        const progressClass =
+          progress === 100 ? "progress-bar complete" : "progress-bar";
+
+        tr.innerHTML = `
+          <td>
+            <span class="project-name">${escapeHTML(project.name)}</span>
+            <span class="sub-cell project-id">${escapeHTML(project.id)}</span>
+          </td>
+
+          <td>
+            <span>${escapeHTML(project.client)}</span>
+            <span class="sub-cell">${escapeHTML(project.manager || "No manager assigned")}</span>
+          </td>
+
+          <td>${formatDate(project.startDate)}</td>
+
+          <td>${formatDate(project.deadline)}</td>
+
+          <td>
+            <span class="amount">${formatMoney(project.budget)}</span>
+          </td>
+
+          <td>
+            <div class="progress-cell">
+              <div class="progress-info">
+                <span>Progress</span>
+                <strong>${progress}%</strong>
+              </div>
+              <div class="progress-track">
+                <div class="${progressClass}" style="width: ${progress}%"></div>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="status ${getStatusClass(project.status)}">
+              ${escapeHTML(project.status)}
+            </span>
+          </td>
+
+          <td>
+            <div class="actions">
+              <button
+                type="button"
+                class="btn btn-secondary btn-small"
+                data-action="edit"
+                data-id="${escapeHTML(project.id)}"
+              >Edit</button>
+
+              <button
+                type="button"
+                class="btn btn-danger btn-small"
+                data-action="delete"
+                data-id="${escapeHTML(project.id)}"
+              >Delete</button>
+            </div>
+          </td>
+        `;
+
+        return tr;
+      }
+
+      function renderProjectPagination(totalPages) {
+        const pagination = $("projectsPagination");
+        pagination.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        const previousButton = document.createElement("button");
+        previousButton.type = "button";
+        previousButton.className = "page-btn";
+        previousButton.textContent = "‹";
+        previousButton.setAttribute("aria-label", "Previous page");
+        previousButton.disabled = currentPage === 1;
+
+        previousButton.addEventListener("click", function () {
+          if (currentPage > 1) {
+            currentPage--;
+            renderProjects();
+          }
+        });
+
+        pagination.appendChild(previousButton);
+
+        for (let page = 1; page <= totalPages; page++) {
+          const button = document.createElement("button");
+
+          button.type = "button";
+          button.className =
+            "page-btn" + (page === currentPage ? " active" : "");
+          button.textContent = page;
+          button.setAttribute("aria-label", `Page ${page}`);
+
+          if (page === currentPage) {
+            button.setAttribute("aria-current", "page");
+          }
+
+          button.addEventListener("click", function () {
+            currentPage = page;
+            renderProjects();
+          });
+
+          pagination.appendChild(button);
+        }
+
+        const nextButton = document.createElement("button");
+        nextButton.type = "button";
+        nextButton.className = "page-btn";
+        nextButton.textContent = "›";
+        nextButton.setAttribute("aria-label", "Next page");
+        nextButton.disabled = currentPage === totalPages;
+
+        nextButton.addEventListener("click", function () {
+          if (currentPage < totalPages) {
+            currentPage++;
+            renderProjects();
+          }
+        });
+
+        pagination.appendChild(nextButton);
+      }
+
+      function openProjectModal(project = null) {
+        $("projectForm").reset();
+
+        $("projectId").value = "";
+        $("projectStartDate").value = getToday();
+        $("projectDeadline").value = "";
+        $("projectBudget").value = "";
+        $("projectProgress").value = 0;
+        $("projectStatus").value = "Planning";
+
+        $("projectModalTitle").textContent =
+          project ? "Edit Project" : "Add Project";
+
+        $("saveProjectBtn").textContent =
+          project ? "Update Project" : "Save Project";
+
+        if (project) {
+          $("projectId").value = project.id;
+          $("projectName").value = project.name || "";
+          $("projectClient").value = project.client || "";
+          $("projectStartDate").value = project.startDate || "";
+          $("projectDeadline").value = project.deadline || "";
+          $("projectBudget").value = project.budget ?? "";
+          $("projectStatus").value = VALID_STATUSES.includes(project.status)
+            ? project.status
+            : "Planning";
+          $("projectProgress").value = Number(project.progress) || 0;
+          $("projectManager").value = project.manager || "";
+          $("projectDescription").value = project.description || "";
+        }
+
+        $("projectModal").classList.add("show");
+        document.body.style.overflow = "hidden";
+
+        $("projectName").focus();
+      }
+
+      function closeProjectModal() {
+        $("projectModal").classList.remove("show");
+        document.body.style.overflow = "";
+        $("projectForm").reset();
+        $("projectId").value = "";
+      }
+
+      function saveProject(event) {
+        event.preventDefault();
+
+        const id = $("projectId").value;
+        const name = $("projectName").value.trim();
+        const client = $("projectClient").value.trim();
+        const startDate = $("projectStartDate").value;
+        const deadline = $("projectDeadline").value;
+        const budget = Number($("projectBudget").value);
+        const status = $("projectStatus").value;
+        const progress = Number($("projectProgress").value);
+        const manager = $("projectManager").value.trim();
+        const description = $("projectDescription").value.trim();
+
+        if (!name || !client) {
+          showNotice("Project name aur client name zaroori hain.", "error");
+          return;
+        }
+
+        if (!startDate || !deadline) {
+          showNotice("Start date aur deadline select karein.", "error");
+          return;
+        }
+
+        if (deadline < startDate) {
+          showNotice("Deadline, start date se pehle nahi ho sakti.", "error");
+          return;
+        }
+
+        if (!Number.isFinite(budget) || budget < 0) {
+          showNotice("Valid project budget enter karein.", "error");
+          return;
+        }
+
+        if (
+          !Number.isInteger(progress) ||
+          progress < 0 ||
+          progress > 100
+        ) {
+          showNotice("Progress 0 se 100 ke darmiyan whole number honi chahiye.", "error");
+          return;
+        }
+
+        if (!VALID_STATUSES.includes(status)) {
+          showNotice("Valid project status select karein.", "error");
+          return;
+        }
+
+        const duplicate = projects.some(function (project) {
+          return (
+            project.name.trim().toLowerCase() === name.toLowerCase() &&
+            project.client.trim().toLowerCase() === client.toLowerCase() &&
+            project.id !== id
+          );
+        });
+
+        if (duplicate) {
+          showNotice(
+            "Is client ke naam se yeh project pehle se maujood hai.",
+            "error"
+          );
+          return;
+        }
+
+        const existingProject = id
+          ? projects.find((project) => project.id === id)
+          : null;
+
+        if (id && !existingProject) {
+          showNotice("Edit karne wala project nahi mila.", "error");
+          return;
+        }
+
+        const projectData = {
+          id: existingProject ? existingProject.id : generateProjectId(),
+          name,
+          client,
+          startDate,
+          deadline,
+          budget,
+          progress,
+          status,
+          manager,
+          description,
+          createdAt: existingProject
+            ? existingProject.createdAt
+            : getToday(),
+          updatedAt: getToday()
+        };
+
+        const previousProjects = [...projects];
+
+        if (existingProject) {
+          projects = projects.map(function (project) {
+            return project.id === id ? projectData : project;
+          });
+        } else {
+          projects.unshift(projectData);
+        }
+
+        if (!saveProjectsToStorage()) {
+          projects = previousProjects;
+          return;
+        }
+
+        currentPage = 1;
+        closeProjectModal();
+        renderProjects();
+
+        showNotice(
+          existingProject
+            ? "Project successfully update ho gaya."
+            : "New project successfully add ho gaya."
+        );
+      }
+function findProject(id) {
+        return projects.find((project) => project.id === id);
+      }
+
+      function deleteProject(id) {
+        const project = findProject(id);
+
+        if (!project) {
+          showNotice("Project nahi mila.", "error");
+          return;
+        }
+
+        const confirmed = confirm(
+          `Kya aap "${project.name}" project delete karna chahte hain?`
+        );
+
+        if (!confirmed) return;
+
+        const previousProjects = [...projects];
+
+        projects = projects.filter((item) => item.id !== id);
+
+        if (!saveProjectsToStorage()) {
+          projects = previousProjects;
+          renderProjects();
+          return;
+        }
+
+        const totalPages = Math.max(
+          1,
+          Math.ceil(getFilteredProjects().length / PAGE_SIZE)
+        );
+
+        if (currentPage > totalPages) {
+          currentPage = totalPages;
+        }
+
+        renderProjects();
+        showNotice("Project successfully delete ho gaya.");
+      }
+
+      function exportProjects() {
+        const filteredProjects = getFilteredProjects();
+
+        if (filteredProjects.length === 0) {
+          showNotice("Export karne ke liye koi project nahi hai.", "error");
+          return;
+        }
+
+        const headers = [
+          "Project ID",
+          "Project Name",
+          "Client",
+          "Start Date",
+          "Deadline",
+          "Budget (PKR)",
+          "Progress (%)",
+          "Status",
+          "Project Manager",
+          "Description"
+        ];
+
+        function csvEscape(value) {
+          let text = String(value ?? "");
+
+          // Spreadsheet formula injection protection
+          if (/^[\s]*[=+\-@]/.test(text)) {
+            text = "'" + text;
+          }
+
+          return '"' + text.replace(/"/g, '""') + '"';
+        }
+
+        const rows = filteredProjects.map(function (project) {
+          return [
+            project.id,
+            project.name,
+            project.client,
+            project.startDate,
+            project.deadline,
+            Number(project.budget).toFixed(2),
+            project.progress,
+            project.status,
+            project.manager || "",
+            project.description || ""
+          ];
+        });
+
+        const csvContent = [
+          headers.map(csvEscape).join(","),
+          ...rows.map((row) => row.map(csvEscape).join(","))
+        ].join("\r\n");
+
+        const blob = new Blob(
+          ["\uFEFF", csvContent],
+          { type: "text/csv;charset=utf-8;" }
+        );
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = `projects-${getToday()}.csv`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(function () {
+          URL.revokeObjectURL(url);
+        }, 1000);
+
+        showNotice("Projects CSV file export ho gayi.");
+      }
+
+      // Open Add Project modal
+      $("addProjectBtn").addEventListener("click", function () {
+        openProjectModal();
+      });
+
+      $("emptyAddProjectBtn").addEventListener("click", function () {
+        openProjectModal();
+      });
+
+      // Close and cancel modal
+      $("closeProjectModal").addEventListener(
+        "click",
+        closeProjectModal
+      );
+
+      $("cancelProjectBtn").addEventListener(
+        "click",
+        closeProjectModal
+      );
+
+      // Close modal when clicking outside the content
+      $("projectModal").addEventListener("click", function (event) {
+        if (event.target === $("projectModal")) {
+          closeProjectModal();
+        }
+      });
+
+      // Close modal using Escape key
+      document.addEventListener("keydown", function (event) {
+        if (
+          event.key === "Escape" &&
+          $("projectModal").classList.contains("show")
+        ) {
+          closeProjectModal();
+        }
+      });
+
+      // Save or update project
+      $("projectForm").addEventListener("submit", saveProject);
+
+      // Search projects
+      $("projectSearch").addEventListener("input", function () {
+        currentPage = 1;
+        renderProjects();
+      });
+
+      // Filter by status
+      $("projectStatusFilter").addEventListener("change", function () {
+        currentPage = 1;
+        renderProjects();
+      });
+
+      // Reset search and filters
+      $("resetProjectsBtn").addEventListener("click", function () {
+        $("projectSearch").value = "";
+        $("projectStatusFilter").value = "";
+
+        currentPage = 1;
+        renderProjects();
+
+        showNotice("Search aur filters reset ho gaye.");
+      });
+
+      // Export projects to CSV
+      $("exportProjectsBtn").addEventListener(
+        "click",
+        exportProjects
+      );
+
+      // Handle Edit and Delete buttons in the table
+      $("projectsTableBody").addEventListener("click", function (event) {
+        const button = event.target.closest("[data-action]");
+
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const projectId = button.dataset.id;
+
+        if (action === "edit") {
+          const project = findProject(projectId);
+
+          if (project) {
+            openProjectModal(project);
+          } else {
+            showNotice("Project nahi mila.", "error");
+          }
+        }
+
+        if (action === "delete") {
+          deleteProject(projectId);
+        }
+      });
+
+      // Initialize Projects page
+      loadProjects();
+      renderProjects();
+
+    })();
+  </script>
+<script src="enhancements.js"></script>
+</body>
+</html>

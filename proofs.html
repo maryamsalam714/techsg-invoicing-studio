@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proofs | TechSG Invoicing</title>
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --bg: #f5f7fb;
+      --white: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --warning: #b45309;
+      --danger: #b91c1c;
+      --radius: 12px;
+      --shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page-container {
+      width: 100%;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 15px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+    }
+
+    .btn-danger {
+      background: #fff1f2;
+      color: var(--danger);
+      border-color: #fecdd3;
+    }
+
+    .btn-danger:hover {
+      background: #ffe4e6;
+    }
+
+    .btn-small {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 27px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .stat-description {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .form-control {
+      width: 100%;
+      min-width: 0;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: white;
+      color: var(--text);
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .search-input {
+      width: 250px;
+    }
+
+    .filter-select {
+      width: 170px;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .proofs-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .proofs-table th {
+      padding: 13px 18px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .proofs-table td {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .proofs-table tbody tr:hover {
+      background: #fafbff;
+    }
+
+    .proofs-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .proof-id {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .main-cell {
+      display: block;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .sub-cell {
+      display: block;
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-verified {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-needs-review {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .file-name {
+      display: inline-block;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+      color: var(--primary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state h3 {
+      color: var(--text);
+      font-size: 16px;
+      margin-bottom: 7px;
+    }
+
+    .empty-state p {
+      margin-bottom: 16px;
+    }
+
+    .table-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .table-count {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .page-btn {
+      min-width: 34px;
+      height: 34px;
+      padding: 0 9px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: white;
+      color: var(--text);
+    }
+
+    .page-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .page-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .notice {
+      display: none;
+      margin-bottom: 18px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .notice.show {
+      display: block;
+    }
+
+    .notice.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .notice.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.55);
+      overflow-y: auto;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 700px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 7px;
+      background: #f1f5f9;
+      color: var(--text);
+      font-size: 22px;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 17px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .required {
+      color: var(--danger);
+    }
+
+    textarea.form-control {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .file-hint {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 17px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 1000px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filters {
+        width: 100%;
+      }
+
+      .search-input {
+        flex: 1;
+        min-width: 180px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .page-container {
+        padding: 16px;
+      }
+
+      .page-title {
+        font-size: 23px;
+      }
+
+      .stats-grid {
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 15px;
+      }
+
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-input,
+      .filter-select {
+        width: 100%;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full-width {
+        grid-column: auto;
+      }
+
+      .modal {
+        padding: 10px;
+      }
+
+      .modal-body {
+        padding: 18px;
+      }
+
+      .modal-header,
+      .modal-footer {
+        padding: 16px 18px;
+      }
+    }
+  </style>
+
+    <link rel="stylesheet" href="professional.css">
+<link rel="stylesheet" href="fbr.css">
+<script src="fbr.js" defer></script>
+<link rel="stylesheet" href="techsg-theme.css">
+<link rel="stylesheet" href="layout-fix.css">
+<link rel="stylesheet" href="app.css">
+<script src="qr.js"></script>
+<script src="core.js"></script>
+<script src="advanced.js" defer></script>
+</head>
+
+<body>
+  <main class="page-container">
+
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Proofs &amp; Documents</h1>
+        <p class="page-subtitle">
+          Manage payment receipts, invoice proofs and supporting documents.
+        </p>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="btn btn-secondary" id="exportProofsBtn">
+          Export CSV
+        </button>
+
+        <button type="button" class="btn btn-primary" id="addProofBtn">
+          + Add Proof
+        </button>
+      </div>
+    </header>
+
+    <div id="proofsNotice" class="notice" role="status" aria-live="polite"></div>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-label">Total Proofs</div>
+        <div class="stat-value" id="totalProofs">0</div>
+        <div class="stat-description">All saved proof records</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-label">Verified</div>
+        <div class="stat-value" id="verifiedProofs">0</div>
+        <div class="stat-description">Successfully verified</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-value" id="pendingProofs">0</div>
+        <div class="stat-description">Awaiting verification</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-label">Rejected</div>
+        <div class="stat-value" id="rejectedProofs">0</div>
+        <div class="stat-description">Rejected proof records</div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">All Proofs</h2>
+
+        <div class="filters">
+          <input
+            type="search"
+            id="proofSearch"
+            class="form-control search-input"
+            placeholder="Search proofs, customers..."
+            aria-label="Search proofs"
+          >
+
+          <select
+            id="proofStatusFilter"
+            class="form-control filter-select"
+            aria-label="Filter by verification status"
+          >
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Needs Review">Needs Review</option>
+            <option value="Verified">Verified</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+
+          <button type="button" class="btn btn-secondary" id="resetProofsBtn">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="proofs-table">
+          <thead>
+            <tr>
+              <th>Proof ID</th>
+              <th>Customer / Invoice</th>
+              <th>Proof Type</th>
+              <th>Date</th>
+              <th>Document</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="proofsTableBody"></tbody>
+        </table>
+      </div>
+
+      <div id="proofsEmpty" class="empty-state" hidden>
+        <h3>No proofs found</h3>
+        <p>Try changing your search or add a new proof record.</p>
+
+        <button type="button" class="btn btn-primary" id="emptyAddProofBtn">
+          + Add Proof
+        </button>
+      </div>
+
+      <footer class="table-footer">
+        <div class="table-count" id="proofsCount">Showing 0 proofs</div>
+        <nav class="pagination" id="proofsPagination"
+          aria-label="Proofs pagination"></nav>
+      </footer>
+    </section>
+  </main>
+
+  <!-- Add/Edit Proof Modal -->
+  <div
+    class="modal"
+    id="proofModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="proofModalTitle"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="proofModalTitle">Add Proof</h2>
+
+        <button
+          type="button"
+          class="modal-close"
+          id="closeProofModal"
+          aria-label="Close modal"
+        >&times;</button>
+      </div>
+
+      <form id="proofForm">
+        <div class="modal-body">
+          <input type="hidden" id="proofId">
+          <input type="hidden" id="existingFileData">
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="proofCustomer">
+                Customer Name <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="proofCustomer"
+                class="form-control"
+                maxlength="100"
+                required
+                placeholder="Enter customer name"
+              >
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="proofInvoice">
+                Invoice / Payment Reference
+              </label>
+              <input
+                type="text"
+                id="proofInvoice"
+                class="form-control"
+                maxlength="100"
+                placeholder="e.g. INV-1001"
+              >
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="proofType">
+                Proof Type <span class="required">*</span>
+              </label>
+              <select id="proofType" class="form-control" required>
+                <option value="Payment Receipt">Payment Receipt</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Invoice Copy">Invoice Copy</option>
+                <option value="Delivery Proof">Delivery Proof</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="proofDate">
+                Proof Date <span class="required">*</span>
+              </label>
+              <input type="date" id="proofDate" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="proofStatus">
+                Verification Status
+              </label>
+              <select id="proofStatus" class="form-control" required>
+                <option value="Pending">Pending</option>
+                <option value="Needs Review">Needs Review</option>
+                <option value="Verified">Verified</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="proofAmount">
+                Amount (PKR)
+              </label>
+              <input
+                type="number"
+                id="proofAmount"
+                class="form-control"
+                min="0"
+                max="999999999999"
+                step="0.01"
+                placeholder="0.00"
+              >
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="proofFile">
+                Attach Document
+              </label>
+              <input
+                type="file"
+                id="proofFile"
+                class="form-control"
+                accept=".pdf,.png,.jpg,.jpeg,.webp"
+              >
+              <span class="file-hint">
+                Allowed: PDF, PNG, JPG, WEBP. Maximum 1 MB per file.
+              </span>
+              <span class="file-hint" id="currentFileName"></span>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="proofNotes">Notes</label>
+              <textarea
+                id="proofNotes"
+                class="form-control"
+                maxlength="1000"
+                placeholder="Add verification notes or other details..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelProofBtn">
+            Cancel
+          </button>
+
+          <button type="submit" class="btn btn-primary" id="saveProofBtn">
+            Save Proof
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+      const STORAGE_KEY = "techsg_proofs_v1";
+      const PAGE_SIZE = 8;
+      const MAX_FILE_SIZE = 1024 * 1024;
+
+      let proofs = [];
+      let currentPage = 1;
+      let noticeTimer = null;
+
+      const $ = (id) => document.getElementById(id);
+
+      const VALID_STATUSES = [
+        "Pending",
+        "Needs Review",
+        "Verified",
+        "Rejected"
+      ];
+
+      const VALID_TYPES = [
+        "Payment Receipt",
+        "Bank Transfer",
+        "Invoice Copy",
+        "Delivery Proof",
+        "Other"
+      ];
+
+      function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (char) {
+          const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+          };
+
+          return entities[char];
+        });
+      }
+
+      function formatMoney(value) {
+        const amount = Number(value) || 0;
+
+        return "PKR " + amount.toLocaleString("en-PK", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function formatDate(value) {
+        if (!value) return "—";
+
+        const parts = String(value).split("-");
+
+        if (parts.length !== 3) return "—";
+
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+
+      function getToday() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+      }
+
+      function generateProofId() {
+        let highestNumber = 1000;
+
+        proofs.forEach(function (proof) {
+          const match = String(proof.id).match(/^PRF-(\d+)$/);
+
+          if (match) {
+            highestNumber = Math.max(
+              highestNumber,
+              Number(match[1])
+            );
+          }
+        });
+
+        return `PRF-${highestNumber + 1}`;
+      }
+
+      function showNotice(message, type = "success") {
+        const notice = $("proofsNotice");
+
+        notice.textContent = message;
+        notice.className = `notice show ${type}`;
+
+        clearTimeout(noticeTimer);
+
+        noticeTimer = setTimeout(function () {
+          notice.classList.remove("show");
+        }, 3500);
+      }
+
+      function getDemoProofs() {
+        return [
+          {
+            id: "PRF-1001",
+            customer: "ABC Technologies",
+            invoice: "INV-1001",
+            type: "Payment Receipt",
+            date: "2026-10-05",
+            status: "Verified",
+            amount: 25000,
+            fileName: "payment-receipt-1001.pdf",
+            fileData: "",
+            notes: "Payment receipt verified.",
+            createdAt: "2026-10-05"
+          },
+          {
+            id: "PRF-1002",
+            customer: "Bright Solutions",
+            invoice: "INV-1002",
+            type: "Bank Transfer",
+            date: "2026-10-08",
+            status: "Pending",
+            amount: 45000,
+            fileName: "bank-transfer-proof.pdf",
+            fileData: "",
+            notes: "Waiting for confirmation.",
+            createdAt: "2026-10-08"
+          },
+          {
+            id: "PRF-1003",
+            customer: "City Traders",
+            invoice: "INV-1003",
+            type: "Invoice Copy",
+            date: "2026-10-10",
+            status: "Needs Review",
+            amount: 18000,
+            fileName: "",
+            fileData: "",
+            notes: "Please check invoice details.",
+            createdAt: "2026-10-10"
+          },
+          {
+            id: "PRF-1004",
+            customer: "Fashion Hub",
+            invoice: "PAY-1004",
+            type: "Payment Receipt",
+            date: "2026-10-12",
+            status: "Rejected",
+            amount: 12000,
+            fileName: "receipt-1004.png",
+            fileData: "",
+            notes: "Uploaded proof needs correction.",
+            createdAt: "2026-10-12"
+          },
+          {
+            id: "PRF-1005",
+            customer: "Prime Consultants",
+            invoice: "INV-1005",
+            type: "Delivery Proof",
+            date: "2026-10-15",
+            status: "Verified",
+            amount: 30000,
+            fileName: "",
+            fileData: "",
+            notes: "Delivery confirmation received.",
+            createdAt: "2026-10-15"
+          }
+        ];
+      }
+
+      function loadProofs() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+
+          if (stored !== null) {
+            const parsed = JSON.parse(stored);
+
+            if (!Array.isArray(parsed)) {
+              throw new Error("Invalid proofs data.");
+            }
+
+            proofs = parsed;
+            return;
+          }
+
+          proofs = getDemoProofs();
+          saveProofsToStorage();
+        } catch (error) {
+          console.error("Unable to load proofs:", error);
+
+          proofs = getDemoProofs();
+
+          showNotice(
+            "Proofs load nahi huay. Browser storage check karein.",
+            "error"
+          );
+        }
+      }
+
+      function saveProofsToStorage() {
+        try {
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(proofs)
+          );
+
+          return true;
+        } catch (error) {
+          console.error("Unable to save proofs:", error);
+
+          showNotice(
+            "Proofs save nahi huay. Storage full ho sakti hai. File size kam karein.",
+            "error"
+          );
+
+          return false;
+        }
+      }
+
+      function getFilteredProofs() {
+        const searchTerm = $("proofSearch").value
+          .trim()
+          .toLowerCase();
+
+        const selectedStatus = $("proofStatusFilter").value;
+
+        return proofs
+          .filter(function (proof) {
+            const searchableText = [
+              proof.id,
+              proof.customer,
+              proof.invoice,
+              proof.type,
+              proof.status,
+              proof.fileName,
+              proof.notes
+            ].join(" ").toLowerCase();
+
+            const matchesSearch =
+              !searchTerm || searchableText.includes(searchTerm);
+
+            const matchesStatus =
+              !selectedStatus || proof.status === selectedStatus;
+
+            return matchesSearch && matchesStatus;
+          })
+          .sort(function (a, b) {
+            return String(b.date || "").localeCompare(
+              String(a.date || "")
+            );
+          });
+      }
+
+      function getStatusClass(status) {
+        const classes = {
+          "Pending": "status-pending",
+          "Needs Review": "status-needs-review",
+          "Verified": "status-verified",
+          "Rejected": "status-rejected"
+        };
+
+        return classes[status] || "status-pending";
+      }
+
+      function updateProofStats() {
+        $("totalProofs").textContent = proofs.length;
+
+        $("verifiedProofs").textContent = proofs.filter(
+          (proof) => proof.status === "Verified"
+        ).length;
+
+        $("pendingProofs").textContent = proofs.filter(
+          (proof) =>
+            proof.status === "Pending" ||
+            proof.status === "Needs Review"
+        ).length;
+
+        $("rejectedProofs").textContent = proofs.filter(
+          (proof) => proof.status === "Rejected"
+        ).length;
+      }
+
+      function renderProofs() {
+        updateProofStats();
+
+        const filteredProofs = getFilteredProofs();
+
+        const totalPages = Math.max(
+          1,
+          Math.ceil(filteredProofs.length / PAGE_SIZE)
+        );
+
+        if (currentPage > totalPages) {
+          currentPage = totalPages;
+        }
+
+        const startIndex = (currentPage - 1) * PAGE_SIZE;
+
+        const visibleProofs = filteredProofs.slice(
+          startIndex,
+          startIndex + PAGE_SIZE
+        );
+
+        const tableBody = $("proofsTableBody");
+        tableBody.innerHTML = "";
+
+        visibleProofs.forEach(function (proof) {
+          tableBody.appendChild(createProofRow(proof));
+        });
+
+        const hasProofs = filteredProofs.length > 0;
+
+        $("proofsEmpty").hidden = hasProofs;
+        $("proofsTableBody").parentElement.style.display =
+          hasProofs ? "" : "none";
+
+        if (hasProofs) {
+          $("proofsCount").textContent =
+            `Showing ${startIndex + 1}–${Math.min(
+              startIndex + PAGE_SIZE,
+              filteredProofs.length
+            )} of ${filteredProofs.length} proofs`;
+        } else {
+          $("proofsCount").textContent = "Showing 0 proofs";
+        }
+
+        renderProofPagination(totalPages);
+      }
+      function createProofRow(proof) {
+        const tr = document.createElement("tr");
+
+        const documentCell = proof.fileName
+          ? (
+              proof.fileData &&
+              /^data:application\/pdf;base64,|^data:image\/(png|jpeg|webp);base64,/i.test(
+                proof.fileData
+              )
+                ? `<a
+                     href="${proof.fileData}"
+                     download="${escapeHTML(proof.fileName)}"
+                     class="file-link"
+                     title="Download attached file"
+                   >${escapeHTML(proof.fileName)}</a>`
+                : `<span class="file-name">${escapeHTML(proof.fileName)}</span>`
+            )
+          : '<span class="muted">No file attached</span>';
+
+        tr.innerHTML = `
+          <td>
+            <div class="proof-id">${escapeHTML(proof.id)}</div>
+          </td>
+
+          <td>
+            <div class="customer-name">
+              ${escapeHTML(proof.customer)}
+            </div>
+            <div class="muted">
+              ${escapeHTML(proof.invoice || "No invoice reference")}
+            </div>
+          </td>
+
+          <td>${escapeHTML(proof.type)}</td>
+
+          <td>${escapeHTML(formatDate(proof.date))}</td>
+
+          <td>${documentCell}</td>
+
+          <td>
+            <span class="status-badge ${getStatusClass(proof.status)}">
+              ${escapeHTML(proof.status)}
+            </span>
+          </td>
+
+          <td class="amount-cell">${escapeHTML(formatMoney(proof.amount))}</td>
+
+          <td>
+            <div class="table-actions">
+              <button
+                type="button"
+                class="btn btn-sm btn-secondary"
+                data-action="edit"
+                data-id="${escapeHTML(proof.id)}"
+              >Edit</button>
+
+              <button
+                type="button"
+                class="btn btn-sm btn-danger"
+                data-action="delete"
+                data-id="${escapeHTML(proof.id)}"
+              >Delete</button>
+            </div>
+          </td>
+        `;
+
+        return tr;
+      }
+
+      function renderProofPagination(totalPages) {
+        const pagination = $("proofsPagination");
+        pagination.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        const previousButton = document.createElement("button");
+        previousButton.type = "button";
+        previousButton.className = "btn btn-sm btn-secondary";
+        previousButton.textContent = "Previous";
+        previousButton.disabled = currentPage === 1;
+
+        previousButton.addEventListener("click", function () {
+          if (currentPage > 1) {
+            currentPage--;
+            renderProofs();
+          }
+        });
+
+        pagination.appendChild(previousButton);
+
+        for (let page = 1; page <= totalPages; page++) {
+          const pageButton = document.createElement("button");
+
+          pageButton.type = "button";
+          pageButton.className =
+            "btn btn-sm " +
+            (page === currentPage ? "btn-primary" : "btn-secondary");
+
+          pageButton.textContent = String(page);
+          pageButton.setAttribute("aria-label", `Page ${page}`);
+
+          if (page === currentPage) {
+            pageButton.setAttribute("aria-current", "page");
+          }
+
+          pageButton.addEventListener("click", function () {
+            currentPage = page;
+            renderProofs();
+          });
+
+          pagination.appendChild(pageButton);
+        }
+
+        const nextButton = document.createElement("button");
+        nextButton.type = "button";
+        nextButton.className = "btn btn-sm btn-secondary";
+        nextButton.textContent = "Next";
+        nextButton.disabled = currentPage === totalPages;
+
+        nextButton.addEventListener("click", function () {
+          if (currentPage < totalPages) {
+            currentPage++;
+            renderProofs();
+          }
+        });
+
+        pagination.appendChild(nextButton);
+      }
+
+      function openProofModal(proof = null) {
+        const form = $("proofForm");
+
+        form.reset();
+
+        $("proofId").value = "";
+        $("existingFileData").value = "";
+        $("currentFileName").textContent = "No file selected";
+        $("proofDate").value = getToday();
+        $("proofType").value = "Payment Receipt";
+        $("proofStatus").value = "Pending";
+        $("proofAmount").value = "";
+
+        if (proof) {
+          $("proofModalTitle").textContent = "Edit Proof";
+          $("proofId").value = proof.id;
+          $("proofCustomer").value = proof.customer || "";
+          $("proofInvoice").value = proof.invoice || "";
+          $("proofType").value = proof.type || "Other";
+          $("proofDate").value = proof.date || getToday();
+          $("proofStatus").value = proof.status || "Pending";
+          $("proofAmount").value = proof.amount ?? "";
+          $("proofNotes").value = proof.notes || "";
+
+          const existingFile = {
+            name: proof.fileName || "",
+            data: proof.fileData || ""
+          };
+
+          $("existingFileData").value = JSON.stringify(existingFile);
+
+          $("currentFileName").textContent = existingFile.name
+            ? `Current file: ${existingFile.name}`
+            : "No file attached";
+        } else {
+          $("proofModalTitle").textContent = "Add New Proof";
+        }
+
+        $("proofModal").classList.add("show");
+        $("proofModal").setAttribute("aria-hidden", "false");
+
+        $("proofCustomer").focus();
+      }
+
+      function closeProofModal() {
+        $("proofModal").classList.remove("show");
+        $("proofModal").setAttribute("aria-hidden", "true");
+        $("proofForm").reset();
+        $("existingFileData").value = "";
+        $("currentFileName").textContent = "No file selected";
+      }
+
+      function isAllowedProofFile(file) {
+        const allowedExtensions = /\.(pdf|png|jpe?g|webp)$/i;
+        const allowedTypes = [
+          "application/pdf",
+          "image/png",
+          "image/jpeg",
+          "image/webp"
+        ];
+
+        const extensionIsAllowed = allowedExtensions.test(file.name);
+        const typeIsAllowed =
+          !file.type || allowedTypes.includes(file.type.toLowerCase());
+
+        return extensionIsAllowed && typeIsAllowed;
+      }
+
+      function readFileAsDataURL(file) {
+        return new Promise(function (resolve, reject) {
+          const reader = new FileReader();
+
+          reader.onload = function () {
+            if (typeof reader.result !== "string") {
+              reject(new Error("File read nahi ho saki."));
+              return;
+            }
+
+            resolve(reader.result);
+          };
+
+          reader.onerror = function () {
+            reject(new Error("File read karte waqt error aaya."));
+          };
+
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function saveProof(event) {
+        event.preventDefault();
+
+        const customer = $("proofCustomer").value.trim();
+        const invoice = $("proofInvoice").value.trim();
+        const type = $("proofType").value;
+        const date = $("proofDate").value;
+        const status = $("proofStatus").value;
+        const amountText = $("proofAmount").value.trim();
+        const notes = $("proofNotes").value.trim();
+        const proofId = $("proofId").value;
+
+        if (!customer) {
+          showNotice("Customer name enter karein.", "error");
+          $("proofCustomer").focus();
+          return;
+        }
+
+        if (!date) {
+          showNotice("Proof date select karein.", "error");
+          $("proofDate").focus();
+          return;
+        }
+
+        if (!VALID_TYPES.includes(type)) {
+          showNotice("Valid proof type select karein.", "error");
+          return;
+        }
+
+        if (!VALID_STATUSES.includes(status)) {
+          showNotice("Valid proof status select karein.", "error");
+          return;
+        }
+
+        if (amountText === "" || !Number.isFinite(Number(amountText))) {
+          showNotice("Valid amount enter karein.", "error");
+          $("proofAmount").focus();
+          return;
+        }
+
+        const amount = Number(amountText);
+
+        if (amount < 0) {
+          showNotice("Amount negative nahi ho sakta.", "error");
+          $("proofAmount").focus();
+          return;
+        }
+
+        const fileInput = $("proofFile");
+        const selectedFile =
+          fileInput.files && fileInput.files.length
+            ? fileInput.files[0]
+            : null;
+
+        let existingFile = {
+          name: "",
+          data: ""
+        };
+
+        try {
+          const savedFileText = $("existingFileData").value;
+
+          if (savedFileText) {
+            const parsedFile = JSON.parse(savedFileText);
+
+            if (
+              parsedFile &&
+              typeof parsedFile === "object" &&
+              typeof parsedFile.name === "string" &&
+              typeof parsedFile.data === "string"
+            ) {
+              existingFile = parsedFile;
+            }
+          }
+        } catch (error) {
+          existingFile = { name: "", data: "" };
+        }
+
+        let fileName = existingFile.name;
+        let fileData = existingFile.data;
+
+        if (selectedFile) {
+          if (!isAllowedProofFile(selectedFile)) {
+            showNotice(
+              "Sirf PDF, PNG, JPG, JPEG aur WEBP files allowed hain.",
+              "error"
+            );
+            return;
+          }
+
+          if (selectedFile.size > MAX_FILE_SIZE) {
+            showNotice(
+              "File size 1 MB se zyada nahi honi chahiye.",
+              "error"
+            );
+            return;
+          }
+
+          try {
+            fileData = await readFileAsDataURL(selectedFile);
+            fileName = selectedFile.name;
+          } catch (error) {
+            showNotice(error.message || "File read nahi ho saki.", "error");
+            return;
+          }
+        }
+
+        const duplicate = proofs.some(function (proof) {
+          return proof.id === proofId;
+        });
+
+        if (proofId && !duplicate) {
+          showNotice("Ye proof record nahi mila. List refresh karein.", "error");
+          return;
+        }
+
+        const oldProofs = proofs.map(function (proof) {
+          return { ...proof };
+        });
+
+        const now = new Date().toISOString();
+
+        const proofData = {
+          id: proofId || generateProofId(),
+          customer: customer,
+          invoice: invoice,
+          type: type,
+          date: date,
+          status: status,
+          amount: amount,
+          fileName: fileName,
+          fileData: fileData,
+          notes: notes,
+          createdAt: proofId
+            ? (proofs.find((proof) => proof.id === proofId)?.createdAt || now)
+            : now
+        };
+
+        if (proofId) {
+          proofs = proofs.map(function (proof) {
+            return proof.id === proofId ? proofData : proof;
+          });
+        } else {
+          proofs.unshift(proofData);
+        }
+
+        if (!saveProofsToStorage()) {
+          proofs = oldProofs;
+          return;
+        }
+
+        closeProofModal();
+        currentPage = 1;
+        renderProofs();
+
+        showNotice(
+          proofId
+            ? "Proof successfully update ho gaya."
+            : "New proof successfully add ho gaya."
+        );
+    }
+    function findProof(id) {
+        return proofs.find(function (proof) {
+          return proof.id === id;
+        });
+      }
+
+      function deleteProof(id) {
+        const proof = findProof(id);
+
+        if (!proof) {
+          showNotice("Proof record nahi mila.", "error");
+          return;
+        }
+
+        const confirmed = window.confirm(
+          `Kya aap proof "${proof.id}" delete karna chahte hain?`
+        );
+
+        if (!confirmed) return;
+
+        const oldProofs = proofs.map(function (item) {
+          return { ...item };
+        });
+
+        proofs = proofs.filter(function (item) {
+          return item.id !== id;
+        });
+
+        if (!saveProofsToStorage()) {
+          proofs = oldProofs;
+          return;
+        }
+
+        renderProofs();
+        showNotice("Proof successfully delete ho gaya.");
+      }
+
+      function exportProofs() {
+        const filteredProofs = getFilteredProofs();
+
+        if (filteredProofs.length === 0) {
+          showNotice("Export karne ke liye koi proof record nahi hai.", "error");
+          return;
+        }
+
+        const headers = [
+          "Proof ID",
+          "Customer",
+          "Invoice Reference",
+          "Proof Type",
+          "Date",
+          "Status",
+          "Amount",
+          "File Name",
+          "Notes"
+        ];
+
+        function escapeCSV(value) {
+          let text = String(value ?? "");
+
+          // CSV formula injection se bachne ke liye.
+          if (/^[\t\r ]*[=+\-@]/.test(text)) {
+            text = "'" + text;
+          }
+
+          return '"' + text.replace(/"/g, '""') + '"';
+        }
+
+        const rows = filteredProofs.map(function (proof) {
+          return [
+            proof.id,
+            proof.customer,
+            proof.invoice,
+            proof.type,
+            proof.date,
+            proof.status,
+            proof.amount,
+            proof.fileName,
+            proof.notes
+          ];
+        });
+
+        const csvContent = [
+          headers,
+          ...rows
+        ]
+          .map(function (row) {
+            return row.map(escapeCSV).join(",");
+          })
+          .join("\r\n");
+
+        const blob = new Blob(
+          ["\uFEFF", csvContent],
+          { type: "text/csv;charset=utf-8;" }
+        );
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = `proofs-${getToday()}.csv`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(function () {
+          URL.revokeObjectURL(url);
+        }, 1000);
+
+        showNotice("Proofs CSV file export ho gayi.");
+      }
+
+      function resetProofFilters() {
+        $("proofSearch").value = "";
+        $("proofStatusFilter").value = "";
+        currentPage = 1;
+        renderProofs();
+      }
+
+      function initializeProofsPage() {
+        loadProofs();
+        renderProofs();
+
+        $("addProofBtn").addEventListener("click", function () {
+          openProofModal();
+        });
+
+        $("emptyAddProofBtn").addEventListener("click", function () {
+          openProofModal();
+        });
+
+        $("closeProofModal").addEventListener("click", closeProofModal);
+        $("cancelProofBtn").addEventListener("click", closeProofModal);
+
+        $("proofForm").addEventListener("submit", saveProof);
+
+        $("proofSearch").addEventListener("input", function () {
+          currentPage = 1;
+          renderProofs();
+        });
+
+        $("proofStatusFilter").addEventListener("change", function () {
+          currentPage = 1;
+          renderProofs();
+        });
+
+        $("resetProofsBtn").addEventListener(
+          "click",
+          resetProofFilters
+        );
+
+        $("exportProofsBtn").addEventListener(
+          "click",
+          exportProofs
+        );
+
+        $("proofsTableBody").addEventListener("click", function (event) {
+          const button = event.target.closest("button[data-action]");
+
+          if (!button) return;
+
+          const action = button.dataset.action;
+          const id = button.dataset.id;
+
+          if (action === "edit") {
+            const proof = findProof(id);
+
+            if (proof) {
+              openProofModal(proof);
+            } else {
+              showNotice("Proof record nahi mila.", "error");
+            }
+          }
+
+          if (action === "delete") {
+            deleteProof(id);
+          }
+        });
+
+        $("proofModal").addEventListener("click", function (event) {
+          if (event.target === $("proofModal")) {
+            closeProofModal();
+          }
+        });
+
+        document.addEventListener("keydown", function (event) {
+          if (
+            event.key === "Escape" &&
+            $("proofModal").classList.contains("show")
+          ) {
+            closeProofModal();
+          }
+        });
+
+        $("proofFile").addEventListener("change", function () {
+          const file = this.files && this.files[0];
+
+          if (!file) {
+            const savedText = $("existingFileData").value;
+
+            try {
+              const saved = savedText ? JSON.parse(savedText) : null;
+
+              $("currentFileName").textContent =
+                saved && saved.name
+                  ? `Current file: ${saved.name}`
+                  : "No file selected";
+            } catch (error) {
+              $("currentFileName").textContent = "No file selected";
+            }
+
+            return;
+          }
+
+          if (!isAllowedProofFile(file)) {
+            this.value = "";
+            showNotice(
+              "Sirf PDF, PNG, JPG, JPEG aur WEBP files allowed hain.",
+              "error"
+            );
+            return;
+          }
+
+          if (file.size > MAX_FILE_SIZE) {
+            this.value = "";
+            showNotice(
+              "File size 1 MB se zyada nahi honi chahiye.",
+              "error"
+            );
+            return;
+          }
+
+          $("currentFileName").textContent =
+            `Selected file: ${file.name}`;
+        });
+      }
+
+      initializeProofsPage();
+    })();
+  </script>
+<script src="enhancements.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Invoices | Tech SG Studio (SMC-Pvt.) Ltd.</title><link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="professional.css"><link rel="stylesheet" href="fbr.css"><link rel="stylesheet" href="techsg-theme.css"><link rel="stylesheet" href="layout-fix.css"><link rel="stylesheet" href="app.css">
+<script src="qr.js"></script><script src="core.js"></script></head>
+<body data-page="invoices"><div id="root"></div>
+<script src="fbr.js"></script><script src="advanced.js"></script>
+<script>
+SG.ready(function(){
+ var v=SG.shell({eyebrow:"BILLING",title:"Invoices",sub:"Create, track and send invoices to clients.",actions:'<button class="btn" id="csv">Export CSV</button><a class="btn primary" href="invoice-create.html">+ New invoice</a>'});
+ v.innerHTML='<div class="card"><div class="filter-bar"><div class="search-box"><input class="input" id="q" placeholder="Search invoice no. or client…"></div><div class="filter-control"><select class="input" id="s"><option value="">All status</option><option>Draft</option><option>Pending</option><option>Paid</option><option>Overdue</option><option>Cancelled</option></select></div></div><div class="table-wrap"><table class="table"><thead><tr><th>Invoice</th><th>Client</th><th>Issued</th><th>Due</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="tb"></tbody></table></div></div>';
+ function list(){var q=document.getElementById("q").value.toLowerCase(),s=document.getElementById("s").value;return SG.invoices().filter(function(i){var c=SG.client(i.clientId)||{};return(i.id+(c.name||"")).toLowerCase().indexOf(q)>-1&&(!s||SG.status(i)===s)}).sort(function(a,b){return a.id<b.id?1:-1})}
+ function draw(){document.getElementById("tb").innerHTML=list().map(function(i){var c=SG.client(i.clientId)||{},id=encodeURIComponent(i.id),st=SG.status(i);
+  return"<tr><td><b>"+SG.esc(i.id)+"</b></td><td>"+SG.esc(c.name||"—")+"<br><small>"+SG.esc(c.id||"")+"</small></td><td>"+i.issue+"</td><td>"+i.due+"</td><td>"+SG.fmt(SG.totals(i).total)+"</td><td>"+SG.badge(st)+'</td><td><div class="row-actions"><a class="btn light" href="invoice-view.html?id='+id+'">View</a><button class="btn light" data-l="'+i.id+'">Copy link</button>'+(st!=="Paid"&&st!=="Cancelled"?'<button class="btn green" data-p="'+i.id+'">Paid</button>':"")+(SG.isAdmin()?'<button class="btn red" data-d="'+i.id+'">Delete</button>':"")+"</div></td></tr>"}).join("")||'<tr><td colspan="7" class="empty">No invoices found.</td></tr>'}
+ document.getElementById("q").oninput=document.getElementById("s").onchange=draw;
+ v.onclick=async function(e){var b=e.target.closest("button");if(!b)return;var a=SG.invoices();
+  if(b.dataset.l){var l=await SG.shareLink(SG.invoice(b.dataset.l));try{await navigator.clipboard.writeText(l);SG.toast("Client link copied")}catch(x){prompt("Copy this link:",l)}}
+  if(b.dataset.p){a.forEach(function(i){if(i.id===b.dataset.p){i.status="Paid";i.paidAt=SG.iso()}});SG.saveInvoices(a);draw();SG.toast("Marked as paid")}
+  if(b.dataset.d&&confirm("Delete invoice "+b.dataset.d+"?")){SG.saveInvoices(a.filter(function(i){return i.id!==b.dataset.d}));draw()}};
+ document.getElementById("csv").onclick=function(){var r=[["Invoice","Client ID","Client","Issued","Due","Total","Status"]].concat(list().map(function(i){var c=SG.client(i.clientId)||{};return[i.id,c.id||"",c.name||"",i.issue,i.due,SG.totals(i).total,SG.status(i)]}));
+  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([r.map(function(x){return x.map(function(y){return'"'+String(y).replace(/"/g,'""')+'"'}).join(",")}).join("\n")],{type:"text/csv"}));a.download="invoices.csv";a.click()};
+ draw()});</script></body></html>

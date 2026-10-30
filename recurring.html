@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recurring Invoices | TechSG Invoicing</title>
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --background: #f5f7fb;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --danger: #dc2626;
+      --warning: #b45309;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .page-container {
+      width: min(1400px, 100%);
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+      margin: 0 0 5px;
+      font-size: 28px;
+    }
+
+    .page-header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .header-actions,
+    .filter-actions,
+    .actions-cell {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 10px 15px;
+      font-weight: 600;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+    }
+
+    .btn-danger {
+      background: #fef2f2;
+      color: var(--danger);
+      border-color: #fecaca;
+    }
+
+    .btn-small {
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 2px 8px rgb(15 23 42 / 3%);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 27px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .content-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px rgb(15 23 42 / 3%);
+      overflow: hidden;
+    }
+
+    .card-heading {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-heading h2 {
+      margin: 0 0 4px;
+      font-size: 19px;
+    }
+
+    .card-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(150px, 1fr)) auto;
+      gap: 12px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .field input,
+    .field select,
+    .field textarea,
+    .filters input,
+    .filters select {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: white;
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus,
+    .filters input:focus,
+    .filters select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgb(79 70 229 / 12%);
+    }
+
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1050px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #475569;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    tbody tr:hover {
+      background: #fafbff;
+    }
+
+    .record-title {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .record-title strong {
+      font-size: 14px;
+    }
+
+    .record-title small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-paused {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-completed {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    .status-cancelled {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 16px 20px;
+    }
+
+    .results-count,
+    .pagination-info {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-state h3 {
+      margin: 0 0 8px;
+      color: var(--text);
+    }
+
+    .notice {
+      display: none;
+      margin-bottom: 18px;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+
+    .notice.show {
+      display: block;
+    }
+
+    .notice.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .notice.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgb(15 23 42 / 55%);
+      overflow-y: auto;
+    }
+
+    .modal[hidden] {
+      display: none !important;
+    }
+
+    .modal-dialog {
+      width: min(720px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgb(0 0 0 / 20%);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .close-btn {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 26px;
+      line-height: 1;
+      padding: 3px 7px;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field-full {
+      grid-column: 1 / -1;
+    }
+
+    .field textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding-top: 20px;
+      margin-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .required-mark {
+      color: var(--danger);
+    }
+
+    @media (max-width: 900px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filter-actions {
+        align-self: end;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .page-container {
+        padding: 16px;
+      }
+
+      .page-header h1 {
+        font-size: 23px;
+      }
+
+      .stats-grid {
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 14px;
+      }
+
+      .stat-value {
+        font-size: 21px;
+      }
+
+      .filters,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field-full {
+        grid-column: auto;
+      }
+
+      .modal {
+        padding: 10px;
+        align-items: flex-start;
+      }
+
+      .modal-dialog {
+        max-height: calc(100vh - 20px);
+      }
+
+      .modal-body {
+        padding: 18px;
+      }
+
+      .table-footer {
+        align-items: flex-start;
+      }
+    }
+  </style>
+
+    <link rel="stylesheet" href="professional.css">
+<link rel="stylesheet" href="fbr.css">
+<script src="fbr.js" defer></script>
+<link rel="stylesheet" href="techsg-theme.css">
+<link rel="stylesheet" href="layout-fix.css">
+<link rel="stylesheet" href="app.css">
+<script src="qr.js"></script>
+<script src="core.js"></script>
+<script src="advanced.js" defer></script>
+</head>
+
+<body>
+  <main class="page-container">
+    <header class="page-header">
+      <div>
+        <h1>Recurring Invoices</h1>
+        <p>Manage your repeating invoice schedules in one place.</p>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="btn btn-secondary" id="exportBtn">
+          Export CSV
+        </button>
+
+        <button type="button" class="btn btn-primary" id="addRecordBtn">
+          + Add Recurring Invoice
+        </button>
+      </div>
+    </header>
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+    <section class="stats-grid" aria-label="Recurring invoice statistics">
+      <div class="stat-card">
+        <div class="stat-label">Total Schedules</div>
+        <div class="stat-value" id="totalCount">0</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Active Schedules</div>
+        <div class="stat-value" id="activeCount">0</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Monthly Equivalent</div>
+        <div class="stat-value" id="monthlyValue">PKR 0</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Upcoming in 7 Days</div>
+        <div class="stat-value" id="upcomingCount">0</div>
+      </div>
+    </section>
+
+    <section class="content-card">
+      <div class="card-heading">
+        <h2>Recurring Invoice Schedules</h2>
+        <p>Search, filter, update, and export your recurring invoice records.</p>
+      </div>
+
+      <div class="filters">
+        <div class="field">
+          <label for="searchInput">Search</label>
+          <input
+            type="search"
+            id="searchInput"
+            placeholder="Search title, customer, email, ID..."
+          >
+        </div>
+
+        <div class="field">
+          <label for="statusFilter">Status</label>
+          <select id="statusFilter">
+            <option value="">All statuses</option>
+            <option value="Active">Active</option>
+            <option value="Paused">Paused</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="frequencyFilter">Frequency</label>
+          <select id="frequencyFilter">
+            <option value="">All frequencies</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Quarterly">Quarterly</option>
+            <option value="Yearly">Yearly</option>
+          </select>
+        </div>
+
+        <div class="filter-actions">
+          <button type="button" class="btn btn-secondary" id="resetFiltersBtn">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table id="recordsTable">
+          <thead>
+            <tr>
+              <th>Invoice / Title</th>
+              <th>Customer</th>
+              <th>Frequency</th>
+              <th>Amount</th>
+              <th>Start Date</th>
+              <th>Next Invoice</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTableBody"></tbody>
+        </table>
+      </div>
+
+      <div id="emptyState" class="empty-state" hidden>
+        <h3>No recurring invoices found</h3>
+        <p>Add a recurring invoice or change your search filters.</p>
+      </div>
+
+      <footer class="table-footer">
+        <div id="resultsCount" class="results-count">
+          Showing 0 of 0 recurring records
+        </div>
+        <nav id="pagination" class="pagination" aria-label="Table pagination"></nav>
+      </footer>
+    </section>
+<!-- Add / Edit Recurring Invoice Modal -->
+    <div
+      id="recordModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+      hidden
+    >
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h2 id="modalTitle">Add Recurring Invoice</h2>
+
+          <button
+            type="button"
+            class="close-btn"
+            id="closeModalBtn"
+            aria-label="Close dialog"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="recordForm">
+            <input type="hidden" id="recordId">
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="recordTitle">
+                  Invoice Title <span class="required-mark">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="recordTitle"
+                  maxlength="120"
+                  placeholder="e.g. Monthly IT Support"
+                  required
+                >
+              </div>
+
+              <div class="field">
+                <label for="recordCustomer">
+                  Customer Name <span class="required-mark">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="recordCustomer"
+                  maxlength="120"
+                  placeholder="Customer or company"
+                  required
+                >
+              </div>
+
+              <div class="field">
+                <label for="recordEmail">Customer Email</label>
+                <input
+                  type="email"
+                  id="recordEmail"
+                  maxlength="254"
+                  placeholder="customer@example.com"
+                >
+              </div>
+
+              <div class="field">
+                <label for="recordAmount">
+                  Amount (PKR) <span class="required-mark">*</span>
+                </label>
+                <input
+                  type="number"
+                  id="recordAmount"
+                  min="0.01"
+                  max="999999999999"
+                  step="0.01"
+                  placeholder="25000"
+                  required
+                >
+              </div>
+
+              <div class="field">
+                <label for="recordFrequency">
+                  Frequency <span class="required-mark">*</span>
+                </label>
+                <select id="recordFrequency" required>
+                  <option value="Weekly">Weekly</option>
+                  <option value="Monthly" selected>Monthly</option>
+                  <option value="Quarterly">Quarterly</option>
+                  <option value="Yearly">Yearly</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="recordStatus">
+                  Status <span class="required-mark">*</span>
+                </label>
+                <select id="recordStatus" required>
+                  <option value="Active">Active</option>
+                  <option value="Paused">Paused</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="recordStartDate">
+                  Start Date <span class="required-mark">*</span>
+                </label>
+                <input type="date" id="recordStartDate" required>
+              </div>
+
+              <div class="field">
+                <label for="recordNextDate">
+                  Next Invoice Date <span class="required-mark">*</span>
+                </label>
+                <input type="date" id="recordNextDate" required>
+              </div>
+
+              <div class="field">
+                <label for="recordEndDate">End Date (Optional)</label>
+                <input type="date" id="recordEndDate">
+              </div>
+
+              <div class="field">
+                <label for="recordReference">Reference / PO Number</label>
+                <input
+                  type="text"
+                  id="recordReference"
+                  maxlength="100"
+                  placeholder="e.g. PO-1001"
+                >
+              </div>
+
+              <div class="field field-full">
+                <label for="recordNotes">Notes</label>
+                <textarea
+                  id="recordNotes"
+                  maxlength="2000"
+                  placeholder="Additional details..."
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                id="cancelBtn"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                class="btn btn-primary"
+                id="saveRecordBtn"
+              >
+                Save Recurring Invoice
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        const STORAGE_KEY = "techsg_recurring_invoices_v1";
+        const PAGE_SIZE = 5;
+
+        const FREQUENCIES = [
+          "Weekly",
+          "Monthly",
+          "Quarterly",
+          "Yearly"
+        ];
+
+        const STATUSES = [
+          "Active",
+          "Paused",
+          "Completed",
+          "Cancelled"
+        ];
+
+        let records = [];
+        let currentPage = 1;
+        let noticeTimer = null;
+        let lastFocusedElement = null;
+
+        const $ = function (id) {
+          return document.getElementById(id);
+        };
+
+        function todayString() {
+          const date = new Date();
+
+          return [
+            date.getFullYear(),
+            String(date.getMonth() + 1).padStart(2, "0"),
+            String(date.getDate()).padStart(2, "0")
+          ].join("-");
+        }
+
+        function addDays(dateString, numberOfDays) {
+          const date = new Date(dateString + "T12:00:00");
+
+          date.setDate(date.getDate() + numberOfDays);
+
+          return [
+            date.getFullYear(),
+            String(date.getMonth() + 1).padStart(2, "0"),
+            String(date.getDate()).padStart(2, "0")
+          ].join("-");
+        }
+
+        function formatMoney(amount) {
+          return "PKR " + Number(amount || 0).toLocaleString(
+            "en-PK",
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }
+          );
+        }
+
+        function formatDate(dateString) {
+          if (!dateString) {
+            return "—";
+          }
+
+          const parts = dateString.split("-");
+
+          if (parts.length !== 3) {
+            return dateString;
+          }
+
+          const date = new Date(
+            Number(parts[0]),
+            Number(parts[1]) - 1,
+            Number(parts[2])
+          );
+
+          if (Number.isNaN(date.getTime())) {
+            return dateString;
+          }
+
+          return date.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+          });
+        }
+
+        function showNotice(message, type) {
+          const notice = $("notice");
+
+          notice.textContent = message;
+          notice.className =
+            "notice show " +
+            (type === "error" ? "error" : "success");
+
+          if (noticeTimer !== null) {
+            clearTimeout(noticeTimer);
+          }
+
+          noticeTimer = setTimeout(function () {
+            notice.classList.remove("show");
+            noticeTimer = null;
+          }, 3500);
+        }
+
+        function generateId() {
+          let highest = 1000;
+
+          records.forEach(function (record) {
+            const match = String(record.id).match(/^REC-(\d+)$/);
+
+            if (match) {
+              highest = Math.max(highest, Number(match[1]));
+            }
+          });
+
+          return "REC-" + (highest + 1);
+        }
+
+        function demoRecords() {
+          return [
+            {
+              id: "REC-1001",
+              title: "Monthly IT Support",
+              customer: "ABC Technologies",
+              email: "accounts@example.com",
+              amount: 25000,
+              frequency: "Monthly",
+              status: "Active",
+              startDate: "2026-09-01",
+              nextDate: "2026-11-01",
+              endDate: "",
+              reference: "PO-1001",
+              notes: "Monthly IT support service."
+            },
+            {
+              id: "REC-1002",
+              title: "Website Maintenance",
+              customer: "Bright Solutions",
+              email: "billing@example.com",
+              amount: 15000,
+              frequency: "Monthly",
+              status: "Active",
+              startDate: "2026-08-15",
+              nextDate: "2026-11-15",
+              endDate: "",
+              reference: "PO-1002",
+              notes: "Website maintenance plan."
+            },
+            {
+              id: "REC-1003",
+              title: "Weekly Consultancy",
+              customer: "Prime Consultants",
+              email: "",
+              amount: 12000,
+              frequency: "Weekly",
+              status: "Paused",
+              startDate: "2026-10-01",
+              nextDate: "2026-10-29",
+              endDate: "",
+              reference: "",
+              notes: ""
+            },
+            {
+              id: "REC-1004",
+              title: "Quarterly Software License",
+              customer: "City Traders",
+              email: "finance@example.com",
+              amount: 60000,
+              frequency: "Quarterly",
+              status: "Active",
+              startDate: "2026-07-10",
+              nextDate: "2026-10-26",
+              endDate: "2027-07-10",
+              reference: "LIC-1004",
+              notes: "Quarterly software license."
+            },
+            {
+              id: "REC-1005",
+              title: "Annual Hosting",
+              customer: "Fashion Hub",
+              email: "",
+              amount: 90000,
+              frequency: "Yearly",
+              status: "Completed",
+              startDate: "2025-10-01",
+              nextDate: "2026-10-01",
+              endDate: "2026-10-01",
+              reference: "",
+              notes: "Annual hosting schedule completed."
+            }
+          ];
+        }
+
+        function normalizeRecord(record) {
+          return {
+            id: String(record.id || ""),
+            title: String(record.title || ""),
+            customer: String(record.customer || ""),
+            email: String(record.email || ""),
+            amount: Number(record.amount) || 0,
+            frequency: FREQUENCIES.includes(record.frequency)
+              ? record.frequency
+              : "Monthly",
+            status: STATUSES.includes(record.status)
+              ? record.status
+              : "Active",
+            startDate: String(record.startDate || ""),
+            nextDate: String(record.nextDate || ""),
+            endDate: String(record.endDate || ""),
+            reference: String(record.reference || ""),
+            notes: String(record.notes || "")
+          };
+        }
+
+        function loadRecords() {
+          try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+
+            if (saved !== null) {
+              const parsed = JSON.parse(saved);
+
+              if (!Array.isArray(parsed)) {
+                throw new Error("Invalid saved data.");
+              }
+
+              records = parsed.map(normalizeRecord);
+              return;
+            }
+
+            records = demoRecords();
+            saveRecords();
+          } catch (error) {
+            console.error(
+              "Could not load recurring invoices:",
+              error
+            );
+
+            records = demoRecords();
+
+            showNotice(
+              "Saved records load nahi huay. Browser storage check karein.",
+              "error"
+            );
+          }
+        }
+
+        function saveRecords() {
+          try {
+            localStorage.setItem(
+              STORAGE_KEY,
+              JSON.stringify(records)
+            );
+
+            return true;
+          } catch (error) {
+            console.error(
+              "Could not save recurring invoices:",
+              error
+            );
+
+            showNotice(
+              "Records save nahi huay. Browser storage available nahi hai.",
+              "error"
+            );
+
+            return false;
+          }
+        }
+        function getFilteredRecords() {
+          const query = $("searchInput").value.trim().toLowerCase();
+          const status = $("statusFilter").value;
+          const frequency = $("frequencyFilter").value;
+
+          return records
+            .filter(function (record) {
+              const searchable = [
+                record.id,
+                record.title,
+                record.customer,
+                record.email,
+                record.reference
+              ].join(" ").toLowerCase();
+
+              return (
+                (!query || searchable.includes(query)) &&
+                (!status || record.status === status) &&
+                (!frequency || record.frequency === frequency)
+              );
+            })
+            .sort(function (a, b) {
+              return a.nextDate.localeCompare(b.nextDate);
+            });
+        }
+
+        function monthlyEquivalent(record) {
+          switch (record.frequency) {
+            case "Weekly":
+              return record.amount * 52 / 12;
+
+            case "Monthly":
+              return record.amount;
+
+            case "Quarterly":
+              return record.amount / 3;
+
+            case "Yearly":
+              return record.amount / 12;
+
+            default:
+              return 0;
+          }
+        }
+
+        function updateStats() {
+          const active = records.filter(function (record) {
+            return record.status === "Active";
+          });
+
+          const today = todayString();
+          const sevenDaysLater = addDays(today, 7);
+
+          const upcoming = active.filter(function (record) {
+            return (
+              record.nextDate >= today &&
+              record.nextDate <= sevenDaysLater
+            );
+          });
+
+          const monthlyTotal = active.reduce(function (sum, record) {
+            return sum + monthlyEquivalent(record);
+          }, 0);
+
+          $("totalCount").textContent = records.length;
+          $("activeCount").textContent = active.length;
+          $("monthlyValue").textContent = formatMoney(monthlyTotal);
+          $("upcomingCount").textContent = upcoming.length;
+        }
+
+        function statusClass(status) {
+          const classes = {
+            Active: "status-active",
+            Paused: "status-paused",
+            Completed: "status-completed",
+            Cancelled: "status-cancelled"
+          };
+
+          return classes[status] || "status-paused";
+        }
+
+        function createRow(record) {
+          const row = document.createElement("tr");
+
+          const titleCell = document.createElement("td");
+          const titleWrapper = document.createElement("div");
+          titleWrapper.className = "record-title";
+
+          const titleText = document.createElement("strong");
+          titleText.textContent = record.title;
+
+          const idText = document.createElement("small");
+          idText.textContent = record.id;
+
+          titleWrapper.appendChild(titleText);
+          titleWrapper.appendChild(idText);
+          titleCell.appendChild(titleWrapper);
+
+          const customerCell = document.createElement("td");
+          const customerWrapper = document.createElement("div");
+          customerWrapper.className = "record-title";
+
+          const customerName = document.createElement("strong");
+          customerName.textContent = record.customer;
+
+          customerWrapper.appendChild(customerName);
+
+          if (record.email) {
+            const emailText = document.createElement("small");
+            emailText.textContent = record.email;
+            customerWrapper.appendChild(emailText);
+          }
+
+          customerCell.appendChild(customerWrapper);
+
+          const frequencyCell = document.createElement("td");
+          frequencyCell.textContent = record.frequency;
+
+          const amountCell = document.createElement("td");
+          amountCell.textContent = formatMoney(record.amount);
+
+          const startCell = document.createElement("td");
+          startCell.textContent = formatDate(record.startDate);
+
+          const nextCell = document.createElement("td");
+          nextCell.textContent = formatDate(record.nextDate);
+
+          const statusCell = document.createElement("td");
+          const statusBadge = document.createElement("span");
+
+          statusBadge.className =
+            "status-badge " + statusClass(record.status);
+
+          statusBadge.textContent = record.status;
+          statusCell.appendChild(statusBadge);
+
+          const actionCell = document.createElement("td");
+          actionCell.className = "actions-cell";
+
+          const editButton = document.createElement("button");
+          editButton.type = "button";
+          editButton.className = "btn btn-small btn-secondary";
+          editButton.textContent = "Edit";
+
+          editButton.addEventListener("click", function () {
+            openModal(record);
+          });
+
+          const deleteButton = document.createElement("button");
+          deleteButton.type = "button";
+          deleteButton.className = "btn btn-small btn-danger";
+          deleteButton.textContent = "Delete";
+
+          deleteButton.addEventListener("click", function () {
+            deleteRecord(record.id);
+          });
+
+          actionCell.appendChild(editButton);
+          actionCell.appendChild(deleteButton);
+
+          row.appendChild(titleCell);
+          row.appendChild(customerCell);
+          row.appendChild(frequencyCell);
+          row.appendChild(amountCell);
+          row.appendChild(startCell);
+          row.appendChild(nextCell);
+          row.appendChild(statusCell);
+          row.appendChild(actionCell);
+
+          return row;
+        }
+
+        function renderPagination(totalPages) {
+          const pagination = $("pagination");
+          pagination.replaceChildren();
+
+          if (totalPages <= 1) {
+            return;
+          }
+
+          const previousButton = document.createElement("button");
+          previousButton.type = "button";
+          previousButton.className = "btn btn-secondary btn-small";
+          previousButton.textContent = "Previous";
+          previousButton.disabled = currentPage <= 1;
+
+          previousButton.addEventListener("click", function () {
+            if (currentPage > 1) {
+              currentPage--;
+              renderRecords();
+            }
+          });
+
+          const pageLabel = document.createElement("span");
+          pageLabel.className = "pagination-info";
+          pageLabel.textContent =
+            "Page " + currentPage + " of " + totalPages;
+
+          const nextButton = document.createElement("button");
+          nextButton.type = "button";
+          nextButton.className = "btn btn-secondary btn-small";
+          nextButton.textContent = "Next";
+          nextButton.disabled = currentPage >= totalPages;
+
+          nextButton.addEventListener("click", function () {
+            if (currentPage < totalPages) {
+              currentPage++;
+              renderRecords();
+            }
+          });
+
+          pagination.appendChild(previousButton);
+          pagination.appendChild(pageLabel);
+          pagination.appendChild(nextButton);
+        }
+
+        function renderRecords() {
+          updateStats();
+
+          const tableBody = $("recordsTableBody");
+          const filteredRecords = getFilteredRecords();
+
+          const totalPages = Math.max(
+            1,
+            Math.ceil(filteredRecords.length / PAGE_SIZE)
+          );
+
+          if (currentPage > totalPages) {
+            currentPage = totalPages;
+          }
+
+          const startIndex = (currentPage - 1) * PAGE_SIZE;
+
+          const visibleRecords = filteredRecords.slice(
+            startIndex,
+            startIndex + PAGE_SIZE
+          );
+
+          tableBody.replaceChildren();
+
+          visibleRecords.forEach(function (record) {
+            tableBody.appendChild(createRow(record));
+          });
+
+          const hasRecords = filteredRecords.length > 0;
+
+          $("emptyState").hidden = hasRecords;
+          $("recordsTable").hidden = !hasRecords;
+
+          const firstRecord = hasRecords ? startIndex + 1 : 0;
+          const lastRecord = Math.min(
+            startIndex + PAGE_SIZE,
+            filteredRecords.length
+          );
+
+          $("resultsCount").textContent =
+            "Showing " + firstRecord +
+            "-" + lastRecord +
+            " of " + filteredRecords.length +
+            " recurring records";
+
+          renderPagination(totalPages);
+        }
+
+        function openModal(record) {
+          lastFocusedElement = document.activeElement;
+
+          $("recordForm").reset();
+          $("recordId").value = "";
+
+          $("recordFrequency").value = "Monthly";
+          $("recordStatus").value = "Active";
+          $("recordStartDate").value = todayString();
+          $("recordNextDate").value = addDays(todayString(), 30);
+          $("recordEndDate").value = "";
+
+          if (record) {
+            $("modalTitle").textContent = "Edit Recurring Invoice";
+
+            $("recordId").value = record.id;
+            $("recordTitle").value = record.title;
+            $("recordCustomer").value = record.customer;
+            $("recordEmail").value = record.email;
+            $("recordAmount").value = record.amount;
+            $("recordFrequency").value = record.frequency;
+            $("recordStatus").value = record.status;
+            $("recordStartDate").value = record.startDate;
+            $("recordNextDate").value = record.nextDate;
+            $("recordEndDate").value = record.endDate;
+            $("recordReference").value = record.reference;
+            $("recordNotes").value = record.notes;
+
+            $("saveRecordBtn").textContent = "Update Recurring Invoice";
+          } else {
+            $("modalTitle").textContent = "Add Recurring Invoice";
+            $("saveRecordBtn").textContent = "Save Recurring Invoice";
+          }
+
+          $("recordModal").hidden = false;
+          $("recordTitle").focus();
+        }
+
+        function closeModal() {
+          $("recordModal").hidden = true;
+          $("recordForm").reset();
+
+          if (
+            lastFocusedElement &&
+            document.contains(lastFocusedElement)
+          ) {
+            lastFocusedElement.focus();
+          }
+
+          lastFocusedElement = null;
+        }
+function saveRecord(event) {
+          event.preventDefault();
+
+          const id = $("recordId").value.trim();
+          const title = $("recordTitle").value.trim();
+          const customer = $("recordCustomer").value.trim();
+          const email = $("recordEmail").value.trim();
+          const amount = Number($("recordAmount").value);
+          const frequency = $("recordFrequency").value;
+          const status = $("recordStatus").value;
+          const startDate = $("recordStartDate").value;
+          const nextDate = $("recordNextDate").value;
+          const endDate = $("recordEndDate").value;
+          const reference = $("recordReference").value.trim();
+          const notes = $("recordNotes").value.trim();
+
+          if (!title || !customer) {
+            showNotice(
+              "Invoice title aur customer name zaroori hain.",
+              "error"
+            );
+            return;
+          }
+
+          if (
+            !Number.isFinite(amount) ||
+            amount <= 0 ||
+            amount > 999999999999
+          ) {
+            showNotice(
+              "Amount valid hona chahiye aur zero se zyada hona chahiye.",
+              "error"
+            );
+            return;
+          }
+
+          if (
+            !FREQUENCIES.includes(frequency) ||
+            !STATUSES.includes(status)
+          ) {
+            showNotice("Frequency ya status valid nahi hai.", "error");
+            return;
+          }
+
+          if (!startDate || !nextDate) {
+            showNotice(
+              "Start date aur next invoice date select karein.",
+              "error"
+            );
+            return;
+          }
+
+          if (nextDate < startDate) {
+            showNotice(
+              "Next invoice date, start date se pehle nahi ho sakti.",
+              "error"
+            );
+            return;
+          }
+
+          if (endDate && endDate < startDate) {
+            showNotice(
+              "End date, start date se pehle nahi ho sakti.",
+              "error"
+            );
+            return;
+          }
+
+          if (endDate && nextDate > endDate) {
+            showNotice(
+              "Next invoice date, end date ke baad nahi ho sakti.",
+              "error"
+            );
+            return;
+          }
+
+          const duplicate = records.some(function (record) {
+            return (
+              record.title.toLowerCase() === title.toLowerCase() &&
+              record.customer.toLowerCase() === customer.toLowerCase() &&
+              record.id !== id
+            );
+          });
+
+          if (duplicate) {
+            showNotice(
+              "Is customer ke liye yeh invoice title pehle se mojood hai.",
+              "error"
+            );
+            return;
+          }
+
+          const recordData = {
+            id: id || generateId(),
+            title: title,
+            customer: customer,
+            email: email,
+            amount: amount,
+            frequency: frequency,
+            status: status,
+            startDate: startDate,
+            nextDate: nextDate,
+            endDate: endDate,
+            reference: reference,
+            notes: notes
+          };
+
+          const previousRecords = records.map(function (record) {
+            return Object.assign({}, record);
+          });
+
+          if (id) {
+            const index = records.findIndex(function (record) {
+              return record.id === id;
+            });
+
+            if (index === -1) {
+              showNotice(
+                "Record nahi mila. Page refresh karke dobara try karein.",
+                "error"
+              );
+              return;
+            }
+
+            records[index] = recordData;
+          } else {
+            records.push(recordData);
+          }
+
+          if (!saveRecords()) {
+            records = previousRecords;
+            return;
+          }
+
+          closeModal();
+          currentPage = 1;
+          renderRecords();
+
+          showNotice(
+            id
+              ? "Recurring invoice successfully update ho gaya."
+              : "Recurring invoice successfully add ho gaya.",
+            "success"
+          );
+        }
+
+        function deleteRecord(id) {
+          const record = records.find(function (item) {
+            return item.id === id;
+          });
+
+          if (!record) {
+            showNotice("Record nahi mila.", "error");
+            return;
+          }
+
+          const confirmed = window.confirm(
+            'Kya aap "' + record.title +
+            '" ko delete karna chahte hain?'
+          );
+
+          if (!confirmed) {
+            return;
+          }
+
+          const previousRecords = records.map(function (item) {
+            return Object.assign({}, item);
+          });
+
+          records = records.filter(function (item) {
+            return item.id !== id;
+          });
+
+          if (!saveRecords()) {
+            records = previousRecords;
+            return;
+          }
+
+          renderRecords();
+          showNotice("Recurring invoice delete ho gaya.", "success");
+        }
+
+        function escapeCSV(value) {
+          let textValue = String(value == null ? "" : value);
+
+          // CSV spreadsheet formula injection se bachao.
+          if (/^[\s]*[=+\-@]/.test(textValue)) {
+            textValue = "'" + textValue;
+          }
+
+          return '"' + textValue.replace(/"/g, '""') + '"';
+        }
+
+        function exportCSV() {
+          const filteredRecords = getFilteredRecords();
+
+          if (filteredRecords.length === 0) {
+            showNotice(
+              "Export karne ke liye koi record nahi hai.",
+              "error"
+            );
+            return;
+          }
+
+          const headers = [
+            "ID",
+            "Title",
+            "Customer",
+            "Email",
+            "Amount",
+            "Frequency",
+            "Status",
+            "Start Date",
+            "Next Invoice Date",
+            "End Date",
+            "Reference",
+            "Notes"
+          ];
+
+          const rows = filteredRecords.map(function (record) {
+            return [
+              record.id,
+              record.title,
+              record.customer,
+              record.email,
+              record.amount,
+              record.frequency,
+              record.status,
+              record.startDate,
+              record.nextDate,
+              record.endDate,
+              record.reference,
+              record.notes
+            ].map(escapeCSV).join(",");
+          });
+
+          const csvContent = "\uFEFF" +
+            [headers.map(escapeCSV).join(",")]
+              .concat(rows)
+              .join("\r\n");
+
+          const blob = new Blob([csvContent], {
+            type: "text/csv;charset=utf-8;"
+          });
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+
+          link.href = url;
+          link.download = "recurring-invoices.csv";
+
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+          }, 1000);
+
+          showNotice("CSV file export ho gayi.", "success");
+        }
+
+        function resetFilters() {
+          $("searchInput").value = "";
+          $("statusFilter").value = "";
+          $("frequencyFilter").value = "";
+
+          currentPage = 1;
+          renderRecords();
+        }
+
+        function initialize() {
+          loadRecords();
+          renderRecords();
+
+          $("addRecordBtn").addEventListener("click", function () {
+            openModal(null);
+          });
+
+          $("closeModalBtn").addEventListener("click", closeModal);
+          $("cancelBtn").addEventListener("click", closeModal);
+
+          $("recordForm").addEventListener("submit", saveRecord);
+
+          $("searchInput").addEventListener("input", function () {
+            currentPage = 1;
+            renderRecords();
+          });
+
+          $("statusFilter").addEventListener("change", function () {
+            currentPage = 1;
+            renderRecords();
+          });
+
+          $("frequencyFilter").addEventListener("change", function () {
+            currentPage = 1;
+            renderRecords();
+          });
+
+          $("resetFiltersBtn").addEventListener("click", resetFilters);
+          $("exportBtn").addEventListener("click", exportCSV);
+
+          $("recordModal").addEventListener("click", function (event) {
+            if (event.target === $("recordModal")) {
+              closeModal();
+            }
+          });
+
+          document.addEventListener("keydown", function (event) {
+            if (
+              event.key === "Escape" &&
+              !$("recordModal").hidden
+            ) {
+              closeModal();
+            }
+          });
+        }
+
+        initialize();
+      })();
+    </script>
+  </main>
+<script src="enhancements.js"></script>
+</body>
+</html>

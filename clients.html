@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clients | Tech SG Studio (SMC-Pvt.) Ltd.</title><link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="professional.css"><link rel="stylesheet" href="fbr.css"><link rel="stylesheet" href="techsg-theme.css"><link rel="stylesheet" href="layout-fix.css"><link rel="stylesheet" href="app.css">
+<script src="qr.js"></script><script src="core.js"></script></head>
+<body data-page="clients"><div id="root"></div>
+<script src="fbr.js"></script><script src="advanced.js"></script>
+<script>
+SG.ready(function(){
+ var v=SG.shell({eyebrow:"CRM",title:"Clients",sub:"Every client gets an auto-generated Client ID.",actions:'<button class="btn primary" id="add">+ Add client</button>'});
+ v.innerHTML='<div class="card"><div class="filter-bar"><div class="search-box"><input class="input" id="q" placeholder="Search name, email, phone or client ID…"></div></div><div class="table-wrap"><table class="table"><thead><tr><th>Client ID</th><th>Name</th><th>Contact</th><th>Invoices</th><th>Billed</th><th></th></tr></thead><tbody id="tb"></tbody></table></div></div>';
+ function draw(){var q=document.getElementById("q").value.toLowerCase(),inv=SG.invoices();
+  var rows=SG.clients().filter(function(c){return(c.id+c.name+(c.email||"")+(c.phone||"")+(c.contact||"")).toLowerCase().indexOf(q)>-1}).map(function(c){var mine=inv.filter(function(i){return i.clientId===c.id&&i.status!=="Draft"&&i.status!=="Cancelled"}),b=mine.reduce(function(s,i){return s+SG.totals(i).total},0);
+   return'<tr><td><b>'+SG.esc(c.id)+"</b></td><td><b>"+SG.esc(c.name)+"</b><br><small>"+SG.esc(c.address||"")+"</small></td><td>"+SG.esc(c.contact||"")+"<br><small>"+SG.esc(c.email||"")+" "+SG.esc(c.phone||"")+"</small></td><td>"+mine.length+"</td><td>"+SG.fmt(b)+'</td><td><div class="row-actions"><a class="btn light" href="invoice-create.html?client='+encodeURIComponent(c.id)+'">Invoice</a><button class="btn light" data-e="'+c.id+'">Edit</button>'+(SG.isAdmin()?'<button class="btn red" data-d="'+c.id+'">Delete</button>':"")+"</div></td></tr>"}).join("");
+  document.getElementById("tb").innerHTML=rows||'<tr><td colspan="6" class="empty">No clients found.</td></tr>'}
+ document.getElementById("q").oninput=draw;document.getElementById("add").onclick=function(){SG.clientModal(null,draw)};
+ v.onclick=function(e){var b=e.target.closest("button");if(!b)return;if(b.dataset.e)SG.clientModal(SG.client(b.dataset.e),draw);if(b.dataset.d){if(SG.invoices().some(function(i){return i.clientId===b.dataset.d})){SG.toast("This client has invoices and cannot be deleted.");return}if(confirm("Delete client "+b.dataset.d+"?")){SG.saveClients(SG.clients().filter(function(c){return c.id!==b.dataset.d}));draw()}}};
+ draw()});</script></body></html>

@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Automatically generated billing and invoice records in the Tech SG Studio (SMC-Pvt.) Ltd. Invoicing System."
+    >
+
+    <title>Auto Generated | Tech SG Studio (SMC-Pvt.) Ltd.</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        .generated-page {
+            font-family: Inter, Arial, sans-serif;
+            color: #172033;
+        }
+
+        .generated-page * {
+            box-sizing: border-box;
+        }
+
+        .generated-page .page-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .generated-page .page-heading h1 {
+            margin: 0 0 7px;
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .generated-page .muted {
+            color: #758097;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .generated-page .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            padding: 11px 15px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .generated-page .btn-primary {
+            background: #3659e3;
+            color: #ffffff;
+        }
+
+        .generated-page .btn-primary:hover {
+            background: #2847c5;
+            transform: translateY(-1px);
+        }
+
+        .generated-page .btn-light {
+            background: #ffffff;
+            color: #344054;
+            border-color: #e1e6ef;
+        }
+
+        .generated-page .btn-light:hover {
+            background: #f6f8fc;
+        }
+
+        .generated-page .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .generated-page .stat-card {
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e8ecf3;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(25, 42, 70, 0.035);
+        }
+
+        .generated-page .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            color: #758097;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .generated-page .stat-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: #edf2ff;
+            color: #3659e3;
+            font-size: 18px;
+        }
+
+        .generated-page .stat-number {
+            margin: 17px 0 6px;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .generated-page .stat-note {
+            font-size: 11px;
+            color: #758097;
+        }
+
+        .generated-page .panel {
+            background: #ffffff;
+            border: 1px solid #e8ecf3;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(25, 42, 70, 0.035);
+            overflow: hidden;
+        }
+
+        .generated-page .panel-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 21px 22px;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .generated-page .panel-heading h2 {
+            margin: 0 0 5px;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .generated-page .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 17px 22px;
+            background: #fcfdff;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .generated-page .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 210px;
+        }
+
+        .generated-page .search-icon {
+            position: absolute;
+            left: 13px;
+            top: 10px;
+            color: #8993a7;
+            pointer-events: none;
+        }
+
+        .generated-page .field {
+            width: 100%;
+            min-height: 40px;
+            padding: 10px 12px;
+            border: 1px solid #e0e5ee;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #26334a;
+            font: inherit;
+            font-size: 12px;
+        }
+
+        .generated-page .search-wrap .field {
+            padding-left: 36px;
+        }
+
+        .generated-page .field:focus {
+            outline: none;
+            border-color: #7890f1;
+            box-shadow: 0 0 0 3px #3659e315;
+        }
+
+        .generated-page .toolbar select {
+            width: auto;
+            min-width: 140px;
+        }
+
+        .generated-page .table-wrap {
+            overflow-x: auto;
+        }
+
+        .generated-page table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .generated-page th {
+            padding: 13px 20px;
+            background: #f8faff;
+            color: #818ba0;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            font-weight: 800;
+        }
+
+        .generated-page td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f2f7;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .generated-page tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .generated-page tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .generated-page .invoice-cell {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .generated-page .invoice-icon {
+            width: 37px;
+            height: 37px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: #edf2ff;
+            color: #3659e3;
+            font-size: 16px;
+        }
+
+        .generated-page .invoice-cell strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .generated-page .invoice-cell span {
+            display: block;
+            color: #8993a7;
+            font-size: 10px;
+        }
+
+        .generated-page .client-cell strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .generated-page .client-cell span {
+            display: block;
+            color: #8993a7;
+            font-size: 10px;
+        }
+
+        .generated-page .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .generated-page .status::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .generated-page .status-paid {
+            background: #e8f8ef;
+            color: #18834a;
+        }
+
+        .generated-page .status-pending {
+            background: #fff7df;
+            color: #a16d00;
+        }
+
+        .generated-page .status-overdue {
+            background: #fff0f0;
+            color: #c03939;
+        }
+
+        .generated-page .status-draft {
+            background: #f1f3f7;
+            color: #65718a;
+        }
+
+        .generated-page .amount {
+            font-weight: 800;
+            color: #172033;
+        }
+
+        .generated-page .date-cell {
+            color: #59657b;
+        }
+
+        .generated-page .actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .generated-page .icon-btn {
+            width: 31px;
+            height: 31px;
+            display: grid;
+            place-items: center;
+            background: #ffffff;
+            border: 1px solid #e8ecf3;
+            border-radius: 7px;
+            color: #65718a;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .generated-page .icon-btn:hover {
+            background: #eef2ff;
+            color: #3659e3;
+        }
+
+        .generated-page .table-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 17px 22px;
+            border-top: 1px solid #edf0f5;
+        }
+
+        .generated-page .pagination {
+            display: flex;
+            gap: 6px;
+            padding: 0;
+        }
+
+        .generated-page .page-btn {
+            min-width: 32px;
+            height: 32px;
+            border: 1px solid #e3e8f0;
+            border-radius: 7px;
+            background: #ffffff;
+            color: #59657b;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .generated-page .page-btn:hover:not(:disabled) {
+            background: #f3f5ff;
+        }
+
+        .generated-page .page-btn.active {
+            background: #3659e3;
+            color: #ffffff;
+            border-color: #3659e3;
+        }
+
+        .generated-page .page-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .generated-page .empty-row {
+            padding: 35px;
+            text-align: center;
+            color: #758097;
+        }
+
+        .generated-page .notice {
+            position: fixed;
+            z-index: 1200;
+            right: 22px;
+            bottom: 22px;
+            max-width: 360px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            background: #172033;
+            color: #ffffff;
+            box-shadow: 0 10px 30px #17203330;
+            font-size: 13px;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: 0.25s;
+        }
+
+        .generated-page .notice.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 900px) {
+
+            .generated-page .stats-grid {
+                grid-template-columns: repeat(
+                    2,
+                    minmax(0, 1fr)
+                );
+            }
+
+        }
+
+        @media (max-width: 560px) {
+
+            .generated-page .page-heading h1 {
+                font-size: 23px;
+            }
+
+            .generated-page .stats-grid {
+                gap: 10px;
+            }
+
+            .generated-page .stat-card {
+                padding: 14px;
+            }
+
+            .generated-page .stat-number {
+                font-size: 23px;
+            }
+
+            .generated-page .panel-heading,
+            .generated-page .toolbar {
+                padding: 15px;
+            }
+
+        }
+
+    </style>
+
+
+    <link rel="stylesheet" href="professional.css">
+<link rel="stylesheet" href="fbr.css">
+<script src="fbr.js" defer></script>
+<link rel="stylesheet" href="techsg-theme.css">
+<link rel="stylesheet" href="layout-fix.css">
+<link rel="stylesheet" href="app.css">
+<script src="qr.js"></script>
+<script src="core.js"></script>
+<script src="advanced.js" defer></script>
+</head>
+
+
+<body>
+
+<div class="generated-page">
+
+    <main class="main-content">
+
+        <section class="page-heading">
+
+            <div>
+
+                <div class="muted">
+                    Workspace / Auto Generated
+                </div>
+
+                <h1>
+                    Auto Generated
+                </h1>
+
+                <div class="muted">
+                    Manage invoices and billing records generated automatically by the system.
+                </div>
+
+            </div>
+
+
+            <a
+                href="invoice-create.html"
+                class="btn btn-primary"
+            >
+                <span aria-hidden="true">＋</span>
+                Create Invoice
+            </a>
+
+        </section>
+
+
+        <section
+            class="stats-grid"
+            aria-label="Auto generated invoice statistics"
+        >
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>
+                        Total Generated
+                    </span>
+
+                    <span
+                        class="stat-icon"
+                        aria-hidden="true"
+                    >
+                        ▣
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="totalGenerated"
+                >
+                    0
+                </div>
+
+                <div class="stat-note">
+                    Automatically generated invoices
+                </div>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>
+                        Paid
+                    </span>
+
+                    <span
+                        class="stat-icon"
+                        aria-hidden="true"
+                    >
+                        ✓
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="paidGenerated"
+                >
+                    0
+                </div>
+
+                <div class="stat-note">
+                    Successfully paid
+                </div>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>
+                        Pending
+                    </span>
+
+                    <span
+                        class="stat-icon"
+                        aria-hidden="true"
+                    >
+                        ◷
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="pendingGenerated"
+                >
+                    0
+                </div>
+
+                <div class="stat-note">
+                    Awaiting payment
+                </div>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>
+                        Total Value
+                    </span>
+
+                    <span
+                        class="stat-icon"
+                        aria-hidden="true"
+                    >
+                        $
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="totalGeneratedValue"
+                >
+                    Rs. 0.00
+                </div>
+
+                <div class="stat-note">
+                    Total generated invoice value
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <section class="panel">
+
+            <header class="panel-heading">
+
+                <div>
+
+                    <h2>
+                        Generated Invoices
+                    </h2>
+
+                    <div class="muted">
+                        View invoices created automatically by the invoicing system.
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    id="exportGeneratedBtn"
+                >
+                    ↓ Export CSV
+                </button>
+
+            </header>
+
+
+            <div class="toolbar">
+
+                <div class="search-wrap">
+
+                    <span
+                        class="search-icon"
+                        aria-hidden="true"
+                    >
+                        ⌕
+                    </span>
+
+                    <input
+                        class="field"
+                        type="search"
+                        id="generatedSearch"
+                        placeholder="Search invoice, client..."
+                        aria-label="Search generated invoices"
+                    >
+
+                </div>
+
+
+                <select
+                    class="field"
+                    id="generatedStatusFilter"
+                    aria-label="Filter invoice status"
+                >
+
+                    <option value="">
+                        All Statuses
+                    </option>
+
+                    <option value="Paid">
+                        Paid
+                    </option>
+
+                    <option value="Pending">
+                        Pending
+                    </option>
+
+                    <option value="Overdue">
+                        Overdue
+                    </option>
+
+                    <option value="Draft">
+                        Draft
+                    </option>
+
+                </select>
+
+
+                <button
+                    class="btn btn-light"
+                    id="resetGeneratedBtn"
+                    type="button"
+                >
+                    Reset
+                </button>
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th scope="col">
+                                Invoice
+                            </th>
+
+                            <th scope="col">
+                                Client
+                            </th>
+
+                            <th scope="col">
+                                Generated
+                            </th>
+
+                            <th scope="col">
+                                Due Date
+                            </th>
+
+                            <th scope="col">
+                                Amount
+                            </th>
+
+                            <th scope="col">
+                                Status
+                            </th>
+
+                            <th scope="col">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="generatedTableBody">
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="empty-row"
+                            >
+                                Loading invoices...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <footer class="table-footer">
+
+                <span
+                    class="muted"
+                    id="generatedCount"
+                >
+                    Showing 0 invoices
+                </span>
+
+
+                <div
+                    class="pagination"
+                    id="generatedPagination"
+                    arialabel="Generated invoice pagination"
+                ></div>
+
+            </footer>
+
+        </section>
+
+    </main>
+
+
+    <div
+        class="notice"
+        id="generatedNotice"
+        role="status"
+        aria-live="polite"
+    ></div>
+
+</div>
+<script>
+(function () {
+
+    "use strict";
+
+    const STORAGE_KEY = "techsg_auto_generated_v1";
+    const PAGE_SIZE = 8;
+
+    let invoices = [];
+    let currentPage = 1;
+    let noticeTimer = null;
+
+
+    const $ = (id) => {
+        return document.getElementById(id);
+    };
+
+
+    const escapeHTML = (value) => {
+
+        return String(value ?? "").replace(
+            /[&<>"']/g,
+            (character) => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[character]
+        );
+
+    };
+
+
+    const currency = (amount) => {
+
+        return new Intl.NumberFormat(
+            "en-SG",
+            {
+                style: "currency",
+                currency: "PKR",
+                minimumFractionDigits: 2
+            }
+        ).format(Number(amount) || 0);
+
+    };
+
+
+    function seedInvoices() {
+
+        return [
+
+            {
+                id: "INV-2026-0101",
+                client: "Acme Corporation",
+                email: "billing@acme.com",
+                generated: "Oct 24, 2026",
+                dueDate: "Nov 23, 2026",
+                amount: 8500,
+                status: "Pending"
+            },
+
+            {
+                id: "INV-2026-0100",
+                client: "Greenfield Enterprises",
+                email: "finance@greenfield.com",
+                generated: "Oct 23, 2026",
+                dueDate: "Nov 22, 2026",
+                amount: 6200,
+                status: "Paid"
+            },
+
+            {
+                id: "INV-2026-0099",
+                client: "Evergreen Construction",
+                email: "accounts@evergreen.com",
+                generated: "Oct 22, 2026",
+                dueDate: "Nov 21, 2026",
+                amount: 12400,
+                status: "Pending"
+            },
+
+            {
+                id: "INV-2026-0098",
+                client: "Northstar Creative",
+                email: "finance@northstar.com",
+                generated: "Oct 21, 2026",
+                dueDate: "Nov 20, 2026",
+                amount: 4750,
+                status: "Paid"
+            },
+
+            {
+                id: "INV-2026-0097",
+                client: "Vertex Solutions",
+                email: "billing@vertex.com",
+                generated: "Oct 20, 2026",
+                dueDate: "Nov 19, 2026",
+                amount: 19300,
+                status: "Paid"
+            },
+
+            {
+                id: "INV-2026-0096",
+                client: "Brightline Media",
+                email: "accounts@brightline.com",
+                generated: "Oct 19, 2026",
+                dueDate: "Nov 18, 2026",
+                amount: 3900,
+                status: "Overdue"
+            },
+
+            {
+                id: "INV-2026-0095",
+                client: "Aisha Rahman",
+                email: "aisha@example.com",
+                generated: "Oct 18, 2026",
+                dueDate: "Nov 17, 2026",
+                amount: 2450,
+                status: "Pending"
+            },
+
+            {
+                id: "INV-2026-0094",
+                client: "Summit Technologies",
+                email: "billing@summit.com",
+                generated: "Oct 17, 2026",
+                dueDate: "Nov 16, 2026",
+                amount: 9800,
+                status: "Paid"
+            },
+
+            {
+                id: "INV-2026-0093",
+                client: "Daniel Tan",
+                email: "daniel@example.com",
+                generated: "Oct 16, 2026",
+                dueDate: "Nov 15, 2026",
+                amount: 1200,
+                status: "Draft"
+            },
+
+            {
+                id: "INV-2026-0092",
+                client: "Pacific Trade Pte. Ltd.",
+                email: "finance@pacifictrade.com",
+                generated: "Oct 15, 2026",
+                dueDate: "Nov 14, 2026",
+                amount: 7350,
+                status: "Pending"
+            },
+
+            {
+                id: "INV-2026-0091",
+                client: "Meridian Digital",
+                email: "accounts@meridian.com",
+                generated: "Oct 14, 2026",
+                dueDate: "Nov 13, 2026",
+                amount: 12800,
+                status: "Paid"
+            },
+
+            {
+                id: "INV-2026-0090",
+                client: "Urban Works",
+                email: "billing@urbanworks.com",
+                generated: "Oct 13, 2026",
+                dueDate: "Nov 12, 2026",
+                amount: 5600,
+                status: "Overdue"
+            },
+
+            {
+                id: "INV-2026-0089",
+                client: "Silverline Consulting",
+                email: "finance@silverline.com",
+                generated: "Oct 12, 2026",
+                dueDate: "Nov 11, 2026",
+                amount: 4300,
+                status: "Pending"
+            },
+
+            {
+                id: "INV-2026-0088",
+                client: "Cloud Nine Services",
+                email: "accounts@cloudnine.com",
+                generated: "Oct 11, 2026",
+                dueDate: "Nov 10, 2026",
+                amount: 8100,
+                status: "Paid"
+            },
+
+            {
+                id: "INV-2026-0087",
+                client: "Horizon Engineering",
+                email: "billing@horizon.com",
+                generated: "Oct 10, 2026",
+                dueDate: "Nov 9, 2026",
+                amount: 11750,
+                status: "Pending"
+            },
+
+            {
+                id: "INV-2026-0086",
+                client: "Nova Retail",
+                email: "finance@novaretail.com",
+                generated: "Oct 9, 2026",
+                dueDate: "Nov 8, 2026",
+                amount: 2900,
+                status: "Paid"
+            }
+
+        ];
+
+    }
+
+
+    function loadInvoices() {
+
+        try {
+
+            const saved = localStorage.getItem(STORAGE_KEY);
+
+            if (saved !== null) {
+
+                const parsed = JSON.parse(saved);
+
+                invoices = Array.isArray(parsed)
+                    ? parsed
+                    : seedInvoices();
+
+            } else {
+
+                invoices = seedInvoices();
+
+                saveInvoices();
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Unable to load generated invoices:",
+                error
+            );
+
+            invoices = seedInvoices();
+
+        }
+
+    }
+
+
+    function saveInvoices() {
+
+        try {
+
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(invoices)
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Unable to save generated invoices:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function getFilteredInvoices() {
+
+        const searchInput = $("generatedSearch");
+        const statusInput = $("generatedStatusFilter");
+
+        const search = (
+            searchInput
+                ? searchInput.value
+                : ""
+        ).trim().toLowerCase();
+
+        const status = statusInput
+            ? statusInput.value
+            : "";
+
+
+        return invoices.filter((invoice) => {
+
+            const searchableText = [
+                invoice.id,
+                invoice.client,
+                invoice.email,
+                invoice.generated,
+                invoice.dueDate,
+                invoice.status
+            ]
+                .join(" ")
+                .toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                searchableText.includes(search);
+
+
+            const matchesStatus =
+                !status ||
+                invoice.status === status;
+
+
+            return matchesSearch && matchesStatus;
+
+        });
+
+    }
+
+
+    function getStatusClass(status) {
+
+        const normalized = String(status || "")
+            .toLowerCase();
+
+
+        if (normalized === "paid") {
+            return "status-paid";
+        }
+
+
+        if (normalized === "pending") {
+            return "status-pending";
+        }
+
+
+        if (normalized === "overdue") {
+            return "status-overdue";
+        }
+
+
+        return "status-draft";
+
+    }
+
+
+    function renderStats() {
+
+        const total = invoices.length;
+
+        const paid = invoices.filter(
+            (invoice) => invoice.status === "Paid"
+        ).length;
+
+        const pending = invoices.filter(
+            (invoice) => invoice.status === "Pending"
+        ).length;
+
+        const totalValue = invoices.reduce(
+            (sum, invoice) => {
+                return sum + (Number(invoice.amount) || 0);
+            },
+            0
+        );
+
+
+        $("totalGenerated").textContent = total;
+
+        $("paidGenerated").textContent = paid;
+
+        $("pendingGenerated").textContent = pending;
+
+        $("totalGeneratedValue").textContent =
+            currency(totalValue);
+
+    }
+
+
+    function renderTable() {
+
+        const tableBody = $("generatedTableBody");
+
+        if (!tableBody) {
+            return;
+        }
+
+
+        const filtered = getFilteredInvoices();
+
+        const totalPages = Math.max(
+            1,
+            Math.ceil(filtered.length / PAGE_SIZE)
+        );
+
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+
+        const startIndex =
+            (currentPage - 1) * PAGE_SIZE;
+
+        const pageItems =
+            filtered.slice(
+                startIndex,
+                startIndex + PAGE_SIZE
+            );
+
+
+        if (pageItems.length === 0) {
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="7"
+                        class="empty-row"
+                    >
+                        No generated invoices found.
+                    </td>
+                </tr>
+            `;
+
+            renderPagination(0);
+
+            $("generatedCount").textContent =
+                "Showing 0 invoices";
+
+            return;
+
+        }
+
+
+        tableBody.innerHTML = pageItems.map(
+            (invoice) => {
+
+                const statusClass =
+                    getStatusClass(invoice.status);
+
+
+                return `
+                    <tr
+                        data-id="${escapeHTML(invoice.id)}"
+                    >
+
+                        <td>
+
+                            <div class="invoice-cell">
+
+                                <div
+                                    class="invoice-icon"
+                                    aria-hidden="true"
+                                >
+                                    ▣
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        ${escapeHTML(invoice.id)}
+                                    </strong>
+
+                                    <span>
+                                        Auto-generated
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="client-cell">
+
+                                <strong>
+                                    ${escapeHTML(invoice.client)}
+                                </strong>
+
+                                <span>
+                                    ${escapeHTML(invoice.email)}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <td class="date-cell">
+                            ${escapeHTML(invoice.generated)}
+                        </td>
+
+
+                        <td class="date-cell">
+                            ${escapeHTML(invoice.dueDate)}
+                        </td>
+
+
+                        <td class="amount">
+                            ${currency(invoice.amount)}
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="status ${statusClass}"
+                            >
+                                ${escapeHTML(invoice.status)}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="actions">
+
+                                <a
+                                    href="invoice-view.html"
+                                    class="icon-btn"
+                                    aria-label="View ${escapeHTML(invoice.id)}"
+                                    title="View invoice"
+                                >
+                                    <span aria-hidden="true">◉</span>
+                                </a>
+
+
+                                <a
+                                    href="invoice-create.html"
+                                    class="icon-btn"
+                                    aria-label="Edit ${escapeHTML(invoice.id)}"
+                                    title="Edit invoice"
+                                >
+                                    <span aria-hidden="true">✎</span>
+                                </a>
+
+
+                                <button
+                                    type="button"
+                                    class="icon-btn delete-invoice"
+                                    data-id="${escapeHTML(invoice.id)}"
+                                    aria-label="Delete ${escapeHTML(invoice.id)}"
+                                    title="Delete invoice"
+                                >
+                                    <span aria-hidden="true">×</span>
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+        ).join("");
+
+
+        const firstShown =
+            startIndex + 1;
+
+        const lastShown =
+            startIndex + pageItems.length;
+
+
+        $("generatedCount").textContent =
+            `Showing ${firstShown}–${lastShown} of ${filtered.length} invoices`;
+
+
+        renderPagination(totalPages);
+
+    }
+    function renderPagination(totalPages) {
+
+            const pagination =
+                $("generatedPagination");
+
+            if (!pagination) {
+                return;
+            }
+
+            pagination.innerHTML = "";
+
+
+            if (totalPages <= 1) {
+                return;
+            }
+
+
+            const previousButton =
+                document.createElement("button");
+
+            previousButton.type = "button";
+            previousButton.className = "page-btn";
+            previousButton.textContent = "‹";
+
+            previousButton.setAttribute(
+                "aria-label",
+                "Previous page"
+            );
+
+            previousButton.disabled =
+                currentPage === 1;
+
+
+            previousButton.addEventListener(
+                "click",
+                function () {
+
+                    if (currentPage > 1) {
+
+                        currentPage -= 1;
+
+                        renderTable();
+
+                    }
+
+                }
+            );
+
+
+            pagination.appendChild(
+                previousButton
+            );
+
+
+            const maxVisiblePages = 5;
+
+            let startPage = Math.max(
+                1,
+                currentPage - 2
+            );
+
+            let endPage = Math.min(
+                totalPages,
+                startPage + maxVisiblePages - 1
+            );
+
+
+            if (
+                endPage - startPage + 1 <
+                maxVisiblePages
+            ) {
+
+                startPage = Math.max(
+                    1,
+                    endPage - maxVisiblePages + 1
+                );
+
+            }
+
+
+            if (startPage > 1) {
+
+                const firstButton =
+                    document.createElement("button");
+
+                firstButton.type = "button";
+                firstButton.className = "page-btn";
+                firstButton.textContent = "1";
+
+                firstButton.setAttribute(
+                    "aria-label",
+                    "Go to page 1"
+                );
+
+
+                firstButton.addEventListener(
+                    "click",
+                    function () {
+
+                        currentPage = 1;
+
+                        renderTable();
+
+                    }
+                );
+
+
+                pagination.appendChild(
+                    firstButton
+                );
+
+
+                if (startPage > 2) {
+
+                    const dots =
+                        document.createElement("span");
+
+                    dots.textContent = "…";
+
+                    dots.style.display = "grid";
+                    dots.style.placeItems = "center";
+                    dots.style.minWidth = "25px";
+                    dots.style.color = "#8993a7";
+
+                    pagination.appendChild(
+                        dots
+                    );
+
+                }
+
+            }
+
+
+            for (
+                let page = startPage;
+                page <= endPage;
+                page += 1
+            ) {
+
+                const pageButton =
+                    document.createElement("button");
+
+                pageButton.type = "button";
+                pageButton.className = "page-btn";
+
+                pageButton.textContent =
+                    String(page);
+
+
+                pageButton.setAttribute(
+                    "aria-label",
+                    `Go to page ${page}`
+                );
+
+
+                if (page === currentPage) {
+
+                    pageButton.classList.add(
+                        "active"
+                    );
+
+                    pageButton.setAttribute(
+                        "aria-current",
+                        "page"
+                    );
+
+                }
+
+
+                pageButton.addEventListener(
+                    "click",
+                    function () {
+
+                        currentPage = page;
+
+                        renderTable();
+
+                    }
+                );
+
+
+                pagination.appendChild(
+                    pageButton
+                );
+
+            }
+
+
+            if (endPage < totalPages) {
+
+                if (endPage < totalPages - 1) {
+
+                    const dots =
+                        document.createElement("span");
+
+                    dots.textContent = "…";
+
+                    dots.style.display = "grid";
+                    dots.style.placeItems = "center";
+                    dots.style.minWidth = "25px";
+                    dots.style.color = "#8993a7";
+
+                    pagination.appendChild(
+                        dots
+                    );
+
+                }
+
+
+                const lastButton =
+                    document.createElement("button");
+
+                lastButton.type = "button";
+                lastButton.className = "page-btn";
+                lastButton.textContent =
+                    String(totalPages);
+
+
+                lastButton.setAttribute(
+                    "aria-label",
+                    `Go to page ${totalPages}`
+                );
+
+
+                lastButton.addEventListener(
+                    "click",
+                    function () {
+
+                        currentPage = totalPages;
+
+                        renderTable();
+
+                    }
+                );
+
+
+                pagination.appendChild(
+                    lastButton
+                );
+
+            }
+
+
+            const nextButton =
+                document.createElement("button");
+
+            nextButton.type = "button";
+            nextButton.className = "page-btn";
+            nextButton.textContent = "›";
+
+            nextButton.setAttribute(
+                "aria-label",
+                "Next page"
+            );
+
+            nextButton.disabled =
+                currentPage === totalPages;
+
+
+            nextButton.addEventListener(
+                "click",
+                function () {
+
+                    if (currentPage < totalPages) {
+
+                        currentPage += 1;
+
+                        renderTable();
+
+                    }
+
+                }
+            );
+
+
+            pagination.appendChild(
+                nextButton
+            );
+
+        }
+
+
+        function showNotice(message) {
+
+            const notice =
+                $("generatedNotice");
+
+            if (!notice) {
+                return;
+            }
+
+
+            notice.textContent = message;
+
+            notice.classList.add("show");
+
+
+            clearTimeout(noticeTimer);
+
+
+            noticeTimer = setTimeout(
+                function () {
+
+                    notice.classList.remove(
+                        "show"
+                    );
+
+                },
+                3000
+            );
+
+        }
+
+
+        function deleteInvoice(invoiceId) {
+
+            const invoice =
+                invoices.find(
+                    (item) => item.id === invoiceId
+                );
+
+
+            if (!invoice) {
+
+                showNotice(
+                    "Invoice could not be found."
+                );
+
+                return;
+
+            }
+
+
+            const confirmed =
+                window.confirm(
+                    `Are you sure you want to delete ${invoice.id}?`
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            invoices =
+                invoices.filter(
+                    (item) => item.id !== invoiceId
+                );
+
+
+            saveInvoices();
+
+            renderStats();
+
+            renderTable();
+
+
+            showNotice(
+                `${invoice.id} deleted successfully.`
+            );
+
+        }
+
+
+        function exportCSV() {
+
+            const filtered =
+                getFilteredInvoices();
+
+
+            if (filtered.length === 0) {
+
+                showNotice(
+                    "There are no invoices to export."
+                );
+
+                return;
+
+            }
+
+
+            const headers = [
+                "Invoice Number",
+                "Client",
+                "Email",
+                "Generated Date",
+                "Due Date",
+                "Amount",
+                "Status"
+            ];
+
+
+            const rows =
+                filtered.map(
+                    (invoice) => [
+
+                        invoice.id,
+                        invoice.client,
+                        invoice.email,
+                        invoice.generated,
+                        invoice.dueDate,
+                        Number(invoice.amount || 0)
+                            .toFixed(2),
+                        invoice.status
+
+                    ]
+                );
+
+
+            const csvRows = [
+                headers,
+                ...rows
+            ];
+
+
+            const csv = csvRows
+                .map(
+                    (row) => row.map(
+                        (value) => {
+
+                            const text =
+                                String(
+                                    value ?? ""
+                                );
+
+                            return `"${text.replace(
+                                /"/g,
+                                '""'
+                            )}"`;
+
+                        }
+                    ).join(",")
+                )
+                .join("\r\n");
+
+
+            const blob =
+                new Blob(
+                    [csv],
+                    {
+                        type: "text/csv;charset=utf-8;"
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(blob);
+
+
+            const link =
+                document.createElement("a");
+
+            link.href = url;
+
+            link.download =
+                "auto-generated-invoices.csv";
+
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            link.remove();
+
+
+            URL.revokeObjectURL(url);
+
+
+            showNotice(
+                "CSV exported successfully."
+            );
+
+        }
+
+
+        function resetFilters() {
+
+            const search =
+                $("generatedSearch");
+
+            const status =
+                $("generatedStatusFilter");
+
+
+            if (search) {
+                search.value = "";
+            }
+
+
+            if (status) {
+                status.value = "";
+            }
+
+
+            currentPage = 1;
+
+            renderTable();
+
+        }
+
+
+        function bindEvents() {
+
+            const search =
+                $("generatedSearch");
+
+            const statusFilter =
+                $("generatedStatusFilter");
+
+            const resetButton =
+                $("resetGeneratedBtn");
+
+            const exportButton =
+                $("exportGeneratedBtn");
+
+
+            if (search) {
+
+                search.addEventListener(
+                    "input",
+                    function () {
+
+                        currentPage = 1;
+
+                        renderTable();
+
+                    }
+                );
+
+            }
+
+
+            if (statusFilter) {
+
+                statusFilter.addEventListener(
+                    "change",
+                    function () {
+
+                        currentPage = 1;
+
+                        renderTable();
+
+                    }
+                );
+
+            }
+
+
+            if (resetButton) {
+
+                resetButton.addEventListener(
+                    "click",
+                    resetFilters
+                );
+
+            }
+
+
+            if (exportButton) {
+
+                exportButton.addEventListener(
+                    "click",
+                    exportCSV
+                );
+
+            }
+
+
+            const tableBody =
+                $("generatedTableBody");
+
+
+            if (tableBody) {
+
+                tableBody.addEventListener(
+                    "click",
+                    function (event) {
+
+                        const deleteButton =
+                            event.target.closest(
+                                ".delete-invoice"
+                            );
+
+
+                        if (!deleteButton) {
+                            return;
+                        }
+
+
+                        const invoiceId =
+                            deleteButton.getAttribute(
+                                "data-id"
+                            );
+
+
+                        if (invoiceId) {
+
+                            deleteInvoice(
+                                invoiceId
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+
+        }
+
+
+        function init() {
+
+            loadInvoices();
+
+            renderStats();
+
+            renderTable();
+
+            bindEvents();
+
+        }
+
+
+        if (
+            document.readyState ===
+            "loading"
+        ) {
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                init
+            );
+
+        } else {
+
+            init();
+
+        }
+
+    })();
+    </script>
+
+<script src="enhancements.js"></script>
+</body>
+
+</html>

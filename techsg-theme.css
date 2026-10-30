@@ -1,0 +1,49 @@
+/* Tech SG Studio (SMC-Pvt.) Ltd. – brand theme (loads after style.css / professional.css) */
+:root{--primary:#0b63b8;--primary-dark:#094f94;--primary-soft:#eaf2fd;--bg:#f2f4fb;--text:#14193a;--sg-navy:#04285a;--sg-grad:linear-gradient(120deg,#031d45 0%,#0b4a9c 55%,#1a73e8 100%);--shadow:0 8px 30px rgba(40,50,120,.08);--shadow-lg:0 18px 50px rgba(40,50,120,.16);--radius:16px;--radius-lg:20px}
+body{background:radial-gradient(1200px 500px at 85% -10%,#dbeafe 0,transparent 60%),var(--bg)}
+.sg-strip{background:var(--sg-navy);color:#c9d0f5;font-size:12.5px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:7px 22px;position:relative;z-index:60}
+.sg-strip a{color:#fff;text-decoration:none;margin-left:14px}.sg-strip a:hover{text-decoration:underline}
+.sidebar{background:linear-gradient(180deg,#04285a 0%,#06336f 100%)!important;border-right:0!important}
+.sidebar .brand strong,.sidebar .brand span,.sidebar .nav a,.sidebar .nav-section-title{color:#c9d0f5!important}
+.sidebar .brand strong{color:#fff!important}
+.sidebar .nav a{border-radius:12px;transition:.2s}
+.sidebar .nav a:hover{background:rgba(255,255,255,.08)!important;color:#fff!important;transform:translateX(3px)}
+.sidebar .nav a.active{background:var(--sg-grad)!important;color:#fff!important;box-shadow:0 8px 20px rgba(26,115,232,.4)}
+.brand-mark{background:var(--sg-grad)!important;color:#fff!important}
+.topbar{backdrop-filter:blur(14px);background:rgba(255,255,255,.82)!important;border-bottom:1px solid var(--border)}
+.page-head{background:var(--sg-grad);color:#fff;border-radius:var(--radius-lg);padding:26px 28px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.page-head::after{content:"";position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.12)}
+.page-head h1,.page-head p,.page-head span{color:#fff!important;position:relative;z-index:1}.page-head p{opacity:.88}
+.page-head .btn{position:relative;z-index:1}
+.card,.stat-card,.metric-card{border:1px solid rgba(11,99,184,.1)!important;border-radius:var(--radius)!important;box-shadow:var(--shadow)!important;transition:transform .25s,box-shadow .25s}
+.stat-card:hover,.metric-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)!important}
+.btn-primary,.btn.primary,button.btn:not(.btn-secondary):not(.btn-light):not(.btn-outline){background:var(--sg-grad);border:0;color:#fff}
+.btn{border-radius:11px;transition:.2s}.btn:hover{transform:translateY(-1px)}
+table thead th{background:#eaf2fd;color:#094f94;font-size:12px;letter-spacing:.05em;text-transform:uppercase}
+table tbody tr:hover{background:#f8f8ff}
+.badge{border-radius:99px;font-weight:700}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#c4c8ee;border-radius:10px}
+.sg-reveal{opacity:0;transform:translateY(14px);transition:opacity .5s,transform .5s}.sg-reveal.in{opacity:1;transform:none}
+.page-footer{border-top:1px solid var(--border);margin-top:30px}
+.sg-foot{width:100%;display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--text-secondary);font-size:12.5px;justify-content:space-between}
+/* command palette */
+#sgK{position:fixed;inset:0;background:rgba(10,18,51,.55);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;padding:12vh 14px;z-index:9999}
+#sgK.on{display:flex}#sgK .box{background:#fff;color:#14193a;border-radius:18px;width:100%;max-width:560px;box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:hidden}
+#sgK input{width:100%;border:0;border-bottom:1px solid #e7ebf2;padding:18px 20px;font:inherit;font-size:16px;outline:0}
+#sgK ul{list-style:none;margin:0;padding:8px;max-height:50vh;overflow:auto}
+#sgK li{padding:11px 14px;border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;gap:10px}
+#sgK li.sel,#sgK li:hover{background:#eaf2fd;color:#094f94}#sgK li small{color:#98a2b3}
+.sg-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#04285a;color:#fff;padding:11px 20px;border-radius:12px;z-index:10000;box-shadow:var(--shadow-lg)}
+/* invoice extras */
+.sg-words{margin-top:18px;padding:14px 16px;border-radius:12px;background:#eaf2fd;border:1px dashed #b9bdf0;font-size:14px}
+.sg-words b{color:#094f94}
+.sg-sign{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:34px;font-size:13px;color:#667085}
+.sg-sign div{border-top:1px solid #98a2b3;padding-top:8px;text-align:center}
+.sg-terms{margin-top:22px;font-size:12px;color:#667085;line-height:1.6;border-top:1px solid var(--border);padding-top:12px}
+@media(max-width:700px){.page-head{padding:20px 18px}.sg-strip{font-size:11.5px;padding:6px 12px}.sg-sign{grid-template-columns:1fr}}
+@media print{.sg-strip,#sgK,.sg-toast{display:none!important}.invoice-document{box-shadow:none!important}@page{size:A4;margin:12mm}}
+:root{--sg-strip-h:34px}
+.sg-strip{position:fixed;top:0;left:0;right:0;height:var(--sg-strip-h);align-items:center;padding-top:0;padding-bottom:0;flex-wrap:nowrap;overflow:hidden;white-space:nowrap}
+body{padding-top:0}.main,.main-shell{padding-top:var(--sg-strip-h)}
+.sidebar{top:var(--sg-strip-h)!important}.topbar{top:var(--sg-strip-h)!important}
+@media(max-width:700px){.sg-strip span:first-child{display:none}.sg-strip{justify-content:center}}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Create invoice | Tech SG Studio (SMC-Pvt.) Ltd.</title><link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="professional.css"><link rel="stylesheet" href="fbr.css"><link rel="stylesheet" href="techsg-theme.css"><link rel="stylesheet" href="layout-fix.css"><link rel="stylesheet" href="app.css">
+<script src="qr.js"></script><script src="core.js"></script></head>
+<body data-page="invoice-create"><div id="root"></div>
+<script src="fbr.js"></script><script src="advanced.js"></script>
+<script>
+SG.ready(function(){
+ var qs=new URLSearchParams(location.search),eid=qs.get("id"),old=eid?SG.invoice(eid):null,co=SG.company();
+ var inv=old||{id:SG.nextInvoiceId(),clientId:qs.get("client")||"",issue:SG.iso(),terms:co.terms,taxRate:0,discount:0,status:"Pending",notes:"",items:[{d:"",s:"",q:1,p:0}]};
+ var v=SG.shell({eyebrow:"BILLING",title:old?"Edit invoice":"Create invoice",sub:"Invoice number is generated automatically.",actions:'<a class="btn" href="invoices.html">Back to invoices</a>'});
+ var cs=function(){return'<option value="">Select client…</option>'+SG.clients().map(function(c){return'<option value="'+c.id+'"'+(c.id===inv.clientId?" selected":"")+">"+SG.esc(c.id+" — "+c.name)+"</option>"}).join("")};
+ v.innerHTML='<div class="two-col"><div><div class="card pad"><h3 style="margin-top:0">Invoice details</h3><div class="form-grid"><div class="form-group"><label>Invoice no. (auto)</label><input class="input" readonly value="'+SG.esc(inv.id)+'"></div><div class="form-group"><label>Status</label><select class="input" id="st"><option>Draft</option><option>Pending</option><option>Paid</option><option>Cancelled</option></select></div><div class="form-group"><label>Client *</label><select class="input" id="cl">'+cs()+'</select></div><div class="form-group"><label>&nbsp;</label><button type="button" class="btn light" id="nc">+ New client</button></div><div class="form-group"><label>Issue date</label><input class="input" type="date" id="is" value="'+inv.issue+'"></div><div class="form-group"><label>Payment terms</label><select class="input" id="tm"><option value="0">Due on receipt</option><option value="7">Net 7</option><option value="14">Net 14</option><option value="30">Net 30</option></select></div></div></div>'+
+ '<div class="card pad"><h3 style="margin-top:0">Services / items</h3><div class="table-wrap"><table class="items-edit"><thead><tr><th>Service</th><th>Details</th><th style="width:70px">Qty</th><th style="width:120px">Unit price</th><th style="width:110px">Amount</th><th style="width:40px"></th></tr></thead><tbody id="it"></tbody></table></div><button type="button" class="btn light" id="ai" style="margin-top:10px">+ Add item</button></div>'+
+ '<div class="card pad"><h3 style="margin-top:0">Notes</h3><textarea class="input" id="nt" rows="3" placeholder="Optional note shown on the invoice">'+SG.esc(inv.notes||"")+'</textarea></div></div>'+
+ '<div class="card pad sum-card"><h3 style="margin-top:0">Summary</h3><div class="row"><span>Subtotal</span><b id="s1"></b></div><div class="form-group" style="margin:10px 0"><label>Discount (Rs.)</label><input class="input" type="number" min="0" id="dc" value="'+(inv.discount||0)+'"></div><div class="form-group" style="margin:10px 0"><label>Tax %</label><input class="input" type="number" min="0" step="0.5" id="tx" value="'+(inv.taxRate||0)+'"></div><div class="row"><span>Tax</span><b id="s2"></b></div><div class="row grand"><span>Total</span><b id="s3"></b></div><button class="btn primary full-btn" id="sv">Save invoice</button></div></div>';
+ var $=function(i){return document.getElementById(i)};$("st").value=inv.status;$("tm").value=String(inv.terms);
+ function rows(){$("it").innerHTML=inv.items.map(function(x,i){return'<tr><td><input class="input" data-k="d" data-i="'+i+'" value="'+SG.esc(x.d)+'" placeholder="Website Development"></td><td><input class="input" data-k="s" data-i="'+i+'" value="'+SG.esc(x.s||"")+'"></td><td><input class="input" type="number" min="1" data-k="q" data-i="'+i+'" value="'+x.q+'"></td><td><input class="input" type="number" min="0" data-k="p" data-i="'+i+'" value="'+x.p+'"></td><td class="am"><b>'+SG.num(x.q*x.p)+'</b></td><td><button type="button" class="btn red sm" data-r="'+i+'">&times;</button></td></tr>'}).join("");tot()}
+ function tot(){inv.discount=+$("dc").value||0;inv.taxRate=+$("tx").value||0;var t=SG.totals(inv);$("s1").textContent=SG.fmt(t.sub);$("s2").textContent=SG.fmt(t.tax);$("s3").textContent=SG.fmt(t.total);[].forEach.call($("it").rows,function(r,i){r.querySelector(".am b").textContent=SG.num(inv.items[i].q*inv.items[i].p)})}
+ $("it").oninput=function(e){var d=e.target.dataset;if(d.k){inv.items[d.i][d.k]=(d.k==="q"||d.k==="p")?(+e.target.value||0):e.target.value;tot()}};
+ $("it").onclick=function(e){var b=e.target.closest("[data-r]");if(b&&inv.items.length>1){inv.items.splice(+b.dataset.r,1);rows()}};
+ $("ai").onclick=function(){inv.items.push({d:"",s:"",q:1,p:0});rows()};$("dc").oninput=$("tx").oninput=tot;
+ $("nc").onclick=function(){SG.clientModal(null,function(c){inv.clientId=c.id;$("cl").innerHTML=cs()})};
+ $("sv").onclick=function(){inv.clientId=$("cl").value;if(!inv.clientId){SG.toast("Please select a client");return}
+  inv.items=inv.items.filter(function(x){return x.d.trim()});if(!inv.items.length){SG.toast("Add at least one item");rows();return}
+  inv.status=$("st").value;inv.issue=$("is").value;inv.terms=+$("tm").value;var d=new Date(inv.issue);d.setDate(d.getDate()+inv.terms);inv.due=d.toISOString().slice(0,10);inv.notes=$("nt").value.trim();
+  if(inv.status==="Paid"&&!inv.paidAt)inv.paidAt=SG.iso();
+  var a=SG.invoices();if(old){a=a.map(function(x){return x.id===old.id?inv:x})}else{inv.id=SG.nextInvoiceId();inv.createdBy=SG.session().username;inv.createdAt=SG.iso();a.push(inv)}
+  SG.saveInvoices(a);location.href="invoice-view.html?id="+encodeURIComponent(inv.id)};
+ rows()});</script></body></html>

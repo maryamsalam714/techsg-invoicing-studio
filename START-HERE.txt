@@ -1,0 +1,9 @@
+Tech SG Studio (SMC-Pvt.) Ltd. - Invoicing System (HTML / CSS / JS)
+
+1. Open login.html (host the folder on any web server / cPanel public_html for client links to work).
+2. First login: username admin  |  password Admin@123  -> change it in "Staff & Users".
+3. Settings > Company profile: add bank details, NTN, STRN. They appear on every invoice.
+4. Ctrl+K = quick actions (backup/restore, dark mode, pages).
+
+Roles: admin = everything. staff = invoices, clients, quotations, payments (no Staff, Settings, Audit log).
+Data is stored in this browser (localStorage). Login/roles are front-end only: for production move them to a server.

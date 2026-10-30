@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechSG quotation view">
+    <title>Quotation QT-2026-0048 | TechSG</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <link rel="stylesheet" href="professional.css">
+<link rel="stylesheet" href="fbr.css">
+<script src="fbr.js" defer></script>
+<link rel="stylesheet" href="techsg-theme.css">
+<link rel="stylesheet" href="layout-fix.css">
+<link rel="stylesheet" href="app.css">
+<script src="qr.js"></script>
+<script src="core.js"></script>
+<script src="advanced.js" defer></script>
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <aside class="sidebar" id="sidebar">
+
+            <div class="brand">
+                <a href="index.html" class="brand-link">
+                    <span class="brand-mark">T</span>
+                    <span class="brand-text">Tech SG Studio (SMC-Pvt.) Ltd.</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav" aria-label="Main navigation">
+
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="invoices.html" class="nav-item">
+                    <i class="fa-solid fa-file-invoice" aria-hidden="true"></i>
+                    <span>Invoices</span>
+                </a>
+
+                <a href="invoice-create.html" class="nav-item">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    <span>Create invoice</span>
+                </a>
+
+                <a href="quotations.html" class="nav-item active" aria-current="page">
+                    <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+                    <span>Quotations</span>
+                </a>
+
+                <a href="quotation-create.html" class="nav-item">
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                    <span>Create quotation</span>
+                </a>
+
+                <a href="clients.html" class="nav-item">
+                    <i class="fa-solid fa-users" aria-hidden="true"></i>
+                    <span>Clients</span>
+                </a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+
+                <a href="settings.html" class="nav-item">
+                    <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                    <span>Settings</span>
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <div class="main-shell">
+
+            <header class="topbar">
+
+                <button
+                    type="button"
+                    class="icon-btn"
+                    id="sidebarToggle"
+                    aria-label="Toggle navigation"
+                    aria-controls="sidebar"
+                    aria-expanded="true"
+                >
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                </button>
+
+                <div class="topbar-title">
+                    <span>Quotations</span>
+                </div>
+
+                <div class="topbar-actions">
+
+                    <a
+                        href="quotation-create.html"
+                        class="btn primary sm"
+                    >
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        New quotation
+                    </a>
+
+                </div>
+
+            </header>
+
+
+            <main class="main-content">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <div class="breadcrumb">
+
+                            <a href="quotations.html">
+                                Quotations
+                            </a>
+
+                            <i
+                                class="fa-solid fa-chevron-right"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                QT-2026-0048
+                            </span>
+
+                        </div>
+
+                        <h1>
+                            QT-2026-0048
+                        </h1>
+
+                        <p>
+                            View quotation details and billing information.
+                        </p>
+
+                    </div>
+
+
+                    <div class="page-actions">
+
+                        <a
+                            href="quotations.html"
+                            class="btn sm"
+                        >
+                            <i
+                                class="fa-solid fa-arrow-left"
+                                aria-hidden="true"
+                            ></i>
+                            Back
+                        </a>
+
+                        <button
+                            type="button"
+                            class="btn sm"
+                            id="printQuotation"
+                        >
+                            <i
+                                class="fa-solid fa-print"
+                                aria-hidden="true"
+                            ></i>
+                            Print
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn sm"
+                            id="downloadQuotation"
+                        >
+                            <i
+                                class="fa-solid fa-download"
+                                aria-hidden="true"
+                            ></i>
+                            Download PDF
+                        </button>
+
+                        <a
+                            href="quotation-create.html"
+                            class="btn primary sm"
+                        >
+                            <i
+                                class="fa-regular fa-pen-to-square"
+                                aria-hidden="true"
+                            ></i>
+                            Edit quotation
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <article
+                    class="quotation-document card"
+                    id="quotationDocument"
+                >
+
+                    <header class="quotation-document-header">
+
+                        <div class="quotation-header-top">
+
+                            <div class="quotation-company">
+
+                                <div class="quotation-company-logo">
+                                    T
+                                </div>
+
+                                <div class="quotation-company-info">
+
+                                    <h2>
+                                        Tech SG Studio (SMC-Pvt.) Ltd.
+                                    </h2>
+
+                                    <p>
+                                        Professional invoicing &amp;
+                                        business management
+                                    </p>
+
+                                    <p>
+                                        Faisalabad, Punjab, Pakistan
+                                    </p>
+
+                                    <p>
+                                        info@techsgstudio.com
+                                        &nbsp;•&nbsp;
+                                        +92 306 9524047
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="quotation-title">
+
+                                <h1>
+                                    QUOTATION
+                                </h1>
+
+                                <p class="quotation-number">
+                                    QT-2026-0048
+                                </p>
+
+                                <span class="quotation-status">
+                                    <i
+                                        class="fa-solid fa-circle-check"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Accepted
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="quotation-meta">
+
+                            <div class="quotation-meta-card">
+                                <span>Issue date</span>
+                                <strong>October 22, 2026</strong>
+                            </div>
+
+                            <div class="quotation-meta-card">
+                                <span>Valid until</span>
+                                <strong>November 21, 2026</strong>
+                            </div>
+
+                            <div class="quotation-meta-card">
+                                <span>Reference</span>
+                                <strong>QTN-0048</strong>
+                            </div>
+
+                            <div class="quotation-meta-card">
+                                <span>Currency</span>
+                                <strong>PKR (Rs.)</strong>
+                            </div>
+
+                        </div>
+
+                    </header>
+
+
+                    <div class="quotation-document-body">
+
+                        <div class="quotation-parties">
+
+                            <section class="party-card">
+
+                                <div class="party-card-label">
+                                    From
+                                </div>
+
+                                <h3>Tech SG Studio (SMC-Pvt.) Ltd.</h3>
+
+                                <p>Faisalabad, Punjab, Pakistan</p>
+
+                                <p>info@techsgstudio.com</p>
+
+                                <p>+92 306 9524047</p>
+
+                                <p>
+                                    Tax ID:
+                                    <strong>NTN — set in Settings</strong>
+                                </p>
+
+                            </section>
+
+
+                            <section class="party-card">
+
+                                <div class="party-card-label">
+                                    Quotation for
+                                </div>
+
+                                <h3>Acme Corporation</h3>
+
+                                <p>billing@acme.com</p>
+
+                                <p>New York, United States</p>
+
+                                <p>+1 555 123 4567</p>
+
+                                <p>
+                                    Client ID:
+                                    <strong>CLI-2026-0012</strong>
+                                </p>
+
+                            </section>
+
+                        </div>
+
+
+                        <div class="quotation-table-wrap">
+
+                            <table
+                                class="quotation-items-table"
+                                aria-label="Quotation items"
+                            >
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th scope="col">
+                                            Description
+                                        </th>
+
+                                        <th scope="col">
+                                            Qty
+                                        </th>
+
+                                        <th scope="col">
+                                            Rate
+                                        </th>
+
+                                        <th scope="col">
+                                            Tax
+                                        </th>
+
+                                        <th scope="col">
+                                            Amount
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    <tr>
+
+                                        <td>
+                                            <span class="quotation-item-name">
+                                                Website Design &amp;
+                                                Development
+                                            </span>
+
+                                            <span class="quotation-item-description">
+                                                Responsive corporate website
+                                                with modern UI and CMS setup.
+                                            </span>
+                                        </td>
+
+                                        <td>1</td>
+                                        <td>Rs. 5,000.00</td>
+                                        <td>10%</td>
+                                        <td>Rs. 5,500.00</td>
+
+                                    </tr>
+
+
+                                    <tr>
+
+                                        <td>
+                                            <span class="quotation-item-name">
+                                                UI/UX Design
+                                            </span>
+
+                                            <span class="quotation-item-description">
+                                                Complete interface design,
+                                                wireframes and responsive
+                                                layouts.
+                                            </span>
+                                        </td>
+
+                                        <td>1</td>
+                                        <td>Rs. 2,000.00</td>
+                                        <td>10%</td>
+                                        <td>Rs. 2,200.00</td>
+
+                                    </tr>
+
+
+                                    <tr>
+
+                                        <td>
+                                            <span class="quotation-item-name">
+                                                Website Maintenance
+                                            </span>
+
+                                            <span class="quotation-item-description">
+                                                Monthly maintenance and
+                                                technical support.
+                                            </span>
+                                        </td>
+
+                                        <td>5</td>
+                                        <td>Rs. 160.00</td>
+                                        <td>10%</td>
+                                        <td>Rs. 880.00</td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                        <div class="quotation-bottom">
+
+                            <div class="quotation-extra-info">
+
+                                <h3>
+                                    Project summary
+                                </h3>
+
+                                <p>
+                                    Website design, development and
+                                    maintenance services for Acme
+                                    Corporation according to the agreed
+                                    project requirements.
+                                </p>
+
+                            </div>
+
+
+                            <div class="quotation-summary">
+
+                                <div class="quotation-summary-row">
+                                    <span>Subtotal</span>
+                                    <strong>Rs. 7,800.00</strong>
+                                </div>
+
+                                <div class="quotation-summary-row">
+                                    <span>Discount</span>
+                                    <strong>Rs. 0.00</strong>
+                                </div>
+
+                                <div class="quotation-summary-row">
+                                    <span>Tax</span>
+                                    <strong>Rs. 700.00</strong>
+                                </div>
+
+                                <div class="quotation-summary-total">
+                                    <span>Total</span>
+                                    <strong>Rs. 8,500.00</strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="quotation-notes-grid">
+
+                            <section class="quotation-note-card">
+
+                                <h3>
+                                    Notes
+                                </h3>
+
+                                <p>
+                                    Thank you for considering TechSG for
+                                    your project. We look forward to
+                                    working with you.
+                                </p>
+
+                            </section>
+
+
+                            <section class="quotation-note-card">
+
+                                <h3>
+                                    Payment terms
+                                </h3>
+
+                                <p>
+                                    50% advance payment is required to
+                                    begin the project. The remaining
+                                    balance is payable upon completion.
+                                </p>
+
+                            </section>
+
+                        </div>
+
+
+                        <section class="quotation-acceptance">
+
+                            <div>
+
+                                <h3>
+                                    Acceptance
+                                </h3>
+
+                                <p>
+                                    This quotation has been accepted by
+                                    the client.
+                                </p>
+
+                            </div>
+
+
+                            <div class="acceptance-status">
+
+                                <i
+                                    class="fa-solid fa-circle-check"
+                                    aria-hidden="true"
+                                ></i>
+
+                                <span>
+                                    Accepted
+                                </span>
+
+                            </div>
+
+                        </section>
+
+
+                        <div class="quotation-signatures">
+
+                            <div class="signature-box">
+
+                                <div class="signature-line"></div>
+
+                                <strong>
+                                    TechSG Representative
+                                </strong>
+
+                                <span>
+                                    Authorized signature
+                                </span>
+
+                            </div>
+
+
+                            <div class="signature-box">
+
+                                <div class="signature-line"></div>
+
+                                <strong>
+                                    Acme Corporation
+                                </strong>
+
+                                <span>
+                                    Client signature
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <footer class="page-footer">
+
+                    <div class="page-footer-left">
+
+                        <strong>
+                            Tech SG Studio (SMC-Pvt.) Ltd.
+                        </strong>
+
+                        <span>
+                            Professional invoicing &amp;
+                            business management
+                        </span>
+
+                    </div>
+
+
+                    <div class="page-footer-right">
+
+                        <span>
+                            QT-2026-0048
+                        </span>
+
+                        <span>
+                            Page 1 of 1
+                        </span>
+
+                    </div>
+
+                </footer>
+
+            </main>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        aria-hidden="true"
+    ></div>
+
+
+    <div
+        class="modal"
+        id="deleteQuotationModal"
+        hidden
+    >
+
+        <div
+            class="modal-overlay"
+            data-modal-close
+        ></div>
+
+        <div
+            class="modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="deleteQuotationTitle"
+        >
+
+            <div class="modal-head">
+
+                <div>
+
+                    <h2 id="deleteQuotationTitle">
+                        Delete quotation
+                    </h2>
+
+                    <p>
+                        Are you sure you want to delete this quotation?
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-modal-close
+                    aria-label="Close dialog"
+                >
+                    <i
+                        class="fa-solid fa-xmark"
+                        aria-hidden="true"
+                    ></i>
+                </button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <p>
+                    This action cannot be undone. The quotation and its
+                    related information will be permanently removed.
+                </p>
+
+            </div>
+
+
+            <div class="modal-foot">
+
+                <button
+                    type="button"
+                    class="btn sm"
+                    data-modal-close
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    class="btn danger sm"
+                    id="confirmDeleteQuotation"
+                >
+                    <i
+                        class="fa-solid fa-trash"
+                        aria-hidden="true"
+                    ></i>
+                    Delete quotation
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="modal"
+        id="statusQuotationModal"
+        hidden
+    >
+
+        <div
+            class="modal-overlay"
+            data-modal-close
+        ></div>
+
+        <div
+            class="modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="statusQuotationTitle"
+        >
+
+            <div class="modal-head">
+
+                <div>
+
+                    <h2 id="statusQuotationTitle">
+                        Change quotation status
+                    </h2>
+
+                    <p>
+                        Select the new status for this quotation.
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-modal-close
+                    aria-label="Close dialog"
+                >
+                    <i
+                        class="fa-solid fa-xmark"
+                        aria-hidden="true"
+                    ></i>
+                </button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <div class="form-group">
+
+                    <label for="quotationStatus">
+                        Status
+                    </label>
+
+                    <select
+                        class="input"
+                        id="quotationStatus"
+                    >
+                        <option value="draft">Draft</option>
+                        <option value="sent">Sent</option>
+                        <option value="accepted" selected>
+                            Accepted
+                        </option>
+                        <option value="rejected">Rejected</option>
+                        <option value="expired">Expired</option>
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-foot">
+
+                <button
+                    type="button"
+                    class="btn sm"
+                    data-modal-close
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    class="btn primary sm"
+                    id="saveQuotationStatus"
+                >
+                    <i
+                        class="fa-solid fa-check"
+                        aria-hidden="true"
+                    ></i>
+                    Save status
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="toast"
+        id="quotationToast"
+        role="status"
+        aria-live="polite"
+        hidden
+    >
+
+        <i
+            class="fa-solid fa-circle-check"
+            aria-hidden="true"
+        ></i>
+
+        <span id="quotationToastMessage">
+            Action completed successfully.
+        </span>
+
+    </div>
+
+
+    <script src="app.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const printButton =
+                document.getElementById("printQuotation");
+
+            const downloadButton =
+                document.getElementById("downloadQuotation");
+
+            const toast =
+                document.getElementById("quotationToast");
+
+            const toastMessage =
+                document.getElementById("quotationToastMessage");
+
+            const deleteModal =
+                document.getElementById("deleteQuotationModal");
+
+            const statusModal =
+                document.getElementById("statusQuotationModal");
+
+            const deleteButton =
+                document.getElementById("confirmDeleteQuotation");
+
+            const statusButton =
+                document.getElementById("saveQuotationStatus");
+
+            const statusSelect =
+                document.getElementById("quotationStatus");
+
+
+            function showToast(message) {
+
+                if (!toast || !toastMessage) {
+                    return;
+                }
+
+                toastMessage.textContent = message;
+                toast.hidden = false;
+
+                window.setTimeout(function () {
+                    toast.hidden = true;
+                }, 2500);
+
+            }
+
+
+            if (printButton) {
+
+                printButton.addEventListener("click", function () {
+                    window.print();
+                });
+
+            }
+
+
+            if (downloadButton) {
+
+                downloadButton.addEventListener("click", function () {
+                    window.print();
+                });
+
+            }
+
+
+            document
+                .querySelectorAll("[data-modal-close]")
+                .forEach(function (button) {
+
+                    button.addEventListener("click", function () {
+
+                        const modal =
+                            button.closest(".modal");
+
+                        if (modal) {
+                            modal.hidden = true;
+                        }
+
+                    });
+
+                });
+
+
+            if (deleteButton) {
+
+                deleteButton.addEventListener("click", function () {
+
+                    if (deleteModal) {
+                        deleteModal.hidden = true;
+                    }
+
+                    showToast(
+                        "Quotation deleted successfully."
+                    );
+
+                });
+
+            }
+
+
+            if (statusButton) {
+
+                statusButton.addEventListener("click", function () {
+
+                    if (statusModal) {
+                        statusModal.hidden = true;
+                    }
+
+                    if (statusSelect) {
+
+                        const selectedOption =
+                            statusSelect.options[
+                                statusSelect.selectedIndex
+                            ];
+
+                        showToast(
+                            "Quotation status changed to " +
+                            selectedOption.textContent.trim() +
+                            "."
+                        );
+
+                    }
+
+                });
+
+            }
+
+
+            document.addEventListener("keydown", function (event) {
+
+                if (event.key !== "Escape") {
+                    return;
+                }
+
+                document
+                    .querySelectorAll(".modal")
+                    .forEach(function (modal) {
+
+                        if (!modal.hidden) {
+                            modal.hidden = true;
+                        }
+
+                    });
+
+            });
+
+        });
+    </script>
+
+<script src="enhancements.js"></script>
+</body>
+</html>

@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="View and manage activity history in the Tech SG Studio (SMC-Pvt.) Ltd. Invoicing System."
+    >
+
+    <title>Audit Log | Tech SG Studio (SMC-Pvt.) Ltd.</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        .audit-page {
+            font-family: Inter, Arial, sans-serif;
+            color: #172033;
+        }
+
+        .audit-page * {
+            box-sizing: border-box;
+        }
+
+        .audit-page .page-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .audit-page .page-heading h1 {
+            margin: 0 0 7px;
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .audit-page .muted {
+            color: #758097;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .audit-page .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            padding: 11px 15px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .audit-page .btn-primary {
+            background: #3659e3;
+            color: #ffffff;
+        }
+
+        .audit-page .btn-primary:hover {
+            background: #2847c5;
+            transform: translateY(-1px);
+        }
+
+        .audit-page .btn-light {
+            background: #ffffff;
+            color: #344054;
+            border-color: #e1e6ef;
+        }
+
+        .audit-page .btn-light:hover {
+            background: #f6f8fc;
+        }
+
+        .audit-page .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .audit-page .stat-card {
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e8ecf3;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(25, 42, 70, 0.035);
+        }
+
+        .audit-page .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            color: #758097;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .audit-page .stat-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: #edf2ff;
+            color: #3659e3;
+            font-size: 18px;
+        }
+
+        .audit-page .stat-number {
+            margin: 17px 0 6px;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .audit-page .stat-note {
+            font-size: 11px;
+            color: #758097;
+        }
+
+        .audit-page .panel {
+            background: #ffffff;
+            border: 1px solid #e8ecf3;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(25, 42, 70, 0.035);
+            overflow: hidden;
+        }
+
+        .audit-page .panel-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 21px 22px;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .audit-page .panel-heading h2 {
+            margin: 0 0 5px;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .audit-page .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 17px 22px;
+            background: #fcfdff;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .audit-page .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 210px;
+        }
+
+        .audit-page .search-icon {
+            position: absolute;
+            left: 13px;
+            top: 10px;
+            color: #8993a7;
+            pointer-events: none;
+        }
+
+        .audit-page .field {
+            width: 100%;
+            min-height: 40px;
+            padding: 10px 12px;
+            border: 1px solid #e0e5ee;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #26334a;
+            font: inherit;
+            font-size: 12px;
+        }
+
+        .audit-page .search-wrap .field {
+            padding-left: 36px;
+        }
+
+        .audit-page .field:focus {
+            outline: none;
+            border-color: #7890f1;
+            box-shadow: 0 0 0 3px #3659e315;
+        }
+
+        .audit-page .toolbar select {
+            width: auto;
+            min-width: 145px;
+        }
+
+        .audit-page .table-wrap {
+            overflow-x: auto;
+        }
+
+        .audit-page table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .audit-page th {
+            padding: 13px 20px;
+            background: #f8faff;
+            color: #818ba0;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            font-weight: 800;
+        }
+
+        .audit-page td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f2f7;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .audit-page tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .audit-page tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .audit-page .activity {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .audit-page .activity-icon {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: #edf2ff;
+            color: #3659e3;
+            font-size: 15px;
+        }
+
+        .audit-page .activity-text strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .audit-page .activity-text span {
+            display: block;
+            color: #8993a7;
+            font-size: 10px;
+        }
+
+        .audit-page .user-cell strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .audit-page .user-cell span {
+            display: block;
+            color: #8993a7;
+            font-size: 10px;
+        }
+
+        .audit-page .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .audit-page .badge-create {
+            background: #e8f8ef;
+            color: #18834a;
+        }
+
+        .audit-page .badge-update {
+            background: #edf2ff;
+            color: #3659e3;
+        }
+
+        .audit-page .badge-delete {
+            background: #fff0f0;
+            color: #c03939;
+        }
+
+        .audit-page .badge-login {
+            background: #fff7df;
+            color: #a16d00;
+        }
+
+        .audit-page .badge-system {
+            background: #f1f3f7;
+            color: #65718a;
+        }
+
+        .audit-page .date-cell {
+            color: #59657b;
+        }
+
+        .audit-page .ip-cell {
+            font-family: monospace;
+            font-size: 11px;
+            color: #65718a;
+        }
+
+        .audit-page .table-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 17px 22px;
+            border-top: 1px solid #edf0f5;
+        }
+
+        .audit-page .pagination {
+            display: flex;
+            gap: 6px;
+            padding: 0;
+        }
+
+        .audit-page .page-btn {
+            min-width: 32px;
+            height: 32px;
+            border: 1px solid #e3e8f0;
+            border-radius: 7px;
+            background: #ffffff;
+            color: #59657b;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .audit-page .page-btn:hover:not(:disabled) {
+            background: #f3f5ff;
+            border-color: #cfd7f5;
+        }
+
+        .audit-page .page-btn.active {
+            background: #3659e3;
+            color: #ffffff;
+            border-color: #3659e3;
+        }
+
+        .audit-page .page-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .audit-page .empty-row {
+            padding: 35px;
+            text-align: center;
+            color: #758097;
+        }
+
+        .audit-page .notice {
+            position: fixed;
+            z-index: 1200;
+            right: 22px;
+            bottom: 22px;
+            max-width: 360px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            background: #172033;
+            color: #ffffff;
+            box-shadow: 0 10px 30px #17203330;
+            font-size: 13px;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: 0.25s;
+        }
+
+        .audit-page .notice.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 900px) {
+
+            .audit-page .stats-grid {
+                grid-template-columns: repeat(
+                    2,
+                    minmax(0, 1fr)
+                );
+            }
+
+        }
+
+        @media (max-width: 560px) {
+
+            .audit-page .page-heading h1 {
+                font-size: 23px;
+            }
+
+            .audit-page .stats-grid {
+                gap: 10px;
+            }
+
+            .audit-page .stat-card {
+                padding: 14px;
+            }
+
+            .audit-page .stat-number {
+                font-size: 23px;
+            }
+
+            .audit-page .panel-heading,
+            .audit-page .toolbar {
+                padding: 15px;
+            }
+
+        }
+
+    </style>
+
+
+    <link rel="stylesheet" href="professional.css">
+<link rel="stylesheet" href="fbr.css">
+<script src="fbr.js" defer></script>
+<link rel="stylesheet" href="techsg-theme.css">
+<link rel="stylesheet" href="layout-fix.css">
+<link rel="stylesheet" href="app.css">
+<script src="qr.js"></script>
+<script src="core.js"></script>
+<script src="advanced.js" defer></script>
+</head>
+
+
+<body>
+
+<div class="audit-page">
+
+    <main class="main-content">
+
+        <section class="page-heading">
+
+            <div>
+
+                <div class="muted">
+                    Workspace / System Activity
+                </div>
+
+                <h1>
+                    Audit Log
+                </h1>
+
+                <div class="muted">
+                    Track important actions and activity across your invoicing system.
+                </div>
+
+            </div>
+
+
+            <button
+                class="btn btn-light"
+                id="clearAuditBtn"
+                type="button"
+            >
+                Clear Log
+            </button>
+
+        </section>
+
+
+        <section
+            class="stats-grid"
+            aria-label="Audit statistics"
+        >
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>
+                        Total Events
+                    </span>
+
+                    <span
+                        class="stat-icon"
+                        aria-hidden="true"
+                    >
+                        ◷
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="totalEvents"
+                >
+                    0
+                </div>
+
+                <div class="stat-note">
+                    All recorded activities
+                </div>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>
+                        Today's Events
+                    </span>
+
+                    <span
+                        class="stat-icon"
+                        aria-hidden="true"
+                    >
+                        ✓
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="todayEvents"
+                >
+                    0
+                </div>
+
+                <div class="stat-note">
+                    Activities recorded today
+                </div>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>
+                        Logins
+                    </span>
+
+                    <span
+                        class="stat-icon"
+                        aria-hidden="true"
+                    >
+                        ↪
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="loginEvents"
+                >
+                    0
+                </div>
+
+                <div class="stat-note">
+                    Authentication events
+                </div>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>
+                        Changes
+                    </span>
+
+                    <span
+                        class="stat-icon"
+                        aria-hidden="true"
+                    >
+                        ✎
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="changeEvents"
+                >
+                    0
+                </div>
+
+                <div class="stat-note">
+                    Created, updated or deleted
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <section class="panel">
+
+            <header class="panel-heading">
+
+                <div>
+
+                    <h2>
+                        Activity History
+                    </h2>
+
+                    <div class="muted">
+                        Review system actions, users and timestamps.
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <div class="toolbar">
+
+                <div class="search-wrap">
+
+                    <span
+                        class="search-icon"
+                        aria-hidden="true"
+                    >
+                        ⌕
+                    </span>
+
+                    <input
+                        class="field"
+                        type="search"
+                        id="auditSearch"
+                        placeholder="Search activity, user, invoice..."
+                        aria-label="Search audit log"
+                    >
+
+                </div>
+
+
+                <select
+                    class="field"
+                    id="auditActionFilter"
+                    aria-label="Filter audit action"
+                >
+
+                    <option value="">
+                        All Actions
+                    </option>
+
+                    <option value="Create">
+                        Create
+                    </option>
+
+                    <option value="Update">
+                        Update
+                    </option>
+
+                    <option value="Delete">
+                        Delete
+                    </option>
+
+                    <option value="Login">
+                        Login
+                    </option>
+
+                    <option value="System">
+                        System
+                    </option>
+
+                </select>
+
+
+                <select
+                    class="field"
+                    id="auditUserFilter"
+                    aria-label="Filter audit user"
+                >
+
+                    <option value="">
+                        All Users
+                    </option>
+
+                </select>
+
+
+                <button
+                    class="btn btn-light"
+                    id="resetAuditBtn"
+                    type="button"
+                >
+                    Reset
+                </button>
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th scope="col">
+                                Activity
+                            </th>
+
+                            <th scope="col">
+                                User
+                            </th>
+
+                            <th scope="col">
+                                Action
+                            </th>
+
+                            <th scope="col">
+                                Date &amp; Time
+                            </th>
+
+                            <th scope="col">
+                                IP Address
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="auditTableBody">
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                class="empty-row"
+                            >
+                                Loading activity...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <footer class="table-footer">
+
+                <span
+                    class="muted"
+                    id="auditCount"
+                >
+                    Showing 0 events
+                </span>
+
+
+                <div
+                    class="pagination"
+                    id="auditPagination"
+                    arialabel="Audit log pagination"
+                ></div>
+
+            </footer>
+
+        </section>
+
+    </main>
+
+
+    <div
+        class="notice"
+        id="auditNotice"
+        role="status"
+        aria-live="polite"
+    ></div>
+
+</div>
+<script>
+(function () {
+
+    "use strict";
+
+    const STORAGE_KEY = "techsg_audit_log_v1";
+    const PAGE_SIZE = 10;
+
+    let auditLogs = [];
+    let currentPage = 1;
+    let noticeTimer;
+
+    const $ = (id) => document.getElementById(id);
+
+
+    function escapeHTML(value) {
+
+        return String(value ?? "")
+            .replace(/[&<>"']/g, (char) => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[char]);
+
+    }
+
+
+    function formatDateTime(value) {
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return String(value || "");
+        }
+
+        return new Intl.DateTimeFormat("en-SG", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }).format(date);
+
+    }
+
+
+    function isToday(value) {
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return false;
+        }
+
+        const today = new Date();
+
+        return (
+            date.getDate() === today.getDate() &&
+            date.getMonth() === today.getMonth() &&
+            date.getFullYear() === today.getFullYear()
+        );
+
+    }
+
+
+    function getActionClass(action) {
+
+        const value = String(action || "").toLowerCase();
+
+        if (value === "create") {
+            return "badge-create";
+        }
+
+        if (value === "update") {
+            return "badge-update";
+        }
+
+        if (value === "delete") {
+            return "badge-delete";
+        }
+
+        if (value === "login") {
+            return "badge-login";
+        }
+
+        return "badge-system";
+
+    }
+
+
+    function getActivityIcon(action) {
+
+        const value = String(action || "").toLowerCase();
+
+        if (value === "create") {
+            return "＋";
+        }
+
+        if (value === "update") {
+            return "✎";
+        }
+
+        if (value === "delete") {
+            return "×";
+        }
+
+        if (value === "login") {
+            return "↪";
+        }
+
+        return "⚙";
+
+    }
+
+
+    function seedAuditLogs() {
+
+        const now = new Date();
+
+        return [
+
+            {
+                id: "AUD-1001",
+                activity: "Invoice INV-2026-0052 created",
+                details: "New invoice was created for Acme Corporation.",
+                user: "Admin",
+                email: "admin@techsg.com",
+                action: "Create",
+                date: new Date(
+                    now.getTime() - 18 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.10"
+            },
+
+            {
+                id: "AUD-1002",
+                activity: "Invoice INV-2026-0051 updated",
+                details: "Invoice amount and payment terms were updated.",
+                user: "Admin",
+                email: "admin@techsg.com",
+                action: "Update",
+                date: new Date(
+                    now.getTime() - 42 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.10"
+            },
+
+            {
+                id: "AUD-1003",
+                activity: "Client Meridian Digital added",
+                details: "A new company client was added.",
+                user: "Admin",
+                email: "admin@techsg.com",
+                action: "Create",
+                date: new Date(
+                    now.getTime() - 2 * 60 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.10"
+            },
+
+            {
+                id: "AUD-1004",
+                activity: "Quotation QT-2026-0048 updated",
+                details: "Quotation status changed to Accepted.",
+                user: "Sarah Lee",
+                email: "sarah@techsg.com",
+                action: "Update",
+                date: new Date(
+                    now.getTime() - 4 * 60 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.15"
+            },
+
+            {
+                id: "AUD-1005",
+                activity: "User signed in",
+                details: "Administrator successfully signed in.",
+                user: "Admin",
+                email: "admin@techsg.com",
+                action: "Login",
+                date: new Date(
+                    now.getTime() - 6 * 60 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.10"
+            },
+
+            {
+                id: "AUD-1006",
+                activity: "Invoice INV-2026-0047 deleted",
+                details: "Invoice was removed from the invoice records.",
+                user: "Admin",
+                email: "admin@techsg.com",
+                action: "Delete",
+                date: new Date(
+                    now.getTime() - 24 * 60 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.10"
+            },
+
+            {
+                id: "AUD-1007",
+                activity: "Payment recorded for INV-2026-0046",
+                details: "Payment of Rs. 2,450.00 was recorded.",
+                user: "Sarah Lee",
+                email: "sarah@techsg.com",
+                action: "Create",
+                date: new Date(
+                    now.getTime() - 2 * 24 * 60 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.15"
+            },
+
+            {
+                id: "AUD-1008",
+                activity: "Quotation QT-2026-0042 sent",
+                details: "Quotation was sent to the client by email.",
+                user: "Admin",
+                email: "admin@techsg.com",
+                action: "System",
+                date: new Date(
+                    now.getTime() - 3 * 24 * 60 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.10"
+            },
+
+            {
+                id: "AUD-1009",
+                activity: "Client account updated",
+                details: "Billing contact information was updated.",
+                user: "Sarah Lee",
+                email: "sarah@techsg.com",
+                action: "Update",
+                date: new Date(
+                    now.getTime() - 4 * 24 * 60 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.15"
+            },
+
+            {
+                id: "AUD-1010",
+                activity: "System backup completed",
+                details: "Application data backup completed successfully.",
+                user: "System",
+                email: "system",
+                action: "System",
+                date: new Date(
+                    now.getTime() - 5 * 24 * 60 * 60 * 1000
+                ).toISOString(),
+                ip: "127.0.0.1"
+            },
+
+            {
+                id: "AUD-1011",
+                activity: "Invoice INV-2026-0040 marked paid",
+                details: "Invoice payment status was changed to Paid.",
+                user: "Admin",
+                email: "admin@techsg.com",
+                action: "Update",
+                date: new Date(
+                    now.getTime() - 6 * 24 * 60 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.10"
+            },
+
+            {
+                id: "AUD-1012",
+                activity: "New quotation created",
+                details: "Quotation QT-2026-0039 was created.",
+                user: "Sarah Lee",
+                email: "sarah@techsg.com",
+                action: "Create",
+                date: new Date(
+                    now.getTime() - 7 * 24 * 60 * 60 * 1000
+                ).toISOString(),
+                ip: "192.168.1.15"
+            }
+
+        ];
+
+    }
+
+
+    function saveAuditLogs() {
+
+        try {
+
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(auditLogs)
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Unable to save audit log:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function loadAuditLogs() {
+
+        try {
+
+            const saved = localStorage.getItem(
+                STORAGE_KEY
+            );
+
+            if (saved !== null) {
+
+                const parsed = JSON.parse(saved);
+
+                if (Array.isArray(parsed)) {
+
+                    auditLogs = parsed;
+
+                } else {
+
+                    auditLogs = seedAuditLogs();
+                    saveAuditLogs();
+
+                }
+
+            } else {
+
+                auditLogs = seedAuditLogs();
+                saveAuditLogs();
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Unable to load audit log:",
+                error
+            );
+
+            auditLogs = seedAuditLogs();
+
+        }
+
+    }
+
+
+    function showNotice(message) {
+
+        const notice = $("auditNotice");
+
+        if (!notice) {
+            return;
+        }
+
+        notice.textContent = message;
+        notice.classList.add("show");
+
+        clearTimeout(noticeTimer);
+
+        noticeTimer = setTimeout(() => {
+
+            notice.classList.remove("show");
+
+        }, 2800);
+
+    }
+
+
+    function getFilteredLogs() {
+
+        const searchInput = $("auditSearch");
+        const actionInput = $("auditActionFilter");
+        const userInput = $("auditUserFilter");
+
+        const search = String(
+            searchInput ? searchInput.value : ""
+        ).trim().toLowerCase();
+
+        const action = String(
+            actionInput ? actionInput.value : ""
+        ).trim();
+
+        const user = String(
+            userInput ? userInput.value : ""
+        ).trim();
+
+        return auditLogs.filter((log) => {
+
+            const searchable = [
+                log.activity,
+                log.details,
+                log.user,
+                log.email,
+                log.action,
+                log.ip,
+                log.id
+            ]
+                .join(" ")
+                .toLowerCase();
+
+            const matchesSearch =
+                !search ||
+                searchable.includes(search);
+
+            const matchesAction =
+                !action ||
+                log.action === action;
+
+            const matchesUser =
+                !user ||
+                log.user === user;
+
+            return (
+                matchesSearch &&
+                matchesAction &&
+                matchesUser
+            );
+
+        });
+
+    }
+
+
+    function updateStats() {
+
+        const total = auditLogs.length;
+
+        const today = auditLogs.filter(
+            (log) => isToday(log.date)
+        ).length;
+
+        const logins = auditLogs.filter(
+            (log) => log.action === "Login"
+        ).length;
+
+        const changes = auditLogs.filter(
+            (log) =>
+                log.action === "Create" ||
+                log.action === "Update" ||
+                log.action === "Delete"
+        ).length;
+
+        $("totalEvents").textContent = total;
+        $("todayEvents").textContent = today;
+        $("loginEvents").textContent = logins;
+        $("changeEvents").textContent = changes;
+
+    }
+
+
+    function populateUserFilter() {
+
+        const select = $("auditUserFilter");
+
+        if (!select) {
+            return;
+        }
+
+        const currentValue = select.value;
+
+        const users = [
+            ...new Set(
+                auditLogs
+                    .map((log) => log.user)
+                    .filter(Boolean)
+            )
+        ].sort((a, b) =>
+            String(a).localeCompare(String(b))
+        );
+
+        select.innerHTML = `
+            <option value="">All Users</option>
+        `;
+
+        users.forEach((user) => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = user;
+            option.textContent = user;
+
+            select.appendChild(option);
+
+        });
+
+        if (users.includes(currentValue)) {
+            select.value = currentValue;
+        }
+
+    }
+
+
+    function renderTable() {
+
+        const tbody = $("auditTableBody");
+
+        if (!tbody) {
+            return;
+        }
+
+        const filtered = getFilteredLogs();
+
+        const totalPages = Math.max(
+            1,
+            Math.ceil(filtered.length / PAGE_SIZE)
+        );
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        const start =
+            (currentPage - 1) * PAGE_SIZE;
+
+        const pageItems =
+            filtered.slice(
+                start,
+                start + PAGE_SIZE
+            );
+
+        if (pageItems.length === 0) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="5"
+                        class="empty-row"
+                    >
+                        No audit activity found.
+                    </td>
+                </tr>
+            `;
+
+        } else {
+
+            tbody.innerHTML = pageItems
+                .map((log) => {
+
+                    const actionClass =
+                        getActionClass(log.action);
+
+                    const icon =
+                        getActivityIcon(log.action);
+
+                    return `
+                        <tr data-id="${escapeHTML(log.id)}">
+
+                            <td>
+
+                                <div class="activity">
+
+                                    <div
+                                        class="activity-icon"
+                                        aria-hidden="true"
+                                    >
+                                        ${icon}
+                                    </div>
+
+                                    <div class="activity-text">
+
+                                        <strong>
+                                            ${escapeHTML(log.activity)}
+                                        </strong>
+
+                                        <span>
+                                            ${escapeHTML(log.details)}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="user-cell">
+
+                                    <strong>
+                                        ${escapeHTML(log.user)}
+                                    </strong>
+
+                                    <span>
+                                        ${escapeHTML(log.email)}
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <span
+                                    class="badge ${actionClass}"
+                                >
+                                    ${escapeHTML(log.action)}
+                                </span>
+
+                            </td>
+
+
+                            <td class="date-cell">
+                                ${escapeHTML(
+                                    formatDateTime(log.date)
+                                )}
+                            </td>
+
+
+                            <td class="ip-cell">
+                                ${escapeHTML(log.ip)}
+                            </td>
+
+                        </tr>
+                    `;
+
+                })
+                .join("");
+
+        }
+
+        const from =
+            filtered.length === 0
+                ? 0
+                : start + 1;
+
+        const to =
+            Math.min(
+                start + PAGE_SIZE,
+                filtered.length
+            );
+
+        $("auditCount").textContent =
+            `Showing ${from}–${to} of ${filtered.length} events`;
+
+        renderPagination(totalPages);
+
+    }
+    function renderPagination(totalPages) {
+
+            const pagination = $("auditPagination");
+
+            if (!pagination) {
+                return;
+            }
+
+            pagination.innerHTML = "";
+
+            if (totalPages <= 1) {
+                return;
+            }
+
+
+            const previousButton =
+                document.createElement("button");
+
+            previousButton.type = "button";
+            previousButton.className = "page-btn";
+            previousButton.textContent = "‹";
+            previousButton.setAttribute(
+                "aria-label",
+                "Previous page"
+            );
+
+            previousButton.disabled =
+                currentPage === 1;
+
+            previousButton.addEventListener(
+                "click",
+                () => {
+
+                    if (currentPage > 1) {
+
+                        currentPage -= 1;
+                        renderTable();
+
+                    }
+
+                }
+            );
+
+            pagination.appendChild(previousButton);
+
+
+            const maxVisiblePages = 5;
+
+            let startPage = Math.max(
+                1,
+                currentPage - 2
+            );
+
+            let endPage = Math.min(
+                totalPages,
+                startPage + maxVisiblePages - 1
+            );
+
+            if (
+                endPage - startPage + 1 <
+                maxVisiblePages
+            ) {
+
+                startPage = Math.max(
+                    1,
+                    endPage - maxVisiblePages + 1
+                );
+
+            }
+
+
+            if (startPage > 1) {
+
+                const firstButton =
+                    document.createElement("button");
+
+                firstButton.type = "button";
+                firstButton.className = "page-btn";
+                firstButton.textContent = "1";
+
+                firstButton.addEventListener(
+                    "click",
+                    () => {
+
+                        currentPage = 1;
+                        renderTable();
+
+                    }
+                );
+
+                pagination.appendChild(firstButton);
+
+
+                if (startPage > 2) {
+
+                    const dots =
+                        document.createElement("span");
+
+                    dots.textContent = "…";
+                    dots.style.display = "grid";
+                    dots.style.placeItems = "center";
+                    dots.style.minWidth = "25px";
+                    dots.style.color = "#8993a7";
+
+                    pagination.appendChild(dots);
+
+                }
+
+            }
+
+
+            for (
+                let page = startPage;
+                page <= endPage;
+                page += 1
+            ) {
+
+                const pageButton =
+                    document.createElement("button");
+
+                pageButton.type = "button";
+                pageButton.className = "page-btn";
+
+                if (page === currentPage) {
+                    pageButton.classList.add("active");
+                    pageButton.setAttribute(
+                        "aria-current",
+                        "page"
+                    );
+                }
+
+                pageButton.textContent =
+                    String(page);
+
+                pageButton.setAttribute(
+                    "aria-label",
+                    `Go to page ${page}`
+                );
+
+                pageButton.addEventListener(
+                    "click",
+                    () => {
+
+                        currentPage = page;
+                        renderTable();
+
+                    }
+                );
+
+                pagination.appendChild(pageButton);
+
+            }
+
+
+            if (endPage < totalPages) {
+
+                if (endPage < totalPages - 1) {
+
+                    const dots =
+                        document.createElement("span");
+
+                    dots.textContent = "…";
+                    dots.style.display = "grid";
+                    dots.style.placeItems = "center";
+                    dots.style.minWidth = "25px";
+                    dots.style.color = "#8993a7";
+
+                    pagination.appendChild(dots);
+
+                }
+
+
+                const lastButton =
+                    document.createElement("button");
+
+                lastButton.type = "button";
+                lastButton.className = "page-btn";
+                lastButton.textContent =
+                    String(totalPages);
+
+                lastButton.addEventListener(
+                    "click",
+                    () => {
+
+                        currentPage = totalPages;
+                        renderTable();
+
+                    }
+                );
+
+                pagination.appendChild(lastButton);
+
+            }
+
+
+            const nextButton =
+                document.createElement("button");
+
+            nextButton.type = "button";
+            nextButton.className = "page-btn";
+            nextButton.textContent = "›";
+
+            nextButton.setAttribute(
+                "aria-label",
+                "Next page"
+            );
+
+            nextButton.disabled =
+                currentPage === totalPages;
+
+            nextButton.addEventListener(
+                "click",
+                () => {
+
+                    if (currentPage < totalPages) {
+
+                        currentPage += 1;
+                        renderTable();
+
+                    }
+
+                }
+            );
+
+            pagination.appendChild(nextButton);
+
+        }
+
+
+        function resetFilters() {
+
+            $("auditSearch").value = "";
+            $("auditActionFilter").value = "";
+            $("auditUserFilter").value = "";
+
+            currentPage = 1;
+
+            renderTable();
+
+        }
+
+
+        function clearAuditLog() {
+
+            if (auditLogs.length === 0) {
+
+                showNotice(
+                    "Audit log is already empty."
+                );
+
+                return;
+
+            }
+
+
+            const confirmed = window.confirm(
+                "Are you sure you want to clear the entire audit log? This action cannot be undone."
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            auditLogs = [];
+
+            saveAuditLogs();
+
+            currentPage = 1;
+
+            updateStats();
+
+            populateUserFilter();
+
+            renderTable();
+
+            showNotice(
+                "Audit log cleared successfully."
+            );
+
+        }
+
+
+        function bindEvents() {
+
+            const search =
+                $("auditSearch");
+
+            const actionFilter =
+                $("auditActionFilter");
+
+            const userFilter =
+                $("auditUserFilter");
+
+            const resetButton =
+                $("resetAuditBtn");
+
+            const clearButton =
+                $("clearAuditBtn");
+
+
+            if (search) {
+
+                search.addEventListener(
+                    "input",
+                    () => {
+
+                        currentPage = 1;
+                        renderTable();
+
+                    }
+                );
+
+            }
+
+
+            if (actionFilter) {
+
+                actionFilter.addEventListener(
+                    "change",
+                    () => {
+
+                        currentPage = 1;
+                        renderTable();
+
+                    }
+                );
+
+            }
+
+
+            if (userFilter) {
+
+                userFilter.addEventListener(
+                    "change",
+                    () => {
+
+                        currentPage = 1;
+                        renderTable();
+
+                    }
+                );
+
+            }
+
+
+            if (resetButton) {
+
+                resetButton.addEventListener(
+                    "click",
+                    resetFilters
+                );
+
+            }
+
+
+            if (clearButton) {
+
+                clearButton.addEventListener(
+                    "click",
+                    clearAuditLog
+                );
+
+            }
+
+        }
+
+
+        function init() {
+
+            loadAuditLogs();
+
+            updateStats();
+
+            populateUserFilter();
+
+            renderTable();
+
+            bindEvents();
+
+        }
+
+
+        if (
+            document.readyState === "loading"
+        ) {
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                init
+            );
+
+        } else {
+
+            init();
+
+        }
+
+    })();
+    </script>
+
+
+    <script src="enhancements.js"></script>
+</body>
+
+</html>

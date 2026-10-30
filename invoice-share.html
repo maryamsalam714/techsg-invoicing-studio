@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your invoice | Tech SG Studio (SMC-Pvt.) Ltd.</title><link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="professional.css"><link rel="stylesheet" href="fbr.css"><link rel="stylesheet" href="techsg-theme.css"><link rel="stylesheet" href="layout-fix.css"><link rel="stylesheet" href="app.css">
+<script src="qr.js"></script><script src="core.js"></script></head>
+<body data-page="invoice-share"><div id="root"></div>
+<script src="fbr.js"></script><script src="advanced.js"></script>
+<script>
+(async function(){
+ var D=document,h=location.hash.slice(1),r=D.getElementById("root");
+ r.innerHTML='<div class="share-top"><div style="display:flex;gap:10px;align-items:center"><img src="assets/logo.png" alt="Tech SG Studio"><b>Tech SG Studio (SMC-Pvt.) Ltd.</b></div><div class="share-actions" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn light" id="pr">Print / Download PDF</button><a class="btn primary" href="pay-proof.html">Submit payment proof</a></div></div><div class="share-wrap" id="w"><div class="card empty">Loading invoice…</div></div>';
+ try{var d=await SG.unpack(h),co=Object.assign({},d.o);D.getElementById("w").innerHTML='<div class="inv-fit">'+SG.invoiceHTML(d.i,d.c,co,location.href)+"</div>";D.title="Invoice "+d.i.id+" | "+co.name;SG.fit();
+  D.getElementById("pr").onclick=function(){window.print()}}
+ catch(e){D.getElementById("w").innerHTML='<div class="card empty">This invoice link is invalid or incomplete. Please ask Tech SG Studio to send it again.</div>'}
+})();</script></body></html>
