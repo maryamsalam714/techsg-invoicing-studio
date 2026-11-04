@@ -105,3 +105,23 @@ function audit(string $action, string $entity, ?string $entityId = null, ?string
     $stmt->bind_param('isssss', $userId, $action, $entity, $entityId, $details, $ip);
     $stmt->execute();
 }
+
+// Hand out the next number of a kind: never twice, never skipping.
+// Call it INSIDE a transaction ($mysqli->begin_transaction()), so a failed save gives the number back.
+// Example: next_number('client') gives 1, 2, 3...   next_number('invoice', 2026) restarts every year.
+function next_number(string $name, int $year = 0): int {
+    global $mysqli;
+    // Make sure the counter row exists
+    $stmt = $mysqli->prepare("INSERT IGNORE INTO sequences (name, year, last_number) VALUES (?, ?, 0)");
+    $stmt->bind_param('si', $name, $year);
+    $stmt->execute();
+    // Lock the row, so nobody else can take the same number at the same moment
+    $stmt = $mysqli->prepare("SELECT last_number FROM sequences WHERE name = ? AND year = ? FOR UPDATE");
+    $stmt->bind_param('si', $name, $year);
+    $stmt->execute();
+    $next = (int)$stmt->get_result()->fetch_row()[0] + 1;
+    $stmt = $mysqli->prepare("UPDATE sequences SET last_number = ? WHERE name = ? AND year = ?");
+    $stmt->bind_param('isi', $next, $name, $year);
+    $stmt->execute();
+    return $next;
+}
