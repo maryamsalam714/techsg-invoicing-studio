@@ -126,3 +126,74 @@ function enhance(){var s=SG.session();if(!s)return;
  if(PAGE==="settings"&&s.role==="admin")companyCard();guide();SG.fit()}
 if(!SG.stop){if(D.readyState==="complete")setTimeout(enhance,0);else W.addEventListener("load",enhance)}
 })();
+/* ===== Server connection (added by Maryam Ayub): talks to the PHP API in the api folder ===== */
+(function () {
+  "use strict";
+  var SG = window.SG;
+  var SESSION_KEY = "techsg_v2_session";   // the browser copy of the session (name, role, expiry)
+  var PUBLIC_PAGES = ["login", "forgot-password", "reset-password", "invoice-share", "pay-proof"];
+
+  SG.csrf = "";                            // security token, filled in from the server
+
+  // Call the PHP API. Examples: SG.api("session.php")   SG.api("login.php", "POST", {username: "x"})
+  // Gives back the JSON answer (also for errors). The HTTP status is in answer._status.
+  SG.api = function (path, method, body) {
+    method = method || "GET";
+    var send = function () {
+      var headers = {"Content-Type": "application/json"};
+      if (SG.csrf) { headers["X-CSRF-Token"] = SG.csrf; }
+      return fetch("api/" + path, {
+        method: method, headers: headers, credentials: "same-origin",
+        body: body ? JSON.stringify(body) : undefined
+      }).then(function (r) {
+        return r.json().catch(function () { return {ok: false, error: "Server error"}; })
+                .then(function (j) { j._status = r.status; return j; });
+      });
+    };
+    // Requests that change data need the security token first
+    if (method !== "GET" && !SG.csrf) {
+      return SG.api("session.php").then(function (j) { SG.csrf = j.csrf_token || ""; return send(); });
+    }
+    return send();
+  };
+
+  // Sign in through the server. Gives back the user, or throws an Error whose message can be shown.
+  SG.apiLogin = function (username, password) {
+    return SG.api("session.php").then(function (s) {
+      SG.csrf = s.csrf_token || "";
+      return SG.api("login.php", "POST", {username: username, password: password});
+    }).then(function (j) {
+      if (!j.ok) { throw new Error(j.error || "Could not sign in."); }
+      SG.csrf = j.csrf_token || "";
+      // Keep a browser copy of the session so the pages know the name and role (12 hours)
+      localStorage.setItem(SESSION_KEY, JSON.stringify({
+        uid: j.user.uid, name: j.user.name, role: j.user.role, username: j.user.username,
+        exp: Date.now() + 12 * 36e5
+      }));
+      return j.user;
+    }).catch(function (e) {
+      if (e instanceof TypeError) { throw new Error("Cannot reach the server."); }
+      throw e;
+    });
+  };
+
+  // Sign out on the server first, then clear the browser copy and go to the login page
+  SG.logout = function () {
+    var done = function () {
+      try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+      location.href = "login.html";
+    };
+    SG.api("logout.php", "POST").then(done, done);
+  };
+
+  // On every page except the public ones, ask the server if the user is really signed in
+  var page = (location.pathname.split("/").pop() || "index.html").replace(/\.html$/, "") || "index";
+  if (PUBLIC_PAGES.indexOf(page) < 0) {
+    SG.api("session.php").then(function (j) {
+      if (j.ok) { SG.csrf = j.csrf_token || ""; return; }
+      try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+      location.replace("login.html?next=" + encodeURIComponent(page + ".html" + location.search));
+    }).catch(function () { /* server not reachable: do nothing */ });
+  }
+})();
+
