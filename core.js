@@ -196,4 +196,85 @@ if(!SG.stop){if(D.readyState==="complete")setTimeout(enhance,0);else W.addEventL
     }).catch(function () { /* server not reachable: do nothing */ });
   }
 })();
+/* ===== Clients now live in MySQL (added by Maryam Ayub) ===== */
+(function () {
+  "use strict";
+  var SG = window.SG, NS = "techsg_v2_";
+  var PUBLIC_PAGES = ["login", "forgot-password", "reset-password", "invoice-share", "pay-proof"];
+  var FIELDS = ["name", "contact", "email", "phone", "address", "ntn"];
+  var page = (location.pathname.split("/").pop() || "index.html").replace(/\.html$/, "") || "index";
 
+  var cache = [];                  // the clients, as the server last sent them
+  var nextNo = 1;                  // the number of the next new client
+  var chain = Promise.resolve();   // server writes run one after another
+
+  function pad4(n) { return ("0000" + n).slice(-4); }
+  function copy(x) { return JSON.parse(JSON.stringify(x)); }
+  function numOf(id) { return parseInt(String(id).replace(/\D/g, ""), 10) || 0; }
+
+  // 1) Load the clients from the server BEFORE the page draws.
+  //    This request waits for the answer on purpose (the old pages read their data instantly).
+  function loadClients() {
+    var x = new XMLHttpRequest();
+    x.open("GET", "api/clients.php", false);   // false = wait here until the answer arrives
+    var j;
+    try { x.send(); j = JSON.parse(x.responseText); } catch (e) { return; }
+    if (j && j.ok) { cache = j.clients || []; nextNo = numOf(j.next) || 1; }
+  }
+  if (!SG.stop && PUBLIC_PAGES.indexOf(page) < 0) { loadClients(); }
+
+  // 2) The pages keep calling the same functions as before
+  SG.clients = function () { return copy(cache); };           // a fresh copy each time, like before
+  SG.nextClientId = function () { return "CL-" + pad4(nextNo); };
+
+  function fields(c) { var o = {}; FIELDS.forEach(function (k) { o[k] = c[k] || ""; }); return o; }
+  function check(j) { if (!j.ok) { throw new Error(j.error || "Server error"); } return j; }
+
+  // Send one change to the server
+  function run(op) {
+    var id = encodeURIComponent(op.client.id);
+    if (op.type === "delete") { return SG.api("clients.php?id=" + id, "DELETE").then(check); }
+    if (op.type === "update") { return SG.api("clients.php?id=" + id, "PUT", fields(op.client)).then(check); }
+    return SG.api("clients.php", "POST", fields(op.client)).then(check).then(function (j) {
+      var made = j.client.id;
+      nextNo = Math.max(nextNo, numOf(made) + 1);
+      if (made !== op.client.id) {                 // the server chose another number: use the server's
+        cache.forEach(function (c) { if (c.id === op.client.id) { c.id = made; } });
+        SG.toast("Client saved as " + made);
+        setTimeout(function () { location.reload(); }, 1200);
+      }
+    });
+  }
+
+  // 3) The pages hand over the WHOLE list when they save. We find what changed and tell the server.
+  SG.saveClients = function (list) {
+    var oldById = {}, newIds = {}, ops = [];
+    cache.forEach(function (c) { oldById[c.id] = c; });
+    list.forEach(function (c) {
+      newIds[c.id] = true;
+      var o = oldById[c.id];
+      if (!o) {
+        ops.push({type: "create", client: copy(c)});
+        nextNo = Math.max(nextNo, numOf(c.id) + 1);
+      } else if (FIELDS.some(function (k) { return (o[k] || "") !== (c[k] || ""); })) {
+        ops.push({type: "update", client: copy(c)});
+      }
+    });
+    cache.forEach(function (c) { if (!newIds[c.id]) { ops.push({type: "delete", client: c}); } });
+
+    cache = copy(list);                            // the page shows the change at once
+    ops.forEach(function (op) { chain = chain.then(function () { return run(op); }); });
+    chain = chain.catch(function (e) {             // something failed: say why, then reload the real data
+      SG.toast(e.message || "Could not save");
+      setTimeout(function () { location.reload(); }, 1500);
+    });
+  };
+
+  // 4) One-time cleanup: the old demo invoices point at demo clients that no longer exist
+  try {
+    if (!localStorage.getItem(NS + "demo_cleared")) {
+      localStorage.setItem(NS + "invoices", "[]");
+      localStorage.setItem(NS + "demo_cleared", "1");
+    }
+  } catch (e) {}
+})();

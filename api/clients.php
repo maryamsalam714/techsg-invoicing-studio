@@ -60,7 +60,9 @@ if ($method === 'GET') {
     $rows = $mysqli->query(
         "SELECT code, name, contact, email, phone, address, ntn FROM clients WHERE is_archived = 0 ORDER BY id"
     )->fetch_all(MYSQLI_ASSOC);
-    json_out(['ok' => true, 'clients' => array_map('client_out', $rows)]);
+       $seq  = $mysqli->query("SELECT last_number FROM sequences WHERE name = 'client' AND year = 0")->fetch_row();
+    $next = 'CL-' . str_pad((string)((int)($seq[0] ?? 0) + 1), 4, '0', STR_PAD_LEFT);
+    json_out(['ok' => true, 'clients' => array_map('client_out', $rows), 'next' => $next]);
 }
 
 // Everything below changes data, so it needs the security token
