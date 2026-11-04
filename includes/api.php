@@ -2,6 +2,8 @@
 // includes/api.php: shared helpers for every file in the api folder.
 // Every API file starts with:  require __DIR__ . '/../includes/api.php';
 
+ini_set('session.gc_maxlifetime', '43200');   // keep the session alive for 12 hours
+
 // Start the session. httponly = JavaScript cannot read the session cookie.
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax']);
@@ -89,4 +91,17 @@ function require_csrf(): void {
 function read_json(): array {
     $data = json_decode(file_get_contents('php://input') ?: '[]', true);
     return is_array($data) ? $data : [];
+}
+
+
+// Write one line to the audit log. Example: audit('login', 'user', 'U-0001', 'signed in');
+function audit(string $action, string $entity, ?string $entityId = null, ?string $details = null): void {
+    global $mysqli;
+    $userId = $_SESSION['user_id'] ?? null;
+    $ip     = $_SERVER['REMOTE_ADDR'] ?? '';
+    $stmt = $mysqli->prepare(
+        "INSERT INTO audit_log (user_id, action, entity, entity_id, details, ip) VALUES (?, ?, ?, ?, ?, ?)"
+    );
+    $stmt->bind_param('isssss', $userId, $action, $entity, $entityId, $details, $ip);
+    $stmt->execute();
 }
