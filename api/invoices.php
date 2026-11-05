@@ -5,6 +5,7 @@
 //   PUT    ?id=TSG-INV-2026-0001   update an invoice
 //   DELETE ?id=TSG-INV-2026-0001   delete an invoice (admin only)
 require __DIR__ . '/../includes/api.php';
+require __DIR__ . '/../includes/invoice_helpers.php';
 
 $user   = require_login();
 $method = $_SERVER['REQUEST_METHOD'];
@@ -17,7 +18,8 @@ function load_invoices(?int $onlyId = null): array {
     $where = $onlyId ? ' WHERE i.id = ' . (int)$onlyId : '';        // (int) makes this safe
     $rows = $mysqli->query(
         "SELECT i.id, i.invoice_no, c.code AS client_code, i.issue_date, i.terms, i.due_date, i.tax_rate,
-                i.discount, i.status, i.paid_at, i.notes, u.username AS created_by, DATE(i.created_at) AS created_date
+                i.discount, i.status, i.paid_at, i.amount_paid, i.notes, u.username AS created_by,
+                DATE(i.created_at) AS created_date
          FROM invoices i
          JOIN clients c ON c.id = i.client_id
          LEFT JOIN users u ON u.id = i.created_by" . $where . " ORDER BY i.id"
@@ -45,6 +47,7 @@ function load_invoices(?int $onlyId = null): array {
             'taxRate'   => (float)$r['tax_rate'],
             'discount'  => (float)$r['discount'],
             'status'    => $r['status'],
+            'paid'      => (float)$r['amount_paid'],       // how much has been paid so far
             'notes'     => (string)$r['notes'],
             'createdBy' => (string)$r['created_by'],
             'createdAt' => $r['created_date'],
@@ -61,7 +64,7 @@ function load_invoices(?int $onlyId = null): array {
 // Find one invoice by its number, or stop with a 404 answer
 function find_invoice(string $no): array {
     global $mysqli;
-    $stmt = $mysqli->prepare("SELECT id, status, paid_at FROM invoices WHERE invoice_no = ?");
+    $stmt = $mysqli->prepare("SELECT id, status, paid_at, amount_paid FROM invoices WHERE invoice_no = ?");
     $stmt->bind_param('s', $no);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
@@ -72,7 +75,8 @@ function find_invoice(string $no): array {
 }
 
 // Clean and check what the browser sent. Stops with a 422 answer if something is wrong.
-function invoice_in(array $in): array {
+// $currentStatus is the invoice's status in the database (empty for a new invoice).
+function invoice_in(array $in, string $currentStatus = ''): array {
     global $mysqli;
 
     $code = trim((string)($in['clientId'] ?? ''));
@@ -105,6 +109,10 @@ function invoice_in(array $in): array {
     $status = (string)($in['status'] ?? 'Pending');
     if (!in_array($status, INVOICE_STATUSES, true)) {
         json_error('Status is not valid.', 422);
+    }
+    // Nobody can set Paid by hand: it happens when the payments cover the total
+    if ($status === 'Paid' && $currentStatus !== 'Paid') {
+        json_error('An invoice becomes Paid when its payments cover the total. Record a payment instead.', 422);
     }
     $notes = trim((string)($in['notes'] ?? ''));
     if (mb_strlen($notes) > 2000) {
@@ -186,21 +194,18 @@ require_csrf();
 if ($method === 'POST') {
     $inv = invoice_in(read_json());
     $t   = invoice_totals($inv['items'], $inv['discount'], $inv['tax_rate']);
-    $paid       = ($inv['status'] === 'Paid');
-    $paidAt     = $paid ? date('Y-m-d') : null;
-    $amountPaid = $paid ? $t['total'] : 0.0;           // temporary: payments will take this over later
-    $year       = (int)date('Y');
+    $year = (int)date('Y');
 
     $mysqli->begin_transaction();                       // if anything fails, the number is given back
     $no = 'TSG-INV-' . $year . '-' . str_pad((string)next_number('invoice', $year), 4, '0', STR_PAD_LEFT);
     $stmt = $mysqli->prepare(
         "INSERT INTO invoices (invoice_no, client_id, issue_date, terms, due_date, tax_rate, discount, subtotal,
-                               tax_amount, total, amount_paid, status, paid_at, notes, created_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                               tax_amount, total, status, notes, created_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     );
-    $stmt->bind_param('sisisddddddsssi', $no, $inv['client_id'], $inv['issue'], $inv['terms'], $inv['due'],
-        $inv['tax_rate'], $t['discount'], $t['subtotal'], $t['tax'], $t['total'], $amountPaid,
-        $inv['status'], $paidAt, $inv['notes'], $user['id']);
+    $stmt->bind_param('sisisdddddssi', $no, $inv['client_id'], $inv['issue'], $inv['terms'], $inv['due'],
+        $inv['tax_rate'], $t['discount'], $t['subtotal'], $t['tax'], $t['total'],
+        $inv['status'], $inv['notes'], $user['id']);
     $stmt->execute();
     $id = $mysqli->insert_id;
     save_items($id, $inv['items']);
@@ -215,23 +220,25 @@ $no = trim((string)($_GET['id'] ?? ''));
 // ---- PUT: update ----
 if ($method === 'PUT') {
     $row = find_invoice($no);
-    $inv = invoice_in(read_json());
-    $t   = invoice_totals($inv['items'], $inv['discount'], $inv['tax_rate']);
-    $paid       = ($inv['status'] === 'Paid');
-    $paidAt     = $paid ? ($row['paid_at'] ?: date('Y-m-d')) : null;
-    $amountPaid = $paid ? $t['total'] : 0.0;
+    $inv = invoice_in(read_json(), $row['status']);
+
+    if (in_array($inv['status'], ['Draft', 'Cancelled'], true) && (float)$row['amount_paid'] > 0) {
+        json_error('This invoice has payments. Refund them before you cancel it or make it a draft.', 409);
+    }
+    $t = invoice_totals($inv['items'], $inv['discount'], $inv['tax_rate']);
 
     $mysqli->begin_transaction();
     $stmt = $mysqli->prepare(
         "UPDATE invoices SET client_id = ?, issue_date = ?, terms = ?, due_date = ?, tax_rate = ?, discount = ?,
-                subtotal = ?, tax_amount = ?, total = ?, amount_paid = ?, status = ?, paid_at = ?, notes = ?
+                subtotal = ?, tax_amount = ?, total = ?, status = ?, notes = ?
          WHERE id = ?"
     );
-    $stmt->bind_param('isisddddddsssi', $inv['client_id'], $inv['issue'], $inv['terms'], $inv['due'],
-        $inv['tax_rate'], $t['discount'], $t['subtotal'], $t['tax'], $t['total'], $amountPaid,
-        $inv['status'], $paidAt, $inv['notes'], $row['id']);
+    $stmt->bind_param('isisdddddssi', $inv['client_id'], $inv['issue'], $inv['terms'], $inv['due'],
+        $inv['tax_rate'], $t['discount'], $t['subtotal'], $t['tax'], $t['total'],
+        $inv['status'], $inv['notes'], $row['id']);
     $stmt->execute();
     save_items((int)$row['id'], $inv['items']);
+    refresh_invoice_payment((int)$row['id']);           // the status follows the payments
     $mysqli->commit();
 
     audit('update', 'invoice', $no, $inv['status'] . ', total ' . $t['total']);
@@ -242,6 +249,15 @@ if ($method === 'PUT') {
 if ($method === 'DELETE') {
     require_admin();
     $row = find_invoice($no);
+
+    // Money records are never deleted
+    $stmt = $mysqli->prepare("SELECT COUNT(*) FROM payments WHERE invoice_id = ?");
+    $stmt->bind_param('i', $row['id']);
+    $stmt->execute();
+    if ((int)$stmt->get_result()->fetch_row()[0] > 0) {
+        json_error('This invoice has payments, so it cannot be deleted. Cancel it instead.', 409);
+    }
+
     $stmt = $mysqli->prepare("DELETE FROM invoices WHERE id = ?");   // its items are deleted with it
     $stmt->bind_param('i', $row['id']);
     $stmt->execute();
