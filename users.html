@@ -10,14 +10,45 @@
 SG.ready(function(){
  var v=SG.shell({eyebrow:"SYSTEM",title:"Staff & Users",sub:"Admin creates staff accounts. Staff can create invoices and clients but cannot manage users or settings.",actions:'<button class="btn primary" id="add">+ Add staff</button>'});
  v.innerHTML='<div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>ID</th><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="tb"></tbody></table></div></div>';
- var me=SG.session();
- function draw(){document.getElementById("tb").innerHTML=SG.users().map(function(u){return"<tr><td><b>"+u.id+"</b></td><td>"+SG.esc(u.name)+"<br><small>"+SG.esc(u.email||"")+"</small></td><td>"+SG.esc(u.username)+"</td><td>"+(u.role==="admin"?'<span class="badge green">Admin</span>':'<span class="badge orange">Staff</span>')+"</td><td>"+(u.active!==false?'<span class="badge green">Active</span>':'<span class="badge gray">Disabled</span>')+'</td><td><div class="row-actions"><button class="btn light" data-pw="'+u.id+'">Reset password</button>'+(u.id!==me.uid?'<button class="btn light" data-t="'+u.id+'">'+(u.active!==false?"Disable":"Enable")+'</button><button class="btn red" data-d="'+u.id+'">Delete</button>':"")+"</div></td></tr>"}).join("")}
- function form(){SG.modal("Add staff / user",'<div class="form-grid"><div class="form-group"><label>Full name *</label><input class="input" name="name" required></div><div class="form-group"><label>Email</label><input class="input" type="email" name="email"></div><div class="form-group"><label>Username *</label><input class="input" name="username" required autocomplete="off"></div><div class="form-group"><label>Role</label><select class="input" name="role"><option value="staff">Staff</option><option value="admin">Admin</option></select></div><div class="form-group full"><label>Temporary password * (min 8 chars)</label><input class="input" name="password" required minlength="8" autocomplete="new-password"></div></div>',function(f){var a=SG.users(),u=f.elements.username.value.trim();
-  if(a.some(function(x){return x.username.toLowerCase()===u.toLowerCase()})){SG.toast("Username already exists");return false}
-  a.push({id:SG.nextUserId(),name:f.elements.name.value.trim(),username:u,email:f.elements.email.value.trim(),role:f.elements.role.value,active:true,hash:SG.hash(f.elements.password.value),created:SG.iso()});SG.saveUsers(a);SG.toast("User created");draw()},"Create user")}
- document.getElementById("add").onclick=form;
- v.onclick=function(e){var b=e.target.closest("button");if(!b)return;var a=SG.users();
-  if(b.dataset.pw){var p=prompt("New password (min 8 characters):");if(p&&p.length>=8){a.forEach(function(u){if(u.id===b.dataset.pw)u.hash=SG.hash(p)});SG.saveUsers(a);SG.toast("Password updated")}else if(p)SG.toast("Password too short")}
-  if(b.dataset.t){a.forEach(function(u){if(u.id===b.dataset.t)u.active=u.active===false});SG.saveUsers(a);draw()}
-  if(b.dataset.d&&confirm("Delete this user?")){var left=a.filter(function(u){return u.id!==b.dataset.d});if(!left.some(function(u){return u.role==="admin"&&u.active!==false})){SG.toast("At least one active admin is required");return}SG.saveUsers(left);draw()}};
- draw()});</script></body></html>
+ var me=SG.session(),users=[],$=function(i){return document.getElementById(i)};
+
+ // Draw the table from the list the server sent
+ function draw(){
+  $("tb").innerHTML=users.map(function(u){
+   return"<tr><td><b>"+SG.esc(u.id)+"</b></td><td>"+SG.esc(u.name)+"<br><small>"+SG.esc(u.email||"")+"</small></td><td>"+SG.esc(u.username)+"</td><td>"+(u.role==="admin"?'<span class="badge green">Admin</span>':'<span class="badge orange">Staff</span>')+"</td><td>"+(u.active?'<span class="badge green">Active</span>':'<span class="badge gray">Disabled</span>')+'</td><td><div class="row-actions"><button class="btn light" data-pw="'+SG.esc(u.id)+'">Reset password</button>'+(u.id!==me.uid?'<button class="btn light" data-t="'+SG.esc(u.id)+'">'+(u.active?"Disable":"Enable")+'</button><button class="btn red" data-d="'+SG.esc(u.id)+'">Delete</button>':"")+"</div></td></tr>"}).join("")
+ }
+
+ // Ask the server for the users (admin only)
+ function load(){
+  SG.api("users.php").then(function(j){
+   if(!j.ok){SG.toast(j.error||"Could not load the users");return}
+   users=j.users;draw()
+  })
+ }
+
+ // Send one change to the server, then show the real list again
+ function change(method,path,body,msg){
+  SG.api(path,method,body).then(function(j){
+   if(!j.ok){SG.toast(j.error||"Server error");return}
+   SG.toast(msg);load()
+  })
+ }
+
+ function form(){SG.modal("Add staff / user",'<div class="form-grid"><div class="form-group"><label>Full name *</label><input class="input" name="name" required></div><div class="form-group"><label>Email</label><input class="input" type="email" name="email"></div><div class="form-group"><label>Username *</label><input class="input" name="username" required autocomplete="off"></div><div class="form-group"><label>Role</label><select class="input" name="role"><option value="staff">Staff</option><option value="admin">Admin</option></select></div><div class="form-group full"><label>Temporary password * (8 to 72 characters)</label><input class="input" name="password" required minlength="8" maxlength="72" autocomplete="new-password"></div></div>',function(f,close){
+   var btn=f.querySelector("button.primary");btn.disabled=true;
+   SG.api("users.php","POST",{name:f.elements.name.value.trim(),email:f.elements.email.value.trim(),username:f.elements.username.value.trim(),role:f.elements.role.value,password:f.elements.password.value}).then(function(j){
+    if(!j.ok){SG.toast(j.error||"Server error");btn.disabled=false;return}
+    SG.toast("User created");close();load()
+   });
+   return false   // keep the form open until the server has answered
+  },"Create user")}
+
+ $("add").onclick=form;
+ v.onclick=function(e){var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.pw){var p=prompt("New password (min 8 characters):");
+   if(p&&p.length>=8){change("PUT","users.php?id="+encodeURIComponent(b.dataset.pw),{password:p},"Password updated")}
+   else if(p){SG.toast("Password too short")}}
+  if(b.dataset.t){var u=users.filter(function(x){return x.id===b.dataset.t})[0];
+   if(u){change("PUT","users.php?id="+encodeURIComponent(u.id),{active:!u.active},u.active?"User disabled":"User enabled")}}
+  if(b.dataset.d&&confirm("Delete this user?")){change("DELETE","users.php?id="+encodeURIComponent(b.dataset.d),null,"User deleted")}};
+ load()});</script></body></html>
