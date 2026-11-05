@@ -278,3 +278,105 @@ if(!SG.stop){if(D.readyState==="complete")setTimeout(enhance,0);else W.addEventL
     }
   } catch (e) {}
 })();
+/* ===== Invoices now live in MySQL (added by Maryam Ayub) ===== */
+(function () {
+  "use strict";
+  var SG = window.SG;
+  var PUBLIC_PAGES = ["login", "forgot-password", "reset-password", "invoice-share", "pay-proof"];
+  var page = (location.pathname.split("/").pop() || "index.html").replace(/\.html$/, "") || "index";
+
+  var cache = [];                                              // the invoices, as the server last sent them
+  var prefix = "TSG-INV-" + new Date().getFullYear() + "-";    // the start of every invoice number
+  var nextNo = 1;                                              // the number of the next new invoice
+
+  function pad4(n) { return ("0000" + n).slice(-4); }
+  function copy(x) { return JSON.parse(JSON.stringify(x)); }
+
+  // Talk to the server and WAIT for the answer (so a page cannot move on before the save is finished)
+  function syncApi(method, path, body) {
+    var x = new XMLHttpRequest(), j;
+    x.open(method, "api/" + path, false);
+    x.setRequestHeader("Content-Type", "application/json");
+    if (SG.csrf) { x.setRequestHeader("X-CSRF-Token", SG.csrf); }
+    try { x.send(body ? JSON.stringify(body) : null); }
+    catch (e) { return {ok: false, error: "Cannot reach the server."}; }
+    try { j = JSON.parse(x.responseText); } catch (e) { j = {ok: false, error: "Server error"}; }
+    j._status = x.status;
+    return j;
+  }
+
+  // Changes need the security token. Get it first if the page does not have it yet.
+  function ensureToken() {
+    if (!SG.csrf) { SG.csrf = syncApi("GET", "session.php").csrf_token || ""; }
+  }
+
+  // 1) Load the invoices from the server BEFORE the page draws
+  function loadInvoices() {
+    var j = syncApi("GET", "invoices.php");
+    if (j.ok) {
+      cache = j.invoices || [];
+      var m = /^(.*-)(\d+)$/.exec(j.next || "");
+      if (m) { prefix = m[1]; nextNo = parseInt(m[2], 10); }
+    }
+  }
+  if (!SG.stop && PUBLIC_PAGES.indexOf(page) < 0) { loadInvoices(); }
+
+  // 2) The pages keep calling the same functions as before
+  SG.invoices = function () { return copy(cache); };           // a fresh copy each time, like before
+  SG.nextInvoiceId = function () { return prefix + pad4(nextNo); };
+
+  // What the server needs to know about an invoice
+  function body(inv) {
+    return {
+      clientId: inv.clientId, issue: inv.issue, terms: +inv.terms || 0, taxRate: +inv.taxRate || 0,
+      discount: +inv.discount || 0, status: inv.status, notes: inv.notes || "",
+      items: (inv.items || []).map(function (x) { return {d: x.d, s: x.s || "", q: +x.q || 0, p: +x.p || 0}; })
+    };
+  }
+  // The same, as text, to find out whether an invoice was changed
+  function sig(inv) {
+    var b = body(inv);
+    b.items = b.items.filter(function (x) { return String(x.d || "").trim(); });
+    return JSON.stringify(b);
+  }
+  function enc(id) { return encodeURIComponent(id); }
+
+  // 3) The pages hand over the WHOLE list when they save. We find what changed and tell the server.
+  SG.saveInvoices = function (list) {
+    var oldById = {}, listIds = {}, failed = "";
+    cache.forEach(function (i) { oldById[i.id] = i; });
+    list.forEach(function (i) { listIds[i.id] = true; });
+    ensureToken();
+
+    // New and changed invoices
+    list.forEach(function (inv) {
+      if (failed) { return; }
+      var old = oldById[inv.id], j;
+      if (!old) {
+        j = syncApi("POST", "invoices.php", body(inv));
+      } else if (sig(old) !== sig(inv)) {
+        j = syncApi("PUT", "invoices.php?id=" + enc(inv.id), body(inv));
+      } else { return; }
+      if (!j.ok) { failed = j.error || "Could not save the invoice."; return; }
+      if (!old) {
+        var n = parseInt(String(j.invoice.id).split("-").pop(), 10);
+        if (n >= nextNo) { nextNo = n + 1; }
+      }
+      Object.assign(inv, j.invoice);          // the page's invoice now has the server's number and dates
+    });
+
+    // Deleted invoices
+    cache.forEach(function (old) {
+      if (failed || listIds[old.id]) { return; }
+      var j = syncApi("DELETE", "invoices.php?id=" + enc(old.id));
+      if (!j.ok) { failed = j.error || "Could not delete the invoice."; }
+    });
+
+    if (failed) {
+      loadInvoices();                          // show the real data again
+      SG.toast(failed);
+      throw new Error(failed);                 // stops the page, so it does not jump to another page
+    }
+    cache = copy(list);
+  };
+})();
