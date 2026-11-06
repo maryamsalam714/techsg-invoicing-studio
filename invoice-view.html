@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Invoice | Tech SG Studio (SMC-Pvt.) Ltd.</title><link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -18,5 +18,59 @@ SG.ready(async function(){
  $("pr").onclick=function(){window.print()};
  $("cp").onclick=async function(){try{await navigator.clipboard.writeText(link);SG.toast("Client link copied")}catch(e){prompt("Copy this link:",link)}};
  if($("pd"))$("pd").onclick=function(){var a=SG.invoices();a.forEach(function(i){if(i.id===inv.id){i.status="Paid";i.paidAt=SG.iso()}});SG.saveInvoices(a);location.reload()};
+ if($("dl"))$("dl").onclick=function(){if(confirm("Delete this invoice?")){SG.saveInvoices(SG.invoices().filter(function(i){return i.id!==inv.id}));location.href="invoices.html"}};
+ SG.fit();if(window.SGFBR)SGFBR.init()});</script></body></html> -->
+
+
+ <!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Invoice | Tech SG Studio (SMC-Pvt.) Ltd.</title><link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="professional.css"><link rel="stylesheet" href="fbr.css"><link rel="stylesheet" href="techsg-theme.css"><link rel="stylesheet" href="layout-fix.css"><link rel="stylesheet" href="app.css">
+<script src="qr.js"></script><script src="core.js"></script></head>
+<body data-page="invoice-view"><div id="root"></div>
+<script src="fbr.js"></script><script src="advanced.js"></script>
+<script>
+SG.ready(async function(){
+ var id=new URLSearchParams(location.search).get("id"),inv=SG.invoice(id);
+ var v=SG.shell({eyebrow:"INVOICE",title:inv?inv.id:"Invoice not found",sub:inv?"Share with the client by link, email or WhatsApp.":"This invoice does not exist.",actions:'<a class="btn" href="invoices.html">Back</a>'});
+ if(!inv){v.innerHTML='<div class="card empty">Invoice not found.</div>';return}
+ var cl=SG.client(inv.clientId)||{},co=SG.company(),link=await SG.shareLink(inv),st=SG.status(inv);window.SG_CUR={inv:inv,client:cl};
+ var $=function(i){return document.getElementById(i)};
+
+ // Money: the total, what has been paid, and what is left
+ var total=Math.round(SG.totals(inv).total*100)/100,paid=Math.round((+inv.paid||0)*100)/100,balance=Math.max(0,Math.round((total-paid)*100)/100);
+ var canPay=(inv.status==="Pending"&&balance>0);
+
+ // The payments of this invoice come from the server
+ var pj=await SG.api("payments.php?invoice="+encodeURIComponent(inv.id)),pays=pj.ok?pj.payments:[];
+ var rows=pays.map(function(p){
+  return"<tr><td><b>"+SG.esc(p.id)+"</b></td><td>"+SG.esc(p.date)+"</td><td>"+SG.esc(p.method)+(p.reference?"<br><small>"+SG.esc(p.reference)+"</small>":"")+"</td><td>"+SG.fmt(p.amount)+"</td><td>"+(p.status==="Paid"?'<span class="badge green">Paid</span>':'<span class="badge gray">'+SG.esc(p.status)+"</span>")+'</td><td><div class="row-actions"><a class="btn light" target="_blank" href="receipt.html?id='+encodeURIComponent(p.id)+'">Receipt</a>'+(SG.isAdmin()&&p.status==="Paid"?'<button class="btn red" data-rf="'+SG.esc(p.id)+'">Refund</button>':"")+"</div></td></tr>"}).join("");
+ var panel='<div class="card no-print" style="margin-bottom:16px"><div class="card-head"><h3>Payments</h3></div><div style="display:flex;gap:28px;flex-wrap:wrap;padding:0 20px 14px"><div><small>Invoice total</small><br><b>'+SG.fmt(total)+'</b></div><div><small>Paid so far</small><br><b>'+SG.fmt(paid)+'</b></div><div><small>Balance due</small><br><b>'+SG.fmt(balance)+'</b></div><div><small>Status</small><br>'+SG.badge(st)+(paid>0&&balance>0?" <small>partially paid</small>":"")+"</div></div>"+(pays.length?'<div class="table-wrap"><table class="table"><thead><tr><th>Receipt</th><th>Date</th><th>Method</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody>'+rows+"</tbody></table></div>":'<p style="padding:0 20px 16px;color:#667085">No payments recorded yet.</p>')+"</div>";
+
+ v.innerHTML='<div class="toolbar"><button class="btn primary" id="pr">Print / Save PDF</button><button class="btn light" id="cp">Copy client link</button><a class="btn light" id="em" href="'+SG.esc(SG.emailLink(inv,cl,link))+'">Email client</a><a class="btn light" id="wa" target="_blank" rel="noopener" href="'+SG.esc(SG.waLink(inv,cl,link))+'">WhatsApp</a><a class="btn light" href="invoice-create.html?id='+encodeURIComponent(inv.id)+'">Edit</a>'+(canPay?'<button class="btn green" id="rp">Record payment</button>':"")+(SG.isAdmin()?'<button class="btn red" id="dl">Delete</button>':"")+"</div>"+panel+'<div class="inv-fit">'+SG.invoiceHTML(inv,cl,co,link)+"</div>";
+
+ if(!cl.email)$("em").title="Client has no email saved – add one in Clients.";
+ $("pr").onclick=function(){window.print()};
+ $("cp").onclick=async function(){try{await navigator.clipboard.writeText(link);SG.toast("Client link copied")}catch(e){prompt("Copy this link:",link)}};
+
+ // Record a payment: the server checks it and updates the invoice
+ if($("rp"))$("rp").onclick=function(){
+  SG.modal("Record payment",'<div class="form-grid"><div class="form-group"><label>Amount (balance due: '+SG.num(balance)+') *</label><input class="input" name="amount" type="number" step="0.01" min="0.01" max="'+balance+'" value="'+balance+'" required></div><div class="form-group"><label>Date *</label><input class="input" name="date" type="date" value="'+SG.iso()+'" max="'+SG.iso()+'" required></div><div class="form-group"><label>Method *</label><select class="input" name="method"><option>Bank Transfer</option><option>Cash</option><option>JazzCash</option><option>EasyPaisa</option><option>Cheque</option><option>Card</option><option>Other</option></select></div><div class="form-group"><label>Reference / transaction ID</label><input class="input" name="reference" maxlength="100"></div><div class="form-group full"><label>Notes</label><input class="input" name="notes" maxlength="500"></div></div>',function(f,close){
+   var btn=f.querySelector("button.primary");btn.disabled=true;
+   SG.api("payments.php","POST",{invoice:inv.id,amount:+f.elements.amount.value,date:f.elements.date.value,method:f.elements.method.value,reference:f.elements.reference.value.trim(),notes:f.elements.notes.value.trim()}).then(function(j){
+    if(!j.ok){SG.toast(j.error||"Server error");btn.disabled=false;return}
+    SG.toast("Payment recorded: "+j.payment.id);close();setTimeout(function(){location.reload()},600)
+   });
+   return false   // keep the form open until the server has answered
+  },"Save payment")};
+
+ // Refund a payment (admin only)
+ v.onclick=function(e){var b=e.target.closest("button[data-rf]");if(!b)return;
+  if(confirm("Refund this payment? The balance due of the invoice will go up again.")){
+   SG.api("payments.php?id="+encodeURIComponent(b.dataset.rf),"PUT",{status:"Refunded"}).then(function(j){
+    if(!j.ok){SG.toast(j.error||"Server error");return}
+    SG.toast("Payment refunded");setTimeout(function(){location.reload()},600)})}};
+
  if($("dl"))$("dl").onclick=function(){if(confirm("Delete this invoice?")){SG.saveInvoices(SG.invoices().filter(function(i){return i.id!==inv.id}));location.href="invoices.html"}};
  SG.fit();if(window.SGFBR)SGFBR.init()});</script></body></html>
