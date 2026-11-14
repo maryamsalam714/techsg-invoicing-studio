@@ -127,14 +127,14 @@ if ($method === 'POST') {
     $mysqli->commit();
 
     audit('create', 'payment', $receipt, $invoiceNo . ' ' . number_format($amount, 2));
-
+       try { $mail = send_payment_email($receipt); } catch (Throwable $e) { $mail = ['sent' => false, 'status' => 'failed', 'to' => '', 'note' => $e->getMessage()]; }
     $stmt = $mysqli->prepare("SELECT status, total, amount_paid FROM invoices WHERE id = ?");
     $stmt->bind_param('i', $inv['id']);
     $stmt->execute();
     $now = $stmt->get_result()->fetch_assoc();
     json_out([
         'ok'      => true,
-        'payment' => load_payments(' WHERE p.receipt_no = ?', $receipt)[0],
+        'payment' => load_payments(' WHERE p.receipt_no = ?', $receipt)[0],         'email'   => $mail,
         'invoice' => ['id' => $invoiceNo, 'status' => $now['status'], 'paid' => (float)$now['amount_paid'],
                       'balance' => round((float)$now['total'] - (float)$now['amount_paid'], 2)],
     ], 201);

@@ -1,11 +1,12 @@
 <?php
 // api/invoices.php
 //   GET                  list the invoices (with their items)
-//   POST                 create an invoice (the server chooses the number)
+//   POST                 create an invoice (the server chooses the number) and email it to the client
 //   PUT    ?id=TSG-INV-2026-0001   update an invoice
 //   DELETE ?id=TSG-INV-2026-0001   delete an invoice (admin only)
 require __DIR__ . '/../includes/api.php';
 require __DIR__ . '/../includes/invoice_helpers.php';
+require __DIR__ . '/../includes/documents.php';
 
 $user   = require_login();
 $method = $_SERVER['REQUEST_METHOD'];
@@ -212,7 +213,17 @@ if ($method === 'POST') {
     $mysqli->commit();
 
     audit('create', 'invoice', $no, 'total ' . $t['total']);
-    json_out(['ok' => true, 'invoice' => load_invoices($id)[0]], 201);
+
+    // Email the client at once (a Draft is not emailed).
+    // A problem with email never stops the invoice from being saved.
+    try {
+        $mail = ($inv['status'] === 'Pending')
+            ? send_invoice_email($id)
+            : ['sent' => false, 'status' => 'skipped', 'to' => '', 'note' => 'Drafts are not emailed.'];
+    } catch (Throwable $e) {
+        $mail = ['sent' => false, 'status' => 'failed', 'to' => '', 'note' => $e->getMessage()];
+    }
+    json_out(['ok' => true, 'invoice' => load_invoices($id)[0], 'email' => $mail], 201);
 }
 
 $no = trim((string)($_GET['id'] ?? ''));

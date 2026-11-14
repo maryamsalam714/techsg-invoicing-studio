@@ -10,7 +10,17 @@
 (async function(){
  var D=document,h=location.hash.slice(1),r=D.getElementById("root");
  r.innerHTML='<div class="share-top"><div style="display:flex;gap:10px;align-items:center"><img src="assets/logo.png" alt="Tech SG Studio"><b>Tech SG Studio (SMC-Pvt.) Ltd.</b></div><div class="share-actions" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn light" id="pr">Print / Download PDF</button><a class="btn primary" href="pay-proof.html">Submit payment proof</a></div></div><div class="share-wrap" id="w"><div class="card empty">Loading invoice…</div></div>';
- try{var d=await SG.unpack(h),co=Object.assign({},d.o);D.getElementById("w").innerHTML='<div class="inv-fit">'+SG.invoiceHTML(d.i,d.c,co,location.href)+"</div>";D.title="Invoice "+d.i.id+" | "+co.name;SG.fit();
+ try{
+  var t=new URLSearchParams(location.search).get("t"),d;
+  if(t){
+   // New links from the email: the invoice is loaded from the server with the secret token
+   var j=await SG.api("public-invoice.php?t="+encodeURIComponent(t));
+   if(!j.ok){throw new Error("invalid link")}
+   d={i:j.i,c:j.c,o:j.o}
+  }else{
+   d=await SG.unpack(h)   // old links, with the invoice inside the link, still work
+  }
+  var co=Object.assign({},d.o);D.getElementById("w").innerHTML='<div class="inv-fit">'+SG.invoiceHTML(d.i,d.c,co,location.href)+"</div>";D.title="Invoice "+d.i.id+" | "+co.name;SG.fit();
   D.getElementById("pr").onclick=function(){window.print()}}
  catch(e){D.getElementById("w").innerHTML='<div class="card empty">This invoice link is invalid or incomplete. Please ask Tech SG Studio to send it again.</div>'}
 })();</script></body></html>
