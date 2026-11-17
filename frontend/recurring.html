@@ -1008,39 +1008,21 @@
           };
         }
 
-        function loadRecords() {
-          try {
-            const saved = localStorage.getItem(STORAGE_KEY);
+async function loadRecords() {
+  const result = await SG.api("recurring.php");
 
-            if (saved !== null) {
-              const parsed = JSON.parse(saved);
+  if (!result || !result.ok) {
+    throw new Error(
+      result?.error || result?.message || "Could not load recurring invoices."
+    );
+  }
 
-              if (!Array.isArray(parsed)) {
-                throw new Error("Invalid saved data.");
-              }
+  records = Array.isArray(result.records)
+    ? result.records.map(normalizeRecord)
+    : [];
+}
 
-              records = parsed.map(normalizeRecord);
-              return;
-            }
-
-            records = demoRecords();
-            saveRecords();
-          } catch (error) {
-            console.error(
-              "Could not load recurring invoices:",
-              error
-            );
-
-            records = demoRecords();
-
-            showNotice(
-              "Saved records load nahi huay. Browser storage check karein.",
-              "error"
-            );
-          }
-        }
-
-        function saveRecords() {
+       function saveRecords() {
           try {
             localStorage.setItem(
               STORAGE_KEY,
@@ -1062,50 +1044,10 @@
             return false;
           }
         }
-        function getFilteredRecords() {
-          const query = $("searchInput").value.trim().toLowerCase();
-          const status = $("statusFilter").value;
-          const frequency = $("frequencyFilter").value;
 
-          return records
-            .filter(function (record) {
-              const searchable = [
-                record.id,
-                record.title,
-                record.customer,
-                record.email,
-                record.reference
-              ].join(" ").toLowerCase();
 
-              return (
-                (!query || searchable.includes(query)) &&
-                (!status || record.status === status) &&
-                (!frequency || record.frequency === frequency)
-              );
-            })
-            .sort(function (a, b) {
-              return a.nextDate.localeCompare(b.nextDate);
-            });
-        }
+       
 
-        function monthlyEquivalent(record) {
-          switch (record.frequency) {
-            case "Weekly":
-              return record.amount * 52 / 12;
-
-            case "Monthly":
-              return record.amount;
-
-            case "Quarterly":
-              return record.amount / 3;
-
-            case "Yearly":
-              return record.amount / 12;
-
-            default:
-              return 0;
-          }
-        }
 
         function updateStats() {
           const active = records.filter(function (record) {
@@ -1278,6 +1220,28 @@
           pagination.appendChild(nextButton);
         }
 
+function getFilteredRecords() {
+  const search = $("searchInput").value.trim().toLowerCase();
+  const status = $("statusFilter").value;
+  const frequency = $("frequencyFilter").value;
+
+  return records.filter(function (record) {
+    const matchesSearch =
+      !search ||
+      record.title.toLowerCase().includes(search) ||
+      record.customer.toLowerCase().includes(search) ||
+      record.id.toLowerCase().includes(search);
+
+    const matchesStatus =
+      !status || record.status === status;
+
+    const matchesFrequency =
+      !frequency || record.frequency === frequency;
+
+    return matchesSearch && matchesStatus && matchesFrequency;
+  });
+}
+
         function renderRecords() {
           updateStats();
 
@@ -1377,187 +1341,156 @@
 
           lastFocusedElement = null;
         }
-function saveRecord(event) {
-          event.preventDefault();
+ 
 
-          const id = $("recordId").value.trim();
-          const title = $("recordTitle").value.trim();
-          const customer = $("recordCustomer").value.trim();
-          const email = $("recordEmail").value.trim();
-          const amount = Number($("recordAmount").value);
-          const frequency = $("recordFrequency").value;
-          const status = $("recordStatus").value;
-          const startDate = $("recordStartDate").value;
-          const nextDate = $("recordNextDate").value;
-          const endDate = $("recordEndDate").value;
-          const reference = $("recordReference").value.trim();
-          const notes = $("recordNotes").value.trim();
+async function saveRecord(event) {
+  event.preventDefault();
 
-          if (!title || !customer) {
-            showNotice(
-              "Invoice title aur customer name zaroori hain.",
-              "error"
-            );
-            return;
-          }
+  const id = $("recordId").value.trim();
+  const recordData = {
+    title: $("recordTitle").value.trim(),
+    customer: $("recordCustomer").value.trim(),
+    email: $("recordEmail").value.trim(),
+    amount: Number($("recordAmount").value),
+    frequency: $("recordFrequency").value,
+    status: $("recordStatus").value,
+    startDate: $("recordStartDate").value,
+    nextDate: $("recordNextDate").value,
+    endDate: $("recordEndDate").value,
+    reference: $("recordReference").value.trim(),
+    notes: $("recordNotes").value.trim()
+  };
 
-          if (
-            !Number.isFinite(amount) ||
-            amount <= 0 ||
-            amount > 999999999999
-          ) {
-            showNotice(
-              "Amount valid hona chahiye aur zero se zyada hona chahiye.",
-              "error"
-            );
-            return;
-          }
+  if (!recordData.title || !recordData.customer) {
+    showNotice("Invoice title and customer name are required.", "error");
+    return;
+  }
 
-          if (
-            !FREQUENCIES.includes(frequency) ||
-            !STATUSES.includes(status)
-          ) {
-            showNotice("Frequency ya status valid nahi hai.", "error");
-            return;
-          }
+  if (!Number.isFinite(recordData.amount) || recordData.amount <= 0) {
+    showNotice("Enter a valid amount greater than zero.", "error");
+    return;
+  }
 
-          if (!startDate || !nextDate) {
-            showNotice(
-              "Start date aur next invoice date select karein.",
-              "error"
-            );
-            return;
-          }
+  if (
+    !FREQUENCIES.includes(recordData.frequency) ||
+    !STATUSES.includes(recordData.status)
+  ) {
+    showNotice("Invalid frequency or status.", "error");
+    return;
+  }
 
-          if (nextDate < startDate) {
-            showNotice(
-              "Next invoice date, start date se pehle nahi ho sakti.",
-              "error"
-            );
-            return;
-          }
+  if (!recordData.startDate || !recordData.nextDate) {
+    showNotice("Select the start date and next invoice date.", "error");
+    return;
+  }
 
-          if (endDate && endDate < startDate) {
-            showNotice(
-              "End date, start date se pehle nahi ho sakti.",
-              "error"
-            );
-            return;
-          }
+  if (
+    recordData.nextDate < recordData.startDate ||
+    (recordData.endDate &&
+      (recordData.endDate < recordData.startDate ||
+       recordData.nextDate > recordData.endDate))
+  ) {
+    showNotice("Please check your schedule dates.", "error");
+    return;
+  }
 
-          if (endDate && nextDate > endDate) {
-            showNotice(
-              "Next invoice date, end date ke baad nahi ho sakti.",
-              "error"
-            );
-            return;
-          }
+  const duplicate = records.some(function (record) {
+    return (
+      record.title.toLowerCase() === recordData.title.toLowerCase() &&
+      record.customer.toLowerCase() === recordData.customer.toLowerCase() &&
+      record.id !== id
+    );
+  });
 
-          const duplicate = records.some(function (record) {
-            return (
-              record.title.toLowerCase() === title.toLowerCase() &&
-              record.customer.toLowerCase() === customer.toLowerCase() &&
-              record.id !== id
-            );
-          });
+  if (duplicate) {
+    showNotice("This schedule already exists for this customer.", "error");
+    return;
+  }
 
-          if (duplicate) {
-            showNotice(
-              "Is customer ke liye yeh invoice title pehle se mojood hai.",
-              "error"
-            );
-            return;
-          }
+  const button = $("saveRecordBtn");
+  button.disabled = true;
 
-          const recordData = {
-            id: id || generateId(),
-            title: title,
-            customer: customer,
-            email: email,
-            amount: amount,
-            frequency: frequency,
-            status: status,
-            startDate: startDate,
-            nextDate: nextDate,
-            endDate: endDate,
-            reference: reference,
-            notes: notes
-          };
+  try {
+    const result = await SG.api(
+      id ? "recurring.php?id=" + encodeURIComponent(id) : "recurring.php",
+      id ? "PUT" : "POST",
+      recordData
+    );
 
-          const previousRecords = records.map(function (record) {
-            return Object.assign({}, record);
-          });
+    if (!result || !result.ok) {
+      throw new Error(
+        result?.error || result?.message || "Could not save the schedule."
+      );
+    }
 
-          if (id) {
-            const index = records.findIndex(function (record) {
-              return record.id === id;
-            });
+    if (id) {
+      records = records.map(function (record) {
+        return record.id === id
+          ? normalizeRecord(result.record)
+          : record;
+      });
+    } else {
+      records.push(normalizeRecord(result.record));
+    }
 
-            if (index === -1) {
-              showNotice(
-                "Record nahi mila. Page refresh karke dobara try karein.",
-                "error"
-              );
-              return;
-            }
+    closeModal();
+    currentPage = 1;
+    renderRecords();
 
-            records[index] = recordData;
-          } else {
-            records.push(recordData);
-          }
+    showNotice(
+      id ? "Recurring schedule updated." : "Recurring schedule added.",
+      "success"
+    );
+  } catch (error) {
+    console.error("Recurring save error:", error);
+    showNotice(error.message || "Could not save the schedule.", "error");
+  } finally {
+    button.disabled = false;
+  }
+}
 
-          if (!saveRecords()) {
-            records = previousRecords;
-            return;
-          }
 
-          closeModal();
-          currentPage = 1;
-          renderRecords();
+      
 
-          showNotice(
-            id
-              ? "Recurring invoice successfully update ho gaya."
-              : "Recurring invoice successfully add ho gaya.",
-            "success"
-          );
-        }
+async function deleteRecord(id) {
+  const record = records.find(function (item) {
+    return item.id === id;
+  });
 
-        function deleteRecord(id) {
-          const record = records.find(function (item) {
-            return item.id === id;
-          });
+  if (!record) {
+    showNotice("Record not found.", "error");
+    return;
+  }
 
-          if (!record) {
-            showNotice("Record nahi mila.", "error");
-            return;
-          }
+  if (!window.confirm(
+    'Are you sure you want to delete "' + record.title + '"?'
+  )) {
+    return;
+  }
 
-          const confirmed = window.confirm(
-            'Kya aap "' + record.title +
-            '" ko delete karna chahte hain?'
-          );
+  try {
+    const result = await SG.api(
+      "recurring.php?id=" + encodeURIComponent(id),
+      "DELETE"
+    );
 
-          if (!confirmed) {
-            return;
-          }
+    if (!result || !result.ok) {
+      throw new Error(
+        result?.error || result?.message || "Could not delete schedule."
+      );
+    }
 
-          const previousRecords = records.map(function (item) {
-            return Object.assign({}, item);
-          });
+    records = records.filter(function (item) {
+      return item.id !== id;
+    });
 
-          records = records.filter(function (item) {
-            return item.id !== id;
-          });
-
-          if (!saveRecords()) {
-            records = previousRecords;
-            return;
-          }
-
-          renderRecords();
-          showNotice("Recurring invoice delete ho gaya.", "success");
-        }
+    renderRecords();
+    showNotice("Recurring schedule deleted.", "success");
+  } catch (error) {
+    console.error("Recurring delete error:", error);
+    showNotice(error.message || "Could not delete schedule.", "error");
+  }
+}
 
         function escapeCSV(value) {
           let textValue = String(value == null ? "" : value);
@@ -1648,9 +1581,16 @@ function saveRecord(event) {
           renderRecords();
         }
 
-        function initialize() {
-          loadRecords();
-          renderRecords();
+       async function initialize() {
+  try {
+    await loadRecords();
+  } catch (error) {
+    console.error("Recurring loading error:", error);
+    showNotice(error.message || "Could not load recurring invoices.", "error");
+    records = [];
+  }
+
+  renderRecords();
 
           $("addRecordBtn").addEventListener("click", function () {
             openModal(null);
