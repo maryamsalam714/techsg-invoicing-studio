@@ -751,6 +751,7 @@
                 <form
                     id="companyForm"
                     class="form-grid"
+                     data-sg-backend="true" 
                 >
 
                     <div class="form-group full">
@@ -1094,6 +1095,7 @@
                 <form
                     id="invoiceSettingsForm"
                     class="form-grid"
+                     data-sg-backend="true"
                 >
 
                     <div class="form-group">
@@ -1418,6 +1420,7 @@
                 <form
                     id="emailSettingsForm"
                     class="form-grid"
+                      data-sg-backend="true"
                 >
 
                     <div class="form-group">
@@ -1557,6 +1560,7 @@
                 <form
                     id="notificationForm"
                     class="form-grid"
+                     data-sg-backend="true"
                 >
 
                     <div class="form-group full">
@@ -1761,6 +1765,7 @@
                 <form
                     id="appearanceSettingsForm"
                     class="form-grid"
+                     data-sg-backend="true"
                 >
 
                     <div class="form-group">
@@ -1955,6 +1960,7 @@
                 <form
                     id="securitySettingsForm"
                     class="form-grid"
+                    data-sg-backend="true" 
                 >
 
                     <div class="form-group">
@@ -2166,6 +2172,7 @@
                 <form
                     id="systemSettingsForm"
                     class="form-grid"
+                    data-sg-backend="true"
                 >
 
                     <div class="form-group">
@@ -2697,6 +2704,8 @@
 
     const SETTINGS_KEY =
         "techsg_invoicing_settings";
+    
+        let companyProfile = {};
 
     const defaultSettings = {
 
@@ -2867,38 +2876,67 @@
 
     }
 
+   
+   
+      
+function saveSettings(data, successMessage = "Settings saved successfully.", company = null) {
 
-    function saveSettings(data) {
+    const payload = {
+        settings: data
+    };
 
-        try {
+    // Include company profile only when saving the Company Information form.
+    if (company) {
+        payload.company = company;
+    }
 
-            localStorage.setItem(
-                SETTINGS_KEY,
-                JSON.stringify(data)
-            );
+    return SG.api("settings.php", "POST", payload)
+        .then(function (result) {
+
+            if (!result || !result.ok) {
+                throw new Error(
+                    result?.error || "Could not save settings to the database."
+                );
+            }
+
+            try {
+                localStorage.setItem(
+                    SETTINGS_KEY,
+                    JSON.stringify(data)
+                );
+            } catch (storageError) {
+                console.warn("Could not update local settings cache:", storageError);
+            }
+
+            // Update the local company profile after database success.
+            if (company) {
+                companyProfile = {
+                    ...companyProfile,
+                    ...company
+                };
+            }
+
+            showNotice(successMessage);
 
             return true;
 
-        } catch (error) {
-
-            console.error(
-                "Unable to save settings:",
-                error
-            );
+        })
+        .catch(function (error) {
 
             showNotice(
-                "Unable to save settings in this browser.",
+                error.message || "Could not save settings to the database.",
                 "error"
             );
 
-            return false;
+            throw error;
 
-        }
+        });
 
-    }
+}
+  
 
 
-    function getValue(id) {
+    function getValue(id) {  
 
         const element = $(id);
 
@@ -2987,14 +3025,39 @@
     }
 
 
-    function loadSettings() {
+   
+function loadSettings() {
+    // Show local settings immediately while the server responds.
+    const localData = getStoredSettings();
+    populateSettings(localData);
 
-        const data =
-            getStoredSettings();
+    // Load the saved settings from MySQL.
+    SG.api("settings.php").then(function (result) {
+        if (!result.ok) {
+            companyProfile = result.company || {};
+            throw new Error(result.error || "Could not load settings.");
+        }
 
-        populateSettings(data);
+        const serverSettings = {
+            ...defaultSettings,
+            ...(result.settings || {})
+        };
 
-    }
+        populateSettings(serverSettings);
+
+        localStorage.setItem(
+            SETTINGS_KEY,
+            JSON.stringify(serverSettings)
+        );
+
+    }).catch(function (error) {
+        showNotice(
+            error.message || "Could not load settings from the database.",
+            "error"
+        );
+    });
+}
+
 
 
     function applyTheme(mode) {
@@ -3095,128 +3158,87 @@
             null;
 
     }
-    function handleFormSubmit(formId) {
+        
 
-            const form = $(formId);
+function handleFormSubmit(formId) {
 
-            if (!form) {
-                return;
-            }
+    const form = $(formId);
 
-            form.addEventListener(
-                "submit",
-                (event) => {
+    if (!form) {
+        return;
+    }
 
-                    event.preventDefault();
+    form.addEventListener("submit", function (event) {
 
-                    const data =
-                        collectSettings();
+        event.preventDefault();
 
-                    if (!data.companyName.trim()) {
+        const data = collectSettings();
 
-                        showNotice(
-                            "Company Name is required.",
-                            "error"
-                        );
+        if (!data.companyName.trim()) {
+            showNotice("Company Name is required.", "error");
+            $("companyName").focus();
+            return;
+        }
 
-                        $("companyName").focus();
+        if (
+            Number(data.taxRate) < 0 ||
+            Number(data.taxRate) > 100
+        ) {
+            showNotice("Tax rate must be between 0 and 100.", "error");
+            $("taxRate").focus();
+            return;
+        }
 
-                        return;
-
-                    }
-
-                    if (
-                        Number(data.taxRate) < 0 ||
-                        Number(data.taxRate) > 100
-                    ) {
-
-                        showNotice(
-                            "Tax rate must be between 0 and 100.",
-                            "error"
-                        );
-
-                        $("taxRate").focus();
-
-                        return;
-
-                    }
-
-                    if (
-                        Number(data.invoiceStartingNumber) < 1
-                    ) {
-
-                        showNotice(
-                            "Starting invoice number must be at least 1.",
-                            "error"
-                        );
-
-                        $("invoiceStartingNumber").focus();
-
-                        return;
-
-                    }
-
-                    if (
-                        Number(data.invoiceNumberDigits) < 1 ||
-                        Number(data.invoiceNumberDigits) > 10
-                    ) {
-
-                        showNotice(
-                            "Invoice number digits must be between 1 and 10.",
-                            "error"
-                        );
-
-                        $("invoiceNumberDigits").focus();
-
-                        return;
-
-                    }
-
-                    if (saveSettings(data)) {
-
-                        applyTheme(
-                            data.themeMode
-                        );
-
-                        showNotice(
-                            "Settings saved successfully."
-                        );
-
-                    }
-
-                }
+        if (Number(data.invoiceStartingNumber) < 1) {
+            showNotice(
+                "Starting invoice number must be at least 1.",
+                "error"
             );
+            $("invoiceStartingNumber").focus();
+            return;
+        }
+
+        if (
+            Number(data.invoiceNumberDigits) < 1 ||
+            Number(data.invoiceNumberDigits) > 10
+        ) {
+            showNotice(
+                "Invoice number digits must be between 1 and 10.",
+                "error"
+            );
+            $("invoiceNumberDigits").focus();
+            return;
+        }
+
+        // Only the Company Information form updates company_profile.
+        let company = null;
+
+        if (formId === "companyForm") {
+
+            company = {
+                ...companyProfile,
+                name: data.companyName,
+                address: data.companyAddress,
+                phone: data.companyPhone,
+                email: data.companyEmail,
+                web: data.companyWebsite
+            };
 
         }
 
+        saveSettings(data, undefined, company)
+            .then(function () {
 
-        function handleResetForm(formId) {
+                applyTheme(data.themeMode);
 
-            const form = $(formId);
+            })
+            .catch(function () {
+                // saveSettings already displays the error message.
+            });
 
-            if (!form) {
-                return;
-            }
+    });
 
-            form.addEventListener(
-                "reset",
-                () => {
-
-                    setTimeout(
-                        () => {
-
-                            applyTheme(
-                                getValue("themeMode")
-                            );
-
-                        },
-                        0
-                    );
-
-                }
-            );
-
-        }
+}
 
 
         function exportSettings() {
@@ -3268,202 +3290,108 @@
         }
 
 
-        function importSettingsFile(file) {
+        
 
-            if (!file) {
-                return;
+function importSettingsFile(file) {
+
+    if (!file) {
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function () {
+
+        try {
+
+            const imported = JSON.parse(reader.result);
+
+            if (
+                !imported ||
+                typeof imported !== "object" ||
+                Array.isArray(imported)
+            ) {
+
+                throw new Error("Invalid settings file.");
+
             }
 
-            const reader =
-                new FileReader();
+            const merged = {
+                ...defaultSettings,
+                ...imported
+            };
 
-            reader.onload =
-                () => {
+            saveSettings(
+                merged,
+                "Settings imported successfully."
+            )
+                .then(function () {
 
-                    try {
+                    populateSettings(merged);
 
-                        const imported =
-                            JSON.parse(
-                                reader.result
-                            );
+                })
+                .catch(function () {
+                    // Error notification is already displayed.
+                });
 
-                        if (
-                            !imported ||
-                            typeof imported !== "object" ||
-                            Array.isArray(imported)
-                        ) {
+        } catch (error) {
 
-                            throw new Error(
-                                "Invalid settings file."
-                            );
-
-                        }
-
-                        const merged = {
-                            ...defaultSettings,
-                            ...imported
-                        };
-
-                        if (
-                            saveSettings(
-                                merged
-                            )
-                        ) {
-
-                            populateSettings(
-                                merged
-                            );
-
-                            showNotice(
-                                "Settings imported successfully."
-                            );
-
-                        }
-
-                    } catch (error) {
-
-                        console.error(
-                            "Import error:",
-                            error
-                        );
-
-                        showNotice(
-                            "The selected file is not a valid settings file.",
-                            "error"
-                        );
-
-                    }
-
-                };
-
-            reader.onerror =
-                () => {
-
-                    showNotice(
-                        "Unable to read the selected file.",
-                        "error"
-                    );
-
-                };
-
-            reader.readAsText(file);
-
-        }
-
-
-        function downloadCurrentData() {
-
-            const data =
-                collectSettings();
-
-            const json =
-                JSON.stringify(
-                    data,
-                    null,
-                    2
-                );
-
-            const blob =
-                new Blob(
-                    [json],
-                    {
-                        type:
-                            "application/json"
-                    }
-                );
-
-            const url =
-                URL.createObjectURL(blob);
-
-            const link =
-                document.createElement("a");
-
-            link.href = url;
-
-            link.download =
-                "techsg-current-settings.json";
-
-            document.body.appendChild(
-                link
-            );
-
-            link.click();
-
-            link.remove();
-
-            URL.revokeObjectURL(url);
+            console.error("Import error:", error);
 
             showNotice(
-                "Current settings downloaded."
+                "The selected file is not a valid settings file.",
+                "error"
             );
 
         }
 
+    };
 
-        function clearDraft() {
+    reader.onerror = function () {
 
-            const draftKey =
-                SETTINGS_KEY + "_draft";
+        showNotice(
+            "Unable to read the selected file.",
+            "error"
+        );
 
-            try {
+    };
 
-                localStorage.removeItem(
-                    draftKey
-                );
+    reader.readAsText(file);
 
-                showNotice(
-                    "Saved draft cleared."
-                );
+}
 
-            } catch (error) {
+      
+function resetAllSettings() {
 
-                console.error(
-                    error
-                );
+    openConfirm(
+        "This will restore all settings to their default values. Continue?",
+        function () {
 
-                showNotice(
-                    "Unable to clear the draft.",
-                    "error"
-                );
+            const restored = {
+                ...defaultSettings
+            };
 
-            }
+            saveSettings(
+                restored,
+                "All settings have been reset successfully."
+            )
+                .then(function () {
 
-        }
+                    populateSettings(restored);
 
+                })
+                .catch(function () {
+                    // Error notification is already displayed.
+                });
 
-        function resetAllSettings() {
+            closeConfirm();
 
-            openConfirm(
-                "This will restore all settings to their default values. Continue?",
-                () => {
+        },
+        "Reset All Settings"
+    );
 
-                    const restored = {
-                        ...defaultSettings
-                    };
+}
 
-                    if (
-                        saveSettings(
-                            restored
-                        )
-                    ) {
-
-                        populateSettings(
-                            restored
-                        );
-
-                        showNotice(
-                            "All settings have been reset."
-                        );
-
-                    }
-
-                    closeConfirm();
-
-                },
-                "Reset All Settings"
-            );
-
-        }
 
 
         function setupNavigation() {
@@ -3716,6 +3644,95 @@
             );
 
         }
+        
+
+function handleResetForm(formId) {
+    const form = $(formId);
+
+    if (!form) return;
+
+    form.addEventListener("reset", function (event) {
+        event.preventDefault();
+
+        const savedSettings = getStoredSettings();
+
+        Array.from(form.elements).forEach(function (element) {
+            const key = element.name || element.id;
+
+            if (
+                key &&
+                Object.prototype.hasOwnProperty.call(
+                    defaultSettings,
+                    key
+                )
+            ) {
+                setValue(key, savedSettings[key]);
+            }
+        });
+
+        showNotice("Form restored to its last saved settings.");
+    });
+}
+
+
+function downloadCurrentData() {
+    const data = getStoredSettings();
+
+    const exportData = {
+        exportedAt: new Date().toISOString(),
+        settings: data
+    };
+
+    const blob = new Blob(
+        [JSON.stringify(exportData, null, 2)],
+        { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "techsg-invoicing-data.json";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+
+    showNotice("Settings data downloaded successfully.");
+}
+
+
+function clearDraft() {
+    let removed = 0;
+
+    try {
+        const keys = [];
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+
+            if (key && key.startsWith("sg-form-draft:")) {
+                keys.push(key);
+            }
+        }
+
+        keys.forEach(function (key) {
+            localStorage.removeItem(key);
+            removed++;
+        });
+
+        showNotice(
+            removed
+                ? "Saved browser drafts cleared."
+                : "No saved browser drafts were found."
+        );
+
+    } catch (error) {
+        showNotice("Could not clear browser drafts.", "error");
+    }
+}
 
 
         function setupForms() {

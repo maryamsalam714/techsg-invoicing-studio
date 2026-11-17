@@ -22,6 +22,32 @@ function doc_h($text): string {
 function doc_num($n): string {
     return number_format((float)$n, 2);
 }
+function doc_company(): array {
+    global $mysqli;
+
+    $company = COMPANY;
+
+    $stmt = $mysqli->prepare(
+        "SELECT setting_value
+         FROM settings
+         WHERE setting_key = 'company_profile'"
+    );
+
+    $stmt->execute();
+
+    $row = $stmt->get_result()->fetch_assoc();
+
+    if ($row && $row['setting_value']) {
+        $saved = json_decode($row['setting_value'], true);
+
+        if (is_array($saved)) {
+            $company = array_merge($company, $saved);
+        }
+    }
+
+    return $company;
+}
+
 
 // One invoice with its client and its items, or null if it does not exist
 function doc_invoice(int $invoiceId): ?array {

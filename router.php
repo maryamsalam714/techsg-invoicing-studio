@@ -5,7 +5,7 @@
 $path = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
 if (strpos($path, '/api/') === 0) {
-    $file = realpath(__DIR__ . '/backend' . $path);
+    $file = realpath(__DIR__ . '/backend' . $path);	
     $api  = realpath(__DIR__ . '/backend/api');
     // Only .php files inside backend/api may run (this also blocks ../ tricks)
     if ($file && $api && strpos($file, $api . DIRECTORY_SEPARATOR) === 0 && substr($file, -4) === '.php') {

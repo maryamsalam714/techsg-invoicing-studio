@@ -14,7 +14,7 @@ if (!$inv) {
     json_error('Invoice not found.', 404);
 }
 
-$pdf = doc_pdf(doc_invoice_html($inv, COMPANY));
+$pdf = doc_pdf(doc_invoice_html($inv, doc_company()));
 header('Content-Type: application/pdf');
 header('Content-Disposition: inline; filename="' . $no . '.pdf"');
 echo $pdf;

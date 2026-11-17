@@ -1159,47 +1159,27 @@ const STORAGE_KEY = "techsg_items_v1";
 
             }
 
+          
+async function loadItems() {
+    try {
+        const result = await SG.api("items.php");
 
-            // Load saved items or initialize demonstration data
-            function loadItems() {
+        if (!result.ok) {
+            throw new Error(result.error || "Could not load items.");
+        }
 
-                try {
+        items = Array.isArray(result.items) ? result.items : [];
 
-                    const saved = localStorage.getItem(STORAGE_KEY);
+        currentPage = 1;
+        updateStats();
+        renderItems();
 
-                    if (saved !== null) {
+    } catch (error) {
+        showNotice(error.message || "Could not load items.");
+    }
+}
 
-                        const parsed = JSON.parse(saved);
-
-                        if (!Array.isArray(parsed)) {
-                            throw new Error("Saved items data is invalid.");
-                        }
-
-                        items = parsed;
-
-                    } else {
-
-                        items = seedItems();
-
-                        saveItems();
-
-                    }
-
-                } catch (error) {
-
-                    console.error("Unable to load items:", error);
-
-                    items = [];
-
-                    showNotice(
-                        "Unable to load saved items. Check browser storage."
-                    );
-
-                }
-
-            }
-
-
+           
             // Calculate inventory value for one item
             function getStockValue(item) {
 
@@ -1652,191 +1632,81 @@ const STORAGE_KEY = "techsg_items_v1";
             }
 
 
-            // Save a new item or update an existing one
-            function saveItem(event) {
-
-                event.preventDefault();
-
-                if (!$("itemForm").reportValidity()) {
-                    return;
-                }
-
-
-                const id = $("itemId").value;
-
-                const name = $("itemName").value.trim();
-                const sku = $("itemSku").value.trim();
-                const category = $("itemCategory").value;
-                const unit = $("itemUnit").value;
-
-                const price = Number($("itemPrice").value);
-
-                const costPrice =
-                    $("itemCostPrice").value.trim() === ""
-                        ? 0
-                        : Number($("itemCostPrice").value);
-
-                const stock = Number($("itemStock").value);
-
-                const lowStock =
-                    $("itemLowStock").value.trim() === ""
-                        ? 0
-                        : Number($("itemLowStock").value);
-
-                const description =
-                    $("itemDescription").value.trim();
-
-
-                if (!name || !category) {
-
-                    showNotice("Please complete all required fields.");
-
-                    return;
-
-                }
-
-
-                const numericValues = [
-                    price,
-                    costPrice,
-                    stock,
-                    lowStock
-                ];
-
-                if (
-                    numericValues.some(function (value) {
-                        return !Number.isFinite(value) || value < 0;
-                    })
-                ) {
-
-                    showNotice("Please enter valid, non-negative numbers.");
-
-                    return;
-
-                }
-
-
-                if (
-                    !Number.isInteger(stock) ||
-                    !Number.isInteger(lowStock)
-                ) {
-
-                    showNotice("Stock and alert level must be whole numbers.");
-
-                    return;
-
-                }
-
-
-                // Prevent duplicate SKU values
-                if (sku) {
-
-                    const duplicateSku = items.some(function (item) {
-
-                        return (
-                            item.sku &&
-                            item.sku.toLowerCase() === sku.toLowerCase() &&
-                            item.id !== id
-                        );
-
-                    });
-
-                    if (duplicateSku) {
-
-                        showNotice("This SKU already exists. Please use another.");
-
-                        $("itemSku").focus();
-
-                        return;
-
-                    }
-
-                }
-
-
-                const record = {
-
-                    id: id || makeId(),
-                    name: name,
-                    sku: sku,
-                    category: category,
-                    unit: unit,
-                    price: price,
-                    costPrice: costPrice,
-                    stock: stock,
-                    lowStock: lowStock,
-                    description: description
-
-                };
-
-
-                const previousItems = items.slice();
-
-                if (id) {
-
-                    const index = items.findIndex(function (item) {
-                        return item.id === id;
-                    });
-
-                    if (index === -1) {
-
-                        showNotice("Item not found. Please refresh the page.");
-
-                        return;
-
-                    }
-
-                    items[index] = record;
-
-                } else {
-
-                    items.unshift(record);
-
-                }
-
-
-                try {
-
-                    saveItems();
-
-                } catch (error) {
-
-                    items = previousItems;
-
-                    console.error("Unable to save item:", error);
-
-                    showNotice(
-                        "Unable to save item. Check your browser storage."
-                    );
-
-                    return;
-
-                }
-
-
-                closeItemModal();
-
-                currentPage = 1;
-
-                updateStats();
-
-                renderItems();
-
-                showNotice(
-                    id
-                        ? "Item updated successfully."
-                        : "New item added successfully."
-                );
-
-            }
-            // Find an item by ID
-            function findItem(id) {
-
-                return items.find(function (item) {
-                    return item.id === id;
-                });
-
-            }
+             
+async function saveItem(event) {
+    event.preventDefault();
+
+    if (!$("itemForm").reportValidity()) return;
+
+    const id = $("itemId").value;
+
+    const record = {
+        name: $("itemName").value.trim(),
+        sku: $("itemSku").value.trim(),
+        category: $("itemCategory").value,
+        unit: $("itemUnit").value,
+        price: Number($("itemPrice").value),
+        costPrice: Number($("itemCostPrice").value || 0),
+        stock: Number($("itemStock").value),
+        lowStock: Number($("itemLowStock").value || 0),
+        description: $("itemDescription").value.trim()
+    };
+
+    if (!record.name || !record.category) {
+        showNotice("Please complete all required fields.");
+        return;
+    }
+
+    if (
+        [record.price, record.costPrice, record.stock, record.lowStock]
+        .some(n => !Number.isFinite(n) || n < 0)
+    ) {
+        showNotice("Please enter valid, non-negative numbers.");
+        return;
+    }
+
+    if (
+        !Number.isInteger(record.stock) ||
+        !Number.isInteger(record.lowStock)
+    ) {
+        showNotice("Stock values must be whole numbers.");
+        return;
+    }
+
+    const button = $("saveItemBtn");
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    try {
+        const result = await SG.api(
+            id
+                ? "items.php?id=" + encodeURIComponent(id)
+                : "items.php",
+            id ? "PUT" : "POST",
+            record
+        );
+
+        if (!result.ok) {
+            throw new Error(result.error || "Unable to save item.");
+        }
+
+        closeItemModal();
+        await loadItems();
+
+        showNotice(
+            id
+                ? "Item updated successfully."
+                : "New item added successfully."
+        );
+
+    } catch (error) {
+        showNotice(error.message || "Unable to save item.");
+
+    } finally {
+        button.disabled = false;
+        button.textContent = id ? "Update Item" : "Save Item";
+    }
+}
 
 
             // View item details
@@ -1867,165 +1737,37 @@ const STORAGE_KEY = "techsg_items_v1";
 
 
             // Delete an item
-            function deleteItem(id) {
 
-                const item = findItem(id);
+async function deleteItem(id) {
+    const item = findItem(id);
 
-                if (!item) {
-                    showNotice("Item not found.");
-                    return;
-                }
+    if (!item) {
+        showNotice("Item not found.");
+        return;
+    }
 
-                const confirmed = window.confirm(
-                    'Are you sure you want to delete "' +
-                    item.name +
-                    '"? This action cannot be undone.'
-                );
+    if (!confirm('Are you sure you want to delete "' + item.name + '"?')) {
+        return;
+    }
 
-                if (!confirmed) {
-                    return;
-                }
+    try {
+        const result = await SG.api(
+            "items.php?id=" + encodeURIComponent(id),
+            "DELETE"
+        );
 
+        if (!result.ok) {
+            throw new Error(result.error || "Unable to delete item.");
+        }
 
-                const previousItems = items.slice();
+        await loadItems();
+        showNotice("Item deleted successfully.");
 
-                items = items.filter(function (record) {
-                    return record.id !== id;
-                });
-
-
-                try {
-
-                    saveItems();
-
-                } catch (error) {
-
-                    items = previousItems;
-
-                    console.error("Unable to delete item:", error);
-
-                    showNotice(
-                        "Unable to delete item. Check your browser storage."
-                    );
-
-                    return;
-
-                }
-
-
-                const totalPages = Math.max(
-                    1,
-                    Math.ceil(getFilteredItems().length / PAGE_SIZE)
-                );
-
-                if (currentPage > totalPages) {
-                    currentPage = totalPages;
-                }
-
-                updateStats();
-
-                renderItems();
-
-                showNotice("Item deleted successfully.");
-
-            }
-
-
-            // Export filtered items to CSV
-            function exportItems() {
-
-                const records = getFilteredItems();
-
-                if (!records.length) {
-
-                    showNotice("There are no items to export.");
-
-                    return;
-
-                }
-
-
-                const headers = [
-                    "Item ID",
-                    "Item Name",
-                    "SKU",
-                    "Category",
-                    "Unit",
-                    "Selling Price",
-                    "Cost Price",
-                    "Stock Quantity",
-                    "Low Stock Alert",
-                    "Stock Status",
-                    "Inventory Value",
-                    "Description"
-                ];
-
-
-                function csvCell(value) {
-
-                    let text = String(value ?? "");
-
-                    // Reduce the risk of spreadsheet formula injection.
-                    if (/^[\s]*[=+\-@]/.test(text)) {
-                        text = "'" + text;
-                    }
-
-                    return '"' + text.replace(/"/g, '""') + '"';
-
-                }
-
-
-                const rows = records.map(function (item) {
-
-                    return [
-                        item.id,
-                        item.name,
-                        item.sku,
-                        item.category,
-                        item.unit,
-                        item.price,
-                        item.costPrice,
-                        item.stock,
-                        item.lowStock,
-                        getStockStatus(item),
-                        getStockValue(item),
-                        item.description
-                    ];
-
-                });
-
-
-                const csvContent = [headers, ...rows]
-                    .map(function (row) {
-                        return row.map(csvCell).join(",");
-                    })
-                    .join("\r\n");
-
-
-                const blob = new Blob(
-                    ["\uFEFF" + csvContent],
-                    { type: "text/csv;charset=utf-8;" }
-                );
-
-                const url = URL.createObjectURL(blob);
-
-                const link = document.createElement("a");
-
-                link.href = url;
-                link.download = "techsg-items.csv";
-
-                document.body.appendChild(link);
-
-                link.click();
-
-                link.remove();
-
-                URL.revokeObjectURL(url);
-
-                showNotice("Items exported to CSV successfully.");
-
-            }
-
+    } catch (error) {
+        showNotice(error.message || "Unable to delete item.");
+    }
+}
+           
 
             // Add item button
             $("addItemBtn").addEventListener("click", function () {

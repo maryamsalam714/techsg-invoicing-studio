@@ -32,5 +32,5 @@ json_out([
     ],
     'c'  => ['id' => $inv['client_code'], 'name' => $inv['client_name'], 'email' => (string)$inv['client_email'],
              'phone' => (string)$inv['client_phone'], 'address' => (string)$inv['client_address'], 'ntn' => (string)$inv['client_ntn']],
-    'o'  => COMPANY,
+    'o'  => doc_company(),
 ]);

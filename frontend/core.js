@@ -109,11 +109,117 @@ var G={index:["Dashboard","Reads clients + invoices from the store and aggregate
 function guide(){if(PUB.indexOf(PAGE)>-1||!SG.session())return;var g=G[PAGE]||G["default"];
  var a=D.createElement("button");a.className="sgg-tab";a.type="button";a.innerHTML="&lt;/&gt; Dev Guide";var b=D.createElement("aside");b.className="sgg";b.innerHTML='<header><b>Developer guidelines</b><button type="button" aria-label="Close">&times;</button></header><div class="sgg-b"><h4>'+esc(g[0])+"</h4><ul>"+g.slice(1).map(function(x){return"<li>"+esc(x)+"</li>"}).join("")+"</ul><h4>Project files</h4><ul><li>core.js · fbr.js · advanced.js</li><li>techsg-theme.css · layout-fix.css · app.css</li><li>Press Ctrl+K for quick actions</li></ul></div>";
  a.onclick=function(){b.classList.toggle("on")};b.querySelector("button").onclick=function(){b.classList.remove("on")};D.body.appendChild(a);D.body.appendChild(b)}
-function companyCard(){var host=D.querySelector("main")||D.body,c=SG.company();if(D.getElementById("coCard"))return;
- var F=[["name","Brand name"],["slogan","Slogan"],["tagline","Tagline"],["phone","Phone"],["email","Email"],["web","Website"],["address","Address"],["ntn","NTN"],["strn","STRN"],["bank","Bank name"],["acTitle","Account title"],["acNo","Account number"],["iban","IBAN"],["methods","Payment methods"],["terms","Default payment terms (days)"]];
- var n=D.createElement("section");n.className="fbr-card";n.id="coCard";n.innerHTML='<h3>Company profile &amp; bank details</h3><p class="m">Shown on every invoice and in the client share link.</p><div class="fbr-grid">'+F.map(function(f){return'<div><label>'+f[1]+'</label><input data-k="'+f[0]+'" value="'+esc(c[f[0]])+'"></div>'}).join("")+'</div><div class="fbr-row"><button class="fbr-btn" type="button">Save company profile</button></div>';
- host.appendChild(n);n.querySelector("button").onclick=function(){var o=SG.company();n.querySelectorAll("input").forEach(function(i){o[i.dataset.k]=i.dataset.k==="terms"?(+i.value||14):i.value.trim()});SG.saveCompany(o);
-  try{var k="techsg_fbr_cfg_v1",f=JSON.parse(localStorage.getItem(k)||"{}");f.ntn=o.ntn;f.strn=o.strn;f.address=o.address;localStorage.setItem(k,JSON.stringify(f))}catch(e){}SG.toast("Company profile saved")}}
+
+
+function companyCard() {
+    var host = D.querySelector("main") || D.body;
+    var c = SG.company();
+
+    if (D.getElementById("coCard")) return;
+
+    var F = [
+        ["name", "Brand name"],
+        ["legal", "Legal company name"],
+        ["slogan", "Slogan"],
+        ["tagline", "Tagline"],
+        ["phone", "Phone"],
+        ["email", "Email"],
+        ["web", "Website"],
+        ["address", "Address"],
+        ["ntn", "NTN"],
+        ["strn", "STRN"],
+        ["bank", "Bank name"],
+        ["acTitle", "Account title"],
+        ["acNo", "Account number"],
+        ["iban", "IBAN"],
+        ["methods", "Payment methods"],
+        ["terms", "Default payment terms (days)"]
+    ];
+
+    var n = D.createElement("section");
+    n.className = "fbr-card";
+    n.id = "coCard";
+
+    n.innerHTML =
+        '<h3>Company profile &amp; bank details</h3>' +
+        '<p class="m">Shown on every invoice and in the client share link.</p>' +
+        '<div class="fbr-grid">' +
+        F.map(function (f) {
+            return '<div><label>' + f[1] +
+                '</label><input data-k="' + f[0] +
+                '" value="' + esc(c[f[0]] || "") + '"></div>';
+        }).join("") +
+        '</div><div class="fbr-row">' +
+        '<button class="fbr-btn" type="button">Save company profile</button>' +
+        '</div>';
+
+    host.appendChild(n);
+
+    // Load company details from the PHP backend
+    SG.api("settings.php").then(function (j) {
+        if (!j.ok || !j.company) {
+            throw new Error(j.error || "Could not load company profile");
+        }
+
+        SG.saveCompany(j.company);
+
+        n.querySelectorAll("input").forEach(function (i) {
+            var key = i.dataset.k;
+            i.value = j.company[key] ?? "";
+        });
+
+    }).catch(function (e) {
+        console.error("Company profile loading error:", e);
+        SG.toast("Could not load company profile from server");
+    });
+
+    // Save company details to MySQL
+    n.querySelector("button").onclick = function () {
+        var o = SG.company();
+
+        n.querySelectorAll("input").forEach(function (i) {
+            o[i.dataset.k] = i.dataset.k === "terms"
+                ? (Number(i.value) || 14)
+                : i.value.trim();
+        });
+
+        var btn = n.querySelector("button");
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        SG.api("settings.php", "POST", {
+            company: o
+        }).then(function (j) {
+            if (!j.ok) {
+                throw new Error(j.error || "Save failed");
+            }
+
+            SG.saveCompany(j.company || o);
+
+            try {
+                var k = "techsg_fbr_cfg_v1";
+                var f = JSON.parse(localStorage.getItem(k) || "{}");
+                f.ntn = o.ntn;
+                f.strn = o.strn;
+                f.address = o.address;
+                localStorage.setItem(k, JSON.stringify(f));
+            } catch (e) {}
+
+            SG.toast("Company profile saved to database");
+
+        }).catch(function (e) {
+            console.error("Company profile save error:", e);
+            SG.toast(e.message || "Could not save company profile");
+        }).finally(function () {
+            btn.disabled = false;
+            btn.textContent = "Save company profile";
+        });
+    };
+}
+ 
+
+
+
 /* enhancements for every page (old + new) */
 function enhance(){var s=SG.session();if(!s)return;
  D.querySelectorAll(".brand-mark,.quotation-company-logo").forEach(function(e){e.innerHTML='<img src="assets/logo.png" alt="Tech SG Studio">';e.classList.add("has-logo")});
