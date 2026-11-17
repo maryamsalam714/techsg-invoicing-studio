@@ -857,18 +857,8 @@
         "use strict";
 
         const PAGE_SIZE = 8;
-        const STORAGE_KEYS = {
-          invoices: [
-            "techsg_invoices_v1",
-            "techsg_invoices",
-            "invoices"
-          ],
-          payments: [
-            "techsg_payments_v1",
-            "techsg_payments",
-            "payments"
-          ]
-        };
+       
+        
 
         let invoices = [];
         let payments = [];
@@ -1251,10 +1241,20 @@
           };
         }
 
-        function loadData() {
-          invoices = readStorage(STORAGE_KEYS.invoices);
-          payments = readStorage(STORAGE_KEYS.payments);
-        }
+      async function loadData() {
+  const result = await SG.api("reports.php");
+
+  if (!result || !result.ok) {
+    throw new Error(
+      result && result.error
+        ? result.error
+        : "Could not load reports from the database."
+    );
+  }
+
+  invoices = Array.isArray(result.invoices) ? result.invoices : [];
+  payments = Array.isArray(result.payments) ? result.payments : [];
+}
 
         function getDateRange() {
           return {
@@ -1441,7 +1441,7 @@
             return !best || item.amount > best.amount ? item : best;
           }, null);
 
-          setText("largestInvoice", largest ? formatMoney(largest.amount) : "$0.00");
+        setText("largestInvoice", largest ? formatMoney(largest.amount) : "Rs. 0.00");
           setText(
             "largestInvoiceName",
             largest ? largest.title + " · " + largest.customer : "No invoice records available."
@@ -1925,19 +1925,23 @@
           showNotice("Filters have been reset.", "info");
         }
 
-        function refreshReports() {
-          loadData();
-          applyFilters();
-
-          showNotice(
-            "Reports refreshed from browser storage.",
-            "success"
-          );
-        }
-
-        function initialize() {
-          loadData();
-
+       async function refreshReports() {
+  try {
+    await loadData();
+    applyFilters();
+    showNotice("Reports refreshed from the database.", "success");
+  } catch (error) {
+    console.error("Reports error:", error);
+    showNotice(error.message || "Could not refresh reports.", "error");
+  }
+}
+       async function initialize() {
+  try {
+    await loadData();
+  } catch (error) {
+    console.error("Reports loading error:", error);
+    showNotice(error.message || "Could not load reports.", "error");
+  }
           $("applyFiltersBtn").addEventListener(
             "click",
             function () {
