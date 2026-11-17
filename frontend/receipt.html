@@ -11,12 +11,18 @@ SG.ready(async function(){
  var id=new URLSearchParams(location.search).get("id"),$=function(i){return document.getElementById(i)};
 
  // Find this payment (the server sends the list of payments)
- var pj=await SG.api("payments.php"),p=(pj.ok?pj.payments:[]).filter(function(x){return x.id===id})[0];
+ var pj = await SG.api("receipt.php?id=" + encodeURIComponent(id));
+var p = (pj && pj.ok) ? pj.receipt : null;
  var v=SG.shell({eyebrow:"RECEIPT",title:p?p.id:"Receipt not found",sub:p?"Payment receipt for "+p.invoice:"This receipt does not exist.",actions:'<a class="btn" href="invoices.html">Back</a>'});
  if(!p){v.innerHTML='<div class="card empty">Receipt not found.</div>';return}
 
- var inv=SG.invoice(p.invoice)||{},cl=SG.client(inv.clientId)||{},co=SG.company();
- var total=inv.id?Math.round(SG.totals(inv).total*100)/100:0,paid=+inv.paid||0,balance=Math.max(0,Math.round((total-paid)*100)/100);
+var inv = pj.invoice || {};
+var cl = { name: p.customer, id: p.clientId };
+var co = SG.company();
+
+var total = Number(inv.total) || 0;
+var paid = Number(inv.amount_paid) || 0;
+var balance = Math.max(0, Math.round((total - paid) * 100) / 100);
  var row=function(a,b){return'<tr><td style="padding:9px 0;color:#667085;width:42%">'+a+'</td><td style="padding:9px 0;font-weight:600">'+((b===undefined||b===null||b==="")?"—":SG.esc(b))+"</td></tr>"};
 
  v.innerHTML='<div class="toolbar"><button class="btn primary" id="pr">Print / Save PDF</button><a class="btn light" href="invoice-view.html?id='+encodeURIComponent(p.invoice)+'">Back to invoice</a></div>'+
