@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Convert Quotation | Tech SG Studio</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="professional.css">
+    <link rel="stylesheet" href="fbr.css">
+    <link rel="stylesheet" href="techsg-theme.css">
+    <link rel="stylesheet" href="layout-fix.css">
+    <link rel="stylesheet" href="app.css">
+
+    <script src="core.js"></script>
+</head>
+
+<body data-page="quotation-convert">
+<div id="root"></div>
+
+<script>
+SG.ready(async function () {
+    var id = new URLSearchParams(location.search).get('id');
+
+    var page = SG.shell({
+        eyebrow: 'QUOTATIONS',
+        title: 'Convert to Invoice',
+        sub: 'Create an invoice from an accepted quotation.',
+        actions: '<a class="btn" href="quotations.html">Back</a>'
+    });
+
+    page.innerHTML = '<div class="card empty">Loading quotation...</div>';
+
+    try {
+        var response = await SG.api('quotations.php', 'GET');
+
+        if (!response.ok) {
+            throw new Error(response.error || 'Unable to load quotations.');
+        }
+
+        var quotation = (response.quotations || []).find(function (q) {
+            return String(q.id) === String(id);
+        });
+
+        if (!quotation) {
+            page.innerHTML = '<div class="card empty">Quotation not found.</div>';
+            return;
+        }
+
+        function money(value) {
+            return Number(value || 0).toLocaleString('en-PK', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        var rows = '';
+
+        (quotation.items || []).forEach(function (item) {
+            rows += '<tr>' +
+                '<td>' + SG.esc(item.d || '') + '</td>' +
+                '<td>' + Number(item.q || 0) + '</td>' +
+                '<td>PKR ' + money(item.p) + '</td>' +
+                '</tr>';
+        });
+
+        var button = '';
+
+        if (quotation.status === 'Accepted') {
+            button = '<button class="btn primary" id="convertBtn">' +
+                'Convert to Invoice</button>';
+        } else if (quotation.status === 'Converted') {
+            button = '<p class="badge green">Already converted</p>';
+        } else {
+            button = '<p class="badge gray">' +
+                'Only accepted quotations can be converted.</p>';
+        }
+
+        page.innerHTML =
+            '<div class="card" style="max-width:750px;margin:auto;padding:25px">' +
+                '<h2>' + SG.esc(quotation.quotationNo) + '</h2>' +
+                '<p><b>Client:</b> ' + SG.esc(quotation.clientName) + '</p>' +
+                '<p><b>Issue date:</b> ' + SG.esc(quotation.issue) + '</p>' +
+                '<p><b>Valid until:</b> ' + SG.esc(quotation.validUntil) + '</p>' +
+                '<p><b>Status:</b> ' + SG.esc(quotation.status) + '</p>' +
+                '<hr>' +
+                '<h3>Quotation Items</h3>' +
+                '<div class="table-wrap">' +
+                    '<table class="table">' +
+                        '<thead><tr>' +
+                            '<th>Description</th>' +
+                            '<th>Quantity</th>' +
+                            '<th>Price</th>' +
+                        '</tr></thead>' +
+                        '<tbody>' + rows + '</tbody>' +
+                    '</table>' +
+                '</div>' +
+                '<h3 style="text-align:right;margin-top:20px">' +
+                    'Total: PKR ' + money(quotation.total) +
+                '</h3>' +
+                '<div style="margin-top:25px">' + button + '</div>' +
+                '<p style="color:#667085;margin-top:15px">' +
+                    'The invoice will use the quotation client, items, prices, ' +
+                    'discount and tax. Its due date will follow the payment terms.' +
+                '</p>' +
+            '</div>';
+
+        var convertBtn = document.getElementById('convertBtn');
+
+        if (convertBtn) {
+            convertBtn.onclick = async function () {
+                if (!confirm('Convert this quotation into an invoice?')) {
+                    return;
+                }
+
+                convertBtn.disabled = true;
+                convertBtn.textContent = 'Converting...';
+
+                try {
+                    var result = await SG.api(
+                        'quotation-convert.php',
+                        'POST',
+                        { id: quotation.id }
+                    );
+
+                    if (!result.ok) {
+                        throw new Error(result.error || 'Conversion failed.');
+                    }
+
+                    SG.toast('Invoice created successfully!');
+
+                    location.href = 'invoice-view.html?id=' +
+                        encodeURIComponent(result.invoice.id);
+
+                } catch (error) {
+                    SG.toast(error.message);
+                    convertBtn.disabled = false;
+                    convertBtn.textContent = 'Convert to Invoice';
+                }
+            };
+        }
+
+    } catch (error) {
+        console.error('Quotation conversion page:', error);
+
+        page.innerHTML =
+            '<div class="card empty">' +
+            SG.esc(error.message || 'Something went wrong.') +
+            '</div>';
+    }
+});
+</script>
+</body>
+</html>

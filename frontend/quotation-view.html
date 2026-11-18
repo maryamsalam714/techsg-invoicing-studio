@@ -1,1010 +1,966 @@
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="TechSG quotation view">
-    <title>Quotation QT-2026-0048 | TechSG</title>
+    <meta name="description" content="TechSG quotation details">
+    <title>Quotation | Tech SG Studio</title>
 
     <link rel="stylesheet" href="style.css">
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    >
-
     <link rel="stylesheet" href="professional.css">
-<link rel="stylesheet" href="fbr.css">
-<script src="fbr.js" defer></script>
-<link rel="stylesheet" href="techsg-theme.css">
-<link rel="stylesheet" href="layout-fix.css">
-<link rel="stylesheet" href="app.css">
-<script src="qr.js"></script>
-<script src="core.js"></script>
-<script src="advanced.js" defer></script>
+    <link rel="stylesheet" href="fbr.css">
+    <link rel="stylesheet" href="techsg-theme.css">
+    <link rel="stylesheet" href="layout-fix.css">
+    <link rel="stylesheet" href="app.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <script src="core.js"></script>
+
+    <style>
+        .quotation-view-page {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .quotation-document {
+            padding: 30px;
+            background: #fff;
+            color: #302b3d;
+        }
+
+        .quotation-document-header {
+            border-bottom: 2px solid #8b72d8;
+            padding-bottom: 22px;
+        }
+
+        .quotation-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .quotation-company {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .quotation-company-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            color: white;
+            background: #8b72d8;
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .quotation-company-info h2 {
+            margin: 0 0 7px;
+            font-size: 19px;
+        }
+
+        .quotation-company-info p {
+            margin: 4px 0;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .quotation-title {
+            text-align: right;
+        }
+
+        .quotation-title h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            color: #8b72d8;
+        }
+
+        .quotation-number {
+            font-weight: 700;
+        }
+
+        .quotation-status {
+            display: inline-block;
+            padding: 5px 12px;
+            margin-top: 6px;
+            border-radius: 20px;
+            background: #f0edff;
+            color: #6650a4;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .quotation-meta {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .quotation-meta-card {
+            padding: 13px;
+            border-radius: 9px;
+            background: #f8f6fc;
+        }
+
+        .quotation-meta-card span {
+            display: block;
+            margin-bottom: 6px;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .quotation-meta-card strong {
+            font-size: 14px;
+        }
+
+        .quotation-document-body {
+            padding-top: 25px;
+        }
+
+        .quotation-parties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .party-card {
+            padding: 18px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+        }
+
+        .party-card-label {
+            margin-bottom: 10px;
+            color: #8b72d8;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .party-card h3 {
+            margin: 0 0 9px;
+            font-size: 16px;
+        }
+
+        .party-card p {
+            margin: 5px 0;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .quotation-table-wrap {
+            overflow-x: auto;
+        }
+
+        .quotation-items-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .quotation-items-table th {
+            padding: 13px;
+            background: #f4f0fc;
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .quotation-items-table td {
+            padding: 14px 13px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .quotation-item-name {
+            display: block;
+            font-weight: 700;
+        }
+
+        .quotation-item-description {
+            display: block;
+            margin-top: 4px;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .quotation-bottom {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 30px;
+            margin-top: 25px;
+        }
+
+        .quotation-extra-info h3 {
+            font-size: 15px;
+        }
+
+        .quotation-extra-info p {
+            color: #777;
+            font-size: 13px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .quotation-summary-row,
+        .quotation-summary-total {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .quotation-summary-total {
+            margin-top: 8px;
+            border-top: 2px solid #8b72d8;
+            border-bottom: 0;
+            padding-top: 15px;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .quotation-notes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 28px;
+        }
+
+        .quotation-note-card {
+            padding: 16px;
+            border-radius: 9px;
+            background: #f8f6fc;
+        }
+
+        .quotation-note-card h3 {
+            margin: 0 0 8px;
+            font-size: 14px;
+        }
+
+        .quotation-note-card p {
+            margin: 0;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .quotation-acceptance {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+            padding: 17px;
+            border: 1px solid #eee;
+            border-radius: 9px;
+        }
+
+        .quotation-acceptance h3 {
+            margin: 0 0 5px;
+            font-size: 14px;
+        }
+
+        .quotation-acceptance p {
+            margin: 0;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .acceptance-status {
+            padding: 7px 13px;
+            border-radius: 20px;
+            background: #f0edff;
+            color: #6650a4;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .quotation-signatures {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin-top: 60px;
+        }
+
+        .signature-box {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .signature-line {
+            height: 1px;
+            margin-bottom: 8px;
+            background: #999;
+        }
+
+        .signature-box span {
+            color: #777;
+            font-size: 11px;
+        }
+
+        #loadingMessage,
+        #errorMessage {
+            padding: 25px;
+            margin-bottom: 18px;
+        }
+
+        #errorMessage {
+            display: none;
+            color: #a93226;
+            background: #fdecea;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 700px) {
+            .quotation-document {
+                padding: 16px;
+            }
+
+            .quotation-header-top {
+                flex-direction: column;
+            }
+
+            .quotation-title {
+                text-align: left;
+            }
+
+            .quotation-meta {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quotation-parties,
+            .quotation-bottom,
+            .quotation-notes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quotation-signatures {
+                gap: 25px;
+            }
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 12mm;
+            }
+
+
+            
+
+            body {
+                background: #fff !important;
+            }
+
+            .sidebar,
+            .topbar,
+            .sidebar-overlay,
+            .page-header,
+            .page-footer,
+            .quotation-no-print,
+            #loadingMessage,
+            #errorMessage {
+                display: none !important;
+            }
+
+            .app-shell,
+            .main-shell,
+            .main-content,
+            .quotation-view-page {
+                display: block !important;
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .quotation-document {
+                display: block !important;
+                padding: 0 !important;
+                border: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+            .quotation-items-table thead {
+                display: table-header-group;
+            }
+
+            .quotation-items-table tr,
+            .quotation-note-card,
+            .quotation-meta-card,
+            .quotation-acceptance,
+            .signature-box {
+                break-inside: avoid;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
 </head>
 
-<body>
+<body data-page="quotation-view">
 
-    <div class="app-shell">
+<div class="app-shell">
 
-        <aside class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar">
+<script>
+(function () {
+    var sidebar = document.getElementById("sidebar");
+    if (!sidebar || !window.SG) return;
 
-            <div class="brand">
-                <a href="index.html" class="brand-link">
-                    <span class="brand-mark">T</span>
-                    <span class="brand-text">Tech SG Studio (SMC-Pvt.) Ltd.</span>
-                </a>
+    var session = SG.session() || {};
+
+    var groups = [
+        ["MAIN", [
+            ["index.html", "Dashboard", "fa-grid-2"],
+            ["invoices.html", "Invoices", "fa-file-invoice"],
+            ["quotations.html", "Quotations", "fa-file-signature"],
+            ["clients.html", "Clients", "fa-users"],
+            ["items.html", "Items", "fa-boxes-stacked"]
+        ]],
+        ["MANAGEMENT", [
+            ["payments.html", "Payments", "fa-credit-card"],
+            ["recurring.html", "Recurring", "fa-arrows-rotate"],
+            ["projects.html", "Projects", "fa-diagram-project"],
+            ["reports.html", "Reports", "fa-chart-column"]
+        ]],
+        ["SYSTEM", [
+            ["users.html", "Staff & Users", "fa-user-group"],
+            ["audit-log.html", "Audit log", "fa-clock-rotate-left"],
+            ["settings.html", "Settings", "fa-gear"]
+        ]]
+    ];
+
+    var navigation = groups.map(function (group) {
+        return '<div class="nav-section-title">' + group[0] + '</div>' +
+            group[1].map(function (item) {
+                return '<a href="' + item[0] + '"' +
+                    (item[0] === "quotations.html" ? ' class="active"' : '') +
+                    '><i class="fa-solid ' + item[2] + '"></i>' +
+                    '<span>' + item[1] + '</span></a>';
+            }).join("");
+    }).join("");
+
+    sidebar.innerHTML =
+        '<div class="brand">' +
+            '<div class="brand-mark"></div>' +
+            '<div class="brand-text">' +
+                '<strong>Tech SG Studio</strong>' +
+                '<span>(SMC-Pvt.) Ltd.</span>' +
+            '</div>' +
+        '</div>' +
+        '<nav class="nav">' + navigation + '</nav>' +
+        '<div class="sidebar-foot">' +
+            '<div class="avatar"></div>' +
+            '<div class="user-mini">' +
+                '<strong></strong>' +
+                '<span></span>' +
+            '</div>' +
+        '</div>';
+
+    sidebar.querySelector(".avatar").textContent =
+        (session.name || "U").slice(0, 2).toUpperCase();
+
+    sidebar.querySelector(".user-mini strong").textContent =
+        session.name || "User";
+
+    sidebar.querySelector(".user-mini span").textContent =
+        session.role === "admin" ? "Administrator" : "Staff";
+})();
+</script>
+</aside>
+
+    <div class="main-shell">
+
+        <header class="topbar quotation-no-print">
+            <button type="button" class="icon-btn"
+                id="sidebarToggle" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div class="topbar-title">
+                <span>Quotation details</span>
             </div>
 
-            <nav class="sidebar-nav" aria-label="Main navigation">
-
-                <a href="index.html" class="nav-item">
-                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
-                    <span>Dashboard</span>
+            <div class="topbar-actions">
+                <a href="quotation-create.html" class="btn primary sm">
+                    <i class="fa-solid fa-plus"></i>
+                    New quotation
                 </a>
-
-                <a href="invoices.html" class="nav-item">
-                    <i class="fa-solid fa-file-invoice" aria-hidden="true"></i>
-                    <span>Invoices</span>
-                </a>
-
-                <a href="invoice-create.html" class="nav-item">
-                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                    <span>Create invoice</span>
-                </a>
-
-                <a href="quotations.html" class="nav-item active" aria-current="page">
-                    <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
-                    <span>Quotations</span>
-                </a>
-
-                <a href="quotation-create.html" class="nav-item">
-                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
-                    <span>Create quotation</span>
-                </a>
-
-                <a href="clients.html" class="nav-item">
-                    <i class="fa-solid fa-users" aria-hidden="true"></i>
-                    <span>Clients</span>
-                </a>
-
-            </nav>
-
-            <div class="sidebar-footer">
-
-                <a href="settings.html" class="nav-item">
-                    <i class="fa-solid fa-gear" aria-hidden="true"></i>
-                    <span>Settings</span>
-                </a>
-
             </div>
+        </header>
 
-        </aside>
+        <main class="main-content quotation-view-page">
 
+            <div class="page-header quotation-no-print">
+                <div>
+                    <div class="breadcrumb">
+                        <a href="quotations.html">Quotations</a>
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span id="breadcrumbNumber">Quotation</span>
+                    </div>
 
-        <div class="main-shell">
-
-            <header class="topbar">
-
-                <button
-                    type="button"
-                    class="icon-btn"
-                    id="sidebarToggle"
-                    aria-label="Toggle navigation"
-                    aria-controls="sidebar"
-                    aria-expanded="true"
-                >
-                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
-                </button>
-
-                <div class="topbar-title">
-                    <span>Quotations</span>
+                    <h1 id="pageQuotationNumber">Quotation</h1>
+                    <p>View quotation details and billing information.</p>
                 </div>
 
-                <div class="topbar-actions">
-
-                    <a
-                        href="quotation-create.html"
-                        class="btn primary sm"
-                    >
-                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                        New quotation
+                <div class="page-actions">
+                    <a href="quotations.html" class="btn sm">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Back
                     </a>
 
+                    <button type="button" class="btn sm" id="printQuotation">
+                        <i class="fa-solid fa-print"></i>
+                        Print / PDF
+                    </button>
+
+                    <a href="#" class="btn primary sm" id="editQuotation">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                        Edit quotation
+                    </a>
                 </div>
+            </div>
 
-            </header>
+            <div id="loadingMessage">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                Loading quotation...
+            </div>
 
+            <div id="errorMessage"></div>
 
-            <main class="main-content">
+            <article class="quotation-document card"
+                id="quotationDocument" style="display:none">
 
-                <div class="page-header">
+                <header class="quotation-document-header">
 
-                    <div>
+                    <div class="quotation-header-top">
 
-                        <div class="breadcrumb">
+                        <div class="quotation-company">
+                            <div class="quotation-company-logo">T</div>
 
-                            <a href="quotations.html">
-                                Quotations
-                            </a>
-
-                            <i
-                                class="fa-solid fa-chevron-right"
-                                aria-hidden="true"
-                            ></i>
-
-                            <span>
-                                QT-2026-0048
-                            </span>
-
-                        </div>
-
-                        <h1>
-                            QT-2026-0048
-                        </h1>
-
-                        <p>
-                            View quotation details and billing information.
-                        </p>
-
-                    </div>
-
-
-                    <div class="page-actions">
-
-                        <a
-                            href="quotations.html"
-                            class="btn sm"
-                        >
-                            <i
-                                class="fa-solid fa-arrow-left"
-                                aria-hidden="true"
-                            ></i>
-                            Back
-                        </a>
-
-                        <button
-                            type="button"
-                            class="btn sm"
-                            id="printQuotation"
-                        >
-                            <i
-                                class="fa-solid fa-print"
-                                aria-hidden="true"
-                            ></i>
-                            Print
-                        </button>
-
-                        <button
-                            type="button"
-                            class="btn sm"
-                            id="downloadQuotation"
-                        >
-                            <i
-                                class="fa-solid fa-download"
-                                aria-hidden="true"
-                            ></i>
-                            Download PDF
-                        </button>
-
-                        <a
-                            href="quotation-create.html"
-                            class="btn primary sm"
-                        >
-                            <i
-                                class="fa-regular fa-pen-to-square"
-                                aria-hidden="true"
-                            ></i>
-                            Edit quotation
-                        </a>
-
-                    </div>
-
-                </div>
-
-
-                <article
-                    class="quotation-document card"
-                    id="quotationDocument"
-                >
-
-                    <header class="quotation-document-header">
-
-                        <div class="quotation-header-top">
-
-                            <div class="quotation-company">
-
-                                <div class="quotation-company-logo">
-                                    T
-                                </div>
-
-                                <div class="quotation-company-info">
-
-                                    <h2>
-                                        Tech SG Studio (SMC-Pvt.) Ltd.
-                                    </h2>
-
-                                    <p>
-                                        Professional invoicing &amp;
-                                        business management
-                                    </p>
-
-                                    <p>
-                                        Faisalabad, Punjab, Pakistan
-                                    </p>
-
-                                    <p>
-                                        info@techsgstudio.com
-                                        &nbsp;•&nbsp;
-                                        +92 306 9524047
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="quotation-title">
-
-                                <h1>
-                                    QUOTATION
-                                </h1>
-
-                                <p class="quotation-number">
-                                    QT-2026-0048
-                                </p>
-
-                                <span class="quotation-status">
-                                    <i
-                                        class="fa-solid fa-circle-check"
-                                        aria-hidden="true"
-                                    ></i>
-                                    Accepted
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="quotation-meta">
-
-                            <div class="quotation-meta-card">
-                                <span>Issue date</span>
-                                <strong>October 22, 2026</strong>
-                            </div>
-
-                            <div class="quotation-meta-card">
-                                <span>Valid until</span>
-                                <strong>November 21, 2026</strong>
-                            </div>
-
-                            <div class="quotation-meta-card">
-                                <span>Reference</span>
-                                <strong>QTN-0048</strong>
-                            </div>
-
-                            <div class="quotation-meta-card">
-                                <span>Currency</span>
-                                <strong>PKR (Rs.)</strong>
-                            </div>
-
-                        </div>
-
-                    </header>
-
-
-                    <div class="quotation-document-body">
-
-                        <div class="quotation-parties">
-
-                            <section class="party-card">
-
-                                <div class="party-card-label">
-                                    From
-                                </div>
-
-                                <h3>Tech SG Studio (SMC-Pvt.) Ltd.</h3>
-
+                            <div class="quotation-company-info">
+                                <h2>Tech SG Studio (SMC-Pvt.) Ltd.</h2>
+                                <p>Professional invoicing &amp; business management</p>
                                 <p>Faisalabad, Punjab, Pakistan</p>
-
-                                <p>info@techsgstudio.com</p>
-
-                                <p>+92 306 9524047</p>
-
-                                <p>
-                                    Tax ID:
-                                    <strong>NTN — set in Settings</strong>
-                                </p>
-
-                            </section>
-
-
-                            <section class="party-card">
-
-                                <div class="party-card-label">
-                                    Quotation for
-                                </div>
-
-                                <h3>Acme Corporation</h3>
-
-                                <p>billing@acme.com</p>
-
-                                <p>New York, United States</p>
-
-                                <p>+1 555 123 4567</p>
-
-                                <p>
-                                    Client ID:
-                                    <strong>CLI-2026-0012</strong>
-                                </p>
-
-                            </section>
-
+                                <p>info@techsgstudio.com &nbsp;â€¢&nbsp; +92 306 9524047</p>
+                            </div>
                         </div>
 
-
-                        <div class="quotation-table-wrap">
-
-                            <table
-                                class="quotation-items-table"
-                                aria-label="Quotation items"
-                            >
-
-                                <thead>
-
-                                    <tr>
-
-                                        <th scope="col">
-                                            Description
-                                        </th>
-
-                                        <th scope="col">
-                                            Qty
-                                        </th>
-
-                                        <th scope="col">
-                                            Rate
-                                        </th>
-
-                                        <th scope="col">
-                                            Tax
-                                        </th>
-
-                                        <th scope="col">
-                                            Amount
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-                                <tbody>
-
-                                    <tr>
-
-                                        <td>
-                                            <span class="quotation-item-name">
-                                                Website Design &amp;
-                                                Development
-                                            </span>
-
-                                            <span class="quotation-item-description">
-                                                Responsive corporate website
-                                                with modern UI and CMS setup.
-                                            </span>
-                                        </td>
-
-                                        <td>1</td>
-                                        <td>Rs. 5,000.00</td>
-                                        <td>10%</td>
-                                        <td>Rs. 5,500.00</td>
-
-                                    </tr>
-
-
-                                    <tr>
-
-                                        <td>
-                                            <span class="quotation-item-name">
-                                                UI/UX Design
-                                            </span>
-
-                                            <span class="quotation-item-description">
-                                                Complete interface design,
-                                                wireframes and responsive
-                                                layouts.
-                                            </span>
-                                        </td>
-
-                                        <td>1</td>
-                                        <td>Rs. 2,000.00</td>
-                                        <td>10%</td>
-                                        <td>Rs. 2,200.00</td>
-
-                                    </tr>
-
-
-                                    <tr>
-
-                                        <td>
-                                            <span class="quotation-item-name">
-                                                Website Maintenance
-                                            </span>
-
-                                            <span class="quotation-item-description">
-                                                Monthly maintenance and
-                                                technical support.
-                                            </span>
-                                        </td>
-
-                                        <td>5</td>
-                                        <td>Rs. 160.00</td>
-                                        <td>10%</td>
-                                        <td>Rs. 880.00</td>
-
-                                    </tr>
-
-                                </tbody>
-
-                            </table>
-
+                        <div class="quotation-title">
+                            <h1>QUOTATION</h1>
+                            <p class="quotation-number" id="quotationNumber"></p>
+                            <span class="quotation-status" id="quotationStatus"></span>
                         </div>
 
+                    </div>
 
-                        <div class="quotation-bottom">
+                    <div class="quotation-meta">
 
-                            <div class="quotation-extra-info">
-
-                                <h3>
-                                    Project summary
-                                </h3>
-
-                                <p>
-                                    Website design, development and
-                                    maintenance services for Acme
-                                    Corporation according to the agreed
-                                    project requirements.
-                                </p>
-
-                            </div>
-
-
-                            <div class="quotation-summary">
-
-                                <div class="quotation-summary-row">
-                                    <span>Subtotal</span>
-                                    <strong>Rs. 7,800.00</strong>
-                                </div>
-
-                                <div class="quotation-summary-row">
-                                    <span>Discount</span>
-                                    <strong>Rs. 0.00</strong>
-                                </div>
-
-                                <div class="quotation-summary-row">
-                                    <span>Tax</span>
-                                    <strong>Rs. 700.00</strong>
-                                </div>
-
-                                <div class="quotation-summary-total">
-                                    <span>Total</span>
-                                    <strong>Rs. 8,500.00</strong>
-                                </div>
-
-                            </div>
-
+                        <div class="quotation-meta-card">
+                            <span>Issue date</span>
+                            <strong id="issueDate">â€”</strong>
                         </div>
 
-
-                        <div class="quotation-notes-grid">
-
-                            <section class="quotation-note-card">
-
-                                <h3>
-                                    Notes
-                                </h3>
-
-                                <p>
-                                    Thank you for considering TechSG for
-                                    your project. We look forward to
-                                    working with you.
-                                </p>
-
-                            </section>
-
-
-                            <section class="quotation-note-card">
-
-                                <h3>
-                                    Payment terms
-                                </h3>
-
-                                <p>
-                                    50% advance payment is required to
-                                    begin the project. The remaining
-                                    balance is payable upon completion.
-                                </p>
-
-                            </section>
-
+                        <div class="quotation-meta-card">
+                            <span>Valid until</span>
+                            <strong id="validDate">â€”</strong>
                         </div>
 
+                        <div class="quotation-meta-card">
+                            <span>Payment terms</span>
+                            <strong id="paymentTerms">â€”</strong>
+                        </div>
 
-                        <section class="quotation-acceptance">
+                        <div class="quotation-meta-card">
+                            <span>Currency</span>
+                            <strong>PKR (Rs.)</strong>
+                        </div>
 
-                            <div>
+                    </div>
 
-                                <h3>
-                                    Acceptance
-                                </h3>
+                </header>
 
-                                <p>
-                                    This quotation has been accepted by
-                                    the client.
-                                </p>
+                <div class="quotation-document-body">
 
-                            </div>
+                    <div class="quotation-parties">
 
-
-                            <div class="acceptance-status">
-
-                                <i
-                                    class="fa-solid fa-circle-check"
-                                    aria-hidden="true"
-                                ></i>
-
-                                <span>
-                                    Accepted
-                                </span>
-
-                            </div>
-
+                        <section class="party-card">
+                            <div class="party-card-label">From</div>
+                            <h3>Tech SG Studio (SMC-Pvt.) Ltd.</h3>
+                            <p>Faisalabad, Punjab, Pakistan</p>
+                            <p>info@techsgstudio.com</p>
+                            <p>+92 306 9524047</p>
                         </section>
 
+                        <section class="party-card">
+                            <div class="party-card-label">Quotation for</div>
+                            <h3 id="clientName">â€”</h3>
+                            <p id="clientCode"></p>
+                        </section>
 
-                        <div class="quotation-signatures">
+                    </div>
 
-                            <div class="signature-box">
+                    <div class="quotation-table-wrap">
+                        <table class="quotation-items-table"
+                            aria-label="Quotation items">
 
-                                <div class="signature-line"></div>
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Qty</th>
+                                    <th>Rate</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
 
-                                <strong>
-                                    TechSG Representative
-                                </strong>
+                            <tbody id="quotationItems"></tbody>
+                        </table>
+                    </div>
 
-                                <span>
-                                    Authorized signature
-                                </span>
+                    <div class="quotation-bottom">
 
+                        <div class="quotation-extra-info">
+                            <h3>Project summary / Notes</h3>
+                            <p id="quotationNotes">No additional notes.</p>
+                        </div>
+
+                        <div class="quotation-summary">
+
+                            <div class="quotation-summary-row">
+                                <span>Subtotal</span>
+                                <strong id="subtotal">Rs. 0.00</strong>
                             </div>
 
+                            <div class="quotation-summary-row">
+                                <span>Discount</span>
+                                <strong id="discount">Rs. 0.00</strong>
+                            </div>
 
-                            <div class="signature-box">
+                            <div class="quotation-summary-row">
+                                <span id="taxLabel">Tax</span>
+                                <strong id="tax">Rs. 0.00</strong>
+                            </div>
 
-                                <div class="signature-line"></div>
-
-                                <strong>
-                                    Acme Corporation
-                                </strong>
-
-                                <span>
-                                    Client signature
-                                </span>
-
+                            <div class="quotation-summary-total">
+                                <span>Total</span>
+                                <strong id="total">Rs. 0.00</strong>
                             </div>
 
                         </div>
 
                     </div>
 
-                </article>
+                    <section class="quotation-notes-grid">
 
+                        <div class="quotation-note-card">
+                            <h3>Payment terms</h3>
+                            <p id="termsDescription">â€”</p>
+                        </div>
 
-                <footer class="page-footer">
+                        <div class="quotation-note-card">
+                            <h3>Quotation validity</h3>
+                            <p id="validityDescription">â€”</p>
+                        </div>
 
-                    <div class="page-footer-left">
+                    </section>
 
-                        <strong>
-                            Tech SG Studio (SMC-Pvt.) Ltd.
-                        </strong>
+                    <section class="quotation-acceptance">
+                        <div>
+                            <h3>Quotation status</h3>
+                            <p id="statusDescription">â€”</p>
+                        </div>
 
-                        <span>
-                            Professional invoicing &amp;
-                            business management
-                        </span>
+                        <div class="acceptance-status" id="acceptanceStatus">
+                            <span id="acceptanceStatusText">â€”</span>
+                        </div>
+                    </section>
+
+                    <div class="quotation-signatures">
+
+                        <div class="signature-box">
+                            <div class="signature-line"></div>
+                            <strong>TechSG Representative</strong>
+                            <span>Authorized signature</span>
+                        </div>
+
+                        <div class="signature-box">
+                            <div class="signature-line"></div>
+                            <strong id="signatureClient">Client</strong>
+                            <span>Client signature</span>
+                        </div>
 
                     </div>
 
+                </div>
+            </article>
 
-                    <div class="page-footer-right">
-
-                        <span>
-                            QT-2026-0048
-                        </span>
-
-                        <span>
-                            Page 1 of 1
-                        </span>
-
-                    </div>
-
-                </footer>
-
-            </main>
-
-        </div>
-
-    </div>
-
-
-    <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-        aria-hidden="true"
-    ></div>
-
-
-    <div
-        class="modal"
-        id="deleteQuotationModal"
-        hidden
-    >
-
-        <div
-            class="modal-overlay"
-            data-modal-close
-        ></div>
-
-        <div
-            class="modal-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="deleteQuotationTitle"
-        >
-
-            <div class="modal-head">
-
-                <div>
-
-                    <h2 id="deleteQuotationTitle">
-                        Delete quotation
-                    </h2>
-
-                    <p>
-                        Are you sure you want to delete this quotation?
-                    </p>
-
+            <footer class="page-footer quotation-no-print">
+                <div class="page-footer-left">
+                    <strong>Tech SG Studio (SMC-Pvt.) Ltd.</strong>
+                    <span>Professional invoicing &amp; business management</span>
                 </div>
 
-                <button
-                    type="button"
-                    class="modal-close"
-                    data-modal-close
-                    aria-label="Close dialog"
-                >
-                    <i
-                        class="fa-solid fa-xmark"
-                        aria-hidden="true"
-                    ></i>
-                </button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-                <p>
-                    This action cannot be undone. The quotation and its
-                    related information will be permanently removed.
-                </p>
-
-            </div>
-
-
-            <div class="modal-foot">
-
-                <button
-                    type="button"
-                    class="btn sm"
-                    data-modal-close
-                >
-                    Cancel
-                </button>
-
-                <button
-                    type="button"
-                    class="btn danger sm"
-                    id="confirmDeleteQuotation"
-                >
-                    <i
-                        class="fa-solid fa-trash"
-                        aria-hidden="true"
-                    ></i>
-                    Delete quotation
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div
-        class="modal"
-        id="statusQuotationModal"
-        hidden
-    >
-
-        <div
-            class="modal-overlay"
-            data-modal-close
-        ></div>
-
-        <div
-            class="modal-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="statusQuotationTitle"
-        >
-
-            <div class="modal-head">
-
-                <div>
-
-                    <h2 id="statusQuotationTitle">
-                        Change quotation status
-                    </h2>
-
-                    <p>
-                        Select the new status for this quotation.
-                    </p>
-
+                <div class="page-footer-right">
+                    <span id="footerQuotationNumber">Quotation</span>
+                    <span>Page 1 of 1</span>
                 </div>
+            </footer>
 
-                <button
-                    type="button"
-                    class="modal-close"
-                    data-modal-close
-                    aria-label="Close dialog"
-                >
-                    <i
-                        class="fa-solid fa-xmark"
-                        aria-hidden="true"
-                    ></i>
-                </button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-                <div class="form-group">
-
-                    <label for="quotationStatus">
-                        Status
-                    </label>
-
-                    <select
-                        class="input"
-                        id="quotationStatus"
-                    >
-                        <option value="draft">Draft</option>
-                        <option value="sent">Sent</option>
-                        <option value="accepted" selected>
-                            Accepted
-                        </option>
-                        <option value="rejected">Rejected</option>
-                        <option value="expired">Expired</option>
-                    </select>
-
-                </div>
-
-            </div>
-
-
-            <div class="modal-foot">
-
-                <button
-                    type="button"
-                    class="btn sm"
-                    data-modal-close
-                >
-                    Cancel
-                </button>
-
-                <button
-                    type="button"
-                    class="btn primary sm"
-                    id="saveQuotationStatus"
-                >
-                    <i
-                        class="fa-solid fa-check"
-                        aria-hidden="true"
-                    ></i>
-                    Save status
-                </button>
-
-            </div>
-
-        </div>
-
+        </main>
     </div>
+</div>
 
+<div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
 
-    <div
-        class="toast"
-        id="quotationToast"
-        role="status"
-        aria-live="polite"
-        hidden
-    >
+<script src="app.js"></script>
 
-        <i
-            class="fa-solid fa-circle-check"
-            aria-hidden="true"
-        ></i>
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
 
-        <span id="quotationToastMessage">
-            Action completed successfully.
-        </span>
+    const params = new URLSearchParams(window.location.search);
+    const quotationId = params.get("id");
 
-    </div>
+    const loading = document.getElementById("loadingMessage");
+    const error = document.getElementById("errorMessage");
+    const quotationDocument = document.getElementById("quotationDocument");
 
+    function setText(id, value) {
+        document.getElementById(id).textContent = value ?? "";
+    }
 
-    <script src="app.js"></script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const printButton =
-                document.getElementById("printQuotation");
-
-            const downloadButton =
-                document.getElementById("downloadQuotation");
-
-            const toast =
-                document.getElementById("quotationToast");
-
-            const toastMessage =
-                document.getElementById("quotationToastMessage");
-
-            const deleteModal =
-                document.getElementById("deleteQuotationModal");
-
-            const statusModal =
-                document.getElementById("statusQuotationModal");
-
-            const deleteButton =
-                document.getElementById("confirmDeleteQuotation");
-
-            const statusButton =
-                document.getElementById("saveQuotationStatus");
-
-            const statusSelect =
-                document.getElementById("quotationStatus");
-
-
-            function showToast(message) {
-
-                if (!toast || !toastMessage) {
-                    return;
-                }
-
-                toastMessage.textContent = message;
-                toast.hidden = false;
-
-                window.setTimeout(function () {
-                    toast.hidden = true;
-                }, 2500);
-
-            }
-
-
-            if (printButton) {
-
-                printButton.addEventListener("click", function () {
-                    window.print();
-                });
-
-            }
-
-
-            if (downloadButton) {
-
-                downloadButton.addEventListener("click", function () {
-                    window.print();
-                });
-
-            }
-
-
-            document
-                .querySelectorAll("[data-modal-close]")
-                .forEach(function (button) {
-
-                    button.addEventListener("click", function () {
-
-                        const modal =
-                            button.closest(".modal");
-
-                        if (modal) {
-                            modal.hidden = true;
-                        }
-
-                    });
-
-                });
-
-
-            if (deleteButton) {
-
-                deleteButton.addEventListener("click", function () {
-
-                    if (deleteModal) {
-                        deleteModal.hidden = true;
-                    }
-
-                    showToast(
-                        "Quotation deleted successfully."
-                    );
-
-                });
-
-            }
-
-
-            if (statusButton) {
-
-                statusButton.addEventListener("click", function () {
-
-                    if (statusModal) {
-                        statusModal.hidden = true;
-                    }
-
-                    if (statusSelect) {
-
-                        const selectedOption =
-                            statusSelect.options[
-                                statusSelect.selectedIndex
-                            ];
-
-                        showToast(
-                            "Quotation status changed to " +
-                            selectedOption.textContent.trim() +
-                            "."
-                        );
-
-                    }
-
-                });
-
-            }
-
-
-            document.addEventListener("keydown", function (event) {
-
-                if (event.key !== "Escape") {
-                    return;
-                }
-
-                document
-                    .querySelectorAll(".modal")
-                    .forEach(function (modal) {
-
-                        if (!modal.hidden) {
-                            modal.hidden = true;
-                        }
-
-                    });
-
-            });
-
+    function money(value) {
+        return "Rs. " + Number(value || 0).toLocaleString("en-PK", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
         });
-    </script>
+    }
+
+    function formatDate(value) {
+        if (!value) return "â€”";
+
+        const parts = String(value).split("-");
+
+        if (parts.length !== 3) return value;
+
+        return new Date(
+            Number(parts[0]),
+            Number(parts[1]) - 1,
+            Number(parts[2])
+        ).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        });
+    }
+
+    function showError(text) {
+        loading.style.display = "none";
+        error.style.display = "block";
+        error.textContent = text;
+    }
+
+    function renderQuotation(quotation) {
+
+        const number = quotation.quotationNo || "Quotation";
+        const status = quotation.status || "Draft";
+        const terms = Number(quotation.terms ?? 30);
+        const taxRate = Number(quotation.taxRate || 0);
+
+        document.title = number + " | TechSG";
+
+        setText("breadcrumbNumber", number);
+        setText("pageQuotationNumber", number);
+        setText("quotationNumber", number);
+        setText("footerQuotationNumber", number);
+
+        setText("issueDate", formatDate(quotation.issue));
+        setText("validDate", formatDate(quotation.validUntil));
+        setText("paymentTerms", terms + " days");
+
+        setText("clientName", quotation.clientName || "Client");
+        setText("clientCode", "Client code: " + (quotation.clientId || "â€”"));
+        setText("signatureClient", quotation.clientName || "Client");
+
+        setText("quotationNotes", quotation.notes || "No additional notes.");
+        setText("termsDescription", terms + " days");
+        setText(
+            "validityDescription",
+            "This quotation is valid until " + formatDate(quotation.validUntil) + "."
+        );
+
+        const statusElement = document.getElementById("quotationStatus");
+        statusElement.textContent = status;
+        statusElement.className =
+            "quotation-status status-" + status.toLowerCase().replace(/[^a-z]/g, "");
+
+        setText("statusDescription", "Current status: " + status);
+        setText("acceptanceStatusText", status);
+
+        const itemsBody = document.getElementById("quotationItems");
+        itemsBody.innerHTML = "";
+
+        const items = quotation.items || [];
+
+        if (!items.length) {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+
+            td.colSpan = 4;
+            td.textContent = "No quotation items found.";
+            tr.appendChild(td);
+            itemsBody.appendChild(tr);
+        }
+
+        items.forEach(function (item) {
+
+            const quantity = Number(item.q || 0);
+            const price = Number(item.p || 0);
+            const amount = quantity * price;
+
+            const tr = document.createElement("tr");
+
+            const descriptionCell = document.createElement("td");
+
+            const name = document.createElement("span");
+            name.className = "quotation-item-name";
+            name.textContent = item.d || "Item";
+
+            const details = document.createElement("span");
+            details.className = "quotation-item-description";
+            details.textContent = item.s || "";
+
+            descriptionCell.append(name, details);
+
+            const quantityCell = document.createElement("td");
+            quantityCell.textContent = quantity.toLocaleString("en-PK");
+
+            const priceCell = document.createElement("td");
+            priceCell.textContent = money(price);
+
+            const amountCell = document.createElement("td");
+            amountCell.textContent = money(amount);
+
+            tr.append(
+                descriptionCell,
+                quantityCell,
+                priceCell,
+                amountCell
+            );
+
+            itemsBody.appendChild(tr);
+        });
+
+        setText("subtotal", money(quotation.subtotal));
+        setText("discount", money(quotation.discount));
+        setText("tax", money(quotation.taxAmount));
+        setText("total", money(quotation.total));
+        setText("taxLabel", "Tax (" + taxRate + "%)");
+
+        document.getElementById("editQuotation").href =
+            "quotation-create.html?id=" + encodeURIComponent(quotation.id);
+
+        loading.style.display = "none";
+        quotationDocument.style.display = "block";
+
+        if (params.get("print") === "1") {
+            setTimeout(function () {
+                window.print();
+            }, 500);
+        }
+    }
+
+    document.getElementById("printQuotation")
+        .addEventListener("click", function () {
+            window.print();
+        });
+
+    if (!quotationId) {
+        showError(
+            "Quotation ID is missing. Please open a quotation from the quotations list."
+        );
+        return;
+    }
+
+    try {
+        const result = await SG.api("quotations.php", "GET");
+
+        if (!result || !result.ok) {
+            throw new Error(
+                result?.error ||
+                result?.message ||
+                "Unable to load quotations."
+            );
+        }
+
+        const quotation = (result.quotations || []).find(function (item) {
+            return String(item.id) === String(quotationId);
+        });
+
+        if (!quotation) {
+            throw new Error("Quotation not found.");
+        }
+
+        renderQuotation(quotation);
+
+    } catch (err) {
+        showError(
+            err.message || "Something went wrong while loading the quotation."
+        );
+    }
+
+});
+</script>
 
 <script src="enhancements.js"></script>
+
+
+<script>
+(function () {
+    const quotationId =
+        new URLSearchParams(window.location.search).get('id');
+
+    if (!quotationId) return;
+
+    const button = document.createElement('a');
+
+    button.href =
+        'quotation-convert.html?id=' +
+        encodeURIComponent(quotationId);
+
+    button.textContent = 'Convert to Invoice';
+    button.className = 'btn primary';
+
+    button.style.position = 'fixed';
+    button.style.right = '25px';
+    button.style.bottom = '25px';
+    button.style.zIndex = '9999';
+    button.style.boxShadow = '0 4px 15px rgba(0,0,0,.15)';
+
+    document.body.appendChild(button);
+})();
+</script>
 </body>
 </html>
+
+
+</body>
+</html>
+

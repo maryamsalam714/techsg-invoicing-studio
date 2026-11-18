@@ -1,9 +1,758 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Create quotation | Tech SG Studio (SMC-Pvt.) Ltd.</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="professional.css"><link rel="stylesheet" href="fbr.css">
-<script src="fbr.js" defer></script>
-<link rel="stylesheet" href="techsg-theme.css">
-<link rel="stylesheet" href="layout-fix.css">
-<link rel="stylesheet" href="app.css">
-<script src="qr.js"></script>
-<script src="core.js"></script>
-<script src="advanced.js" defer></script>
-</head><body data-page="quotation-create"><main class="page" style="max-width:1000px;margin:auto"><div class="page-head"><div><div class="eyebrow">SALES</div><h1>Create quotation</h1><p>Prepare a clear quote for a client before converting it to an invoice.</p></div><a class="btn" href="quotations.html">Back to quotations</a></div><section class="form-card" style="padding:28px"><form id="quotation-form"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px"><label>Quotation number<input name="quotation_number" required placeholder="QT-2026-001"></label><label>Client name<input name="client_name" required placeholder="Client or company"></label><label>Issue date<input name="issue_date" type="date" required></label><label>Valid until<input name="valid_until" type="date" required></label><label>Currency<select name="currency"><option>PKR</option><option>USD</option><option>GBP</option><option>EUR</option></select></label><label>Estimated amount<input name="amount" type="number" min="0" step="0.01" required placeholder="0.00"></label></div><label style="display:block;margin-top:18px">Description / scope<textarea name="description" rows="4" placeholder="Describe products, services and terms"></textarea></label><div style="display:flex;gap:12px;justify-content:flex-end;margin-top:22px"><a class="btn" href="quotations.html">Cancel</a><button class="btn-primary" type="submit">Save quotation draft</button></div></form><p style="font-size:12px;color:#7a8498;margin-top:18px">Demo note: this standalone frontend saves a draft in this browser only. A production database/API is required for shared records and PDF/email delivery.</p></section></main><script src="enhancements.js"></script></body></html>
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quotation | Tech SG Studio</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="professional.css">
+    <link rel="stylesheet" href="fbr.css">
+    <link rel="stylesheet" href="techsg-theme.css">
+    <link rel="stylesheet" href="layout-fix.css">
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <script src="core.js"></script>
+
+    <style>
+        .quotation-form-page {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .quotation-form-card {
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .quotation-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .quotation-form-grid label,
+        .quotation-item-row label {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            font-weight: 600;
+        }
+
+        .quotation-form-grid input,
+        .quotation-form-grid select,
+        .quotation-form-grid textarea,
+        .quotation-item-row input {
+            width: 100%;
+            min-width: 0;
+            padding: 11px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font: inherit;
+            background: #fff;
+        }
+
+        .quotation-form-grid textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .quotation-full {
+            grid-column: 1 / -1;
+        }
+
+        .quotation-items-heading,
+        .quotation-item-row {
+            display: grid;
+            grid-template-columns: minmax(180px, 2fr) minmax(150px, 1.5fr) 100px 140px 42px;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .quotation-items-heading {
+            margin: 20px 0 10px;
+            font-weight: 700;
+        }
+
+        .quotation-item-row {
+            margin-bottom: 12px;
+        }
+
+        .quotation-item-row .remove-item {
+            height: 42px;
+            border: 0;
+            border-radius: 8px;
+            color: #c0392b;
+            background: #fff0f0;
+            cursor: pointer;
+        }
+
+        .quotation-summary {
+            max-width: 390px;
+            margin: 25px 0 0 auto;
+        }
+
+        .quotation-summary div {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 9px 0;
+        }
+
+        .quotation-summary .grand-total {
+            border-top: 1px solid #ddd;
+            margin-top: 8px;
+            padding-top: 15px;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .quotation-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        #formMessage {
+            display: none;
+            padding: 12px 15px;
+            margin-bottom: 18px;
+            border-radius: 8px;
+        }
+
+        #formMessage.error {
+            display: block;
+            color: #a93226;
+            background: #fdecea;
+        }
+
+        #formMessage.success {
+            display: block;
+            color: #196b3b;
+            background: #eaf7ef;
+        }
+
+        @media (max-width: 700px) {
+            .quotation-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quotation-full {
+                grid-column: auto;
+            }
+
+            .quotation-items-heading {
+                display: none;
+            }
+
+            .quotation-item-row {
+                grid-template-columns: 1fr 1fr;
+                padding: 14px;
+                border: 1px solid #e5e5e5;
+                border-radius: 10px;
+            }
+
+            .quotation-item-row .description-field,
+            .quotation-item-row .details-field {
+                grid-column: 1 / -1;
+            }
+
+            .quotation-item-row .remove-item {
+                width: 42px;
+            }
+
+            .quotation-form-card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body data-page="quotation-create">
+
+<div class="app-shell">
+
+    <aside class="sidebar" id="sidebar">
+<script>
+(function () {
+    var sidebar = document.getElementById("sidebar");
+    if (!sidebar || !window.SG) return;
+
+    var session = SG.session() || {};
+
+    var groups = [
+        ["MAIN", [
+            ["index.html", "Dashboard", "fa-grid-2"],
+            ["invoices.html", "Invoices", "fa-file-invoice"],
+            ["quotations.html", "Quotations", "fa-file-signature"],
+            ["clients.html", "Clients", "fa-users"],
+            ["items.html", "Items", "fa-boxes-stacked"]
+        ]],
+        ["MANAGEMENT", [
+            ["payments.html", "Payments", "fa-credit-card"],
+            ["recurring.html", "Recurring", "fa-arrows-rotate"],
+            ["projects.html", "Projects", "fa-diagram-project"],
+            ["reports.html", "Reports", "fa-chart-column"]
+        ]],
+        ["SYSTEM", [
+            ["users.html", "Staff & Users", "fa-user-group"],
+            ["audit-log.html", "Audit log", "fa-clock-rotate-left"],
+            ["settings.html", "Settings", "fa-gear"]
+        ]]
+    ];
+
+    var navigation = groups.map(function (group) {
+        return '<div class="nav-section-title">' + group[0] + '</div>' +
+            group[1].map(function (item) {
+                return '<a href="' + item[0] + '"' +
+                    (item[0] === "quotations.html" ? ' class="active"' : '') +
+                    '><i class="fa-solid ' + item[2] + '"></i>' +
+                    '<span>' + item[1] + '</span></a>';
+            }).join("");
+    }).join("");
+
+    sidebar.innerHTML =
+        '<div class="brand">' +
+            '<div class="brand-mark"></div>' +
+            '<div class="brand-text">' +
+                '<strong>Tech SG Studio</strong>' +
+                '<span>(SMC-Pvt.) Ltd.</span>' +
+            '</div>' +
+        '</div>' +
+        '<nav class="nav">' + navigation + '</nav>' +
+        '<div class="sidebar-foot">' +
+            '<div class="avatar"></div>' +
+            '<div class="user-mini">' +
+                '<strong></strong>' +
+                '<span></span>' +
+            '</div>' +
+        '</div>';
+
+    sidebar.querySelector(".avatar").textContent =
+        (session.name || "U").slice(0, 2).toUpperCase();
+
+    sidebar.querySelector(".user-mini strong").textContent =
+        session.name || "User";
+
+    sidebar.querySelector(".user-mini span").textContent =
+        session.role === "admin" ? "Administrator" : "Staff";
+})();
+</script>
+</aside>
+
+    <div class="main-shell">
+
+        <header class="topbar">
+            <button type="button" class="icon-btn"
+                id="sidebarToggle" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div class="topbar-title">
+                <span id="topbarHeading">Create quotation</span>
+            </div>
+        </header>
+
+        <main class="main-content quotation-form-page">
+
+            <div class="page-header">
+                <div>
+                    <div class="breadcrumb">
+                        <a href="quotations.html">Quotations</a>
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span id="breadcrumbHeading">Create quotation</span>
+                    </div>
+                    <h1 id="pageHeading">Create quotation</h1>
+                    <p>Create a quotation for one of your saved clients.</p>
+                </div>
+
+                <div class="page-actions">
+                    <a href="quotations.html" class="btn sm">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Back to quotations
+                    </a>
+                </div>
+            </div>
+
+            <div id="formMessage"></div>
+
+            <form id="quotation-form">
+
+                <section class="card quotation-form-card">
+                    <h2>Client information</h2>
+                    <p>Select a client from your saved client records.</p>
+
+                    <div class="quotation-form-grid">
+                        <label class="quotation-full">
+                            Client
+                            <select name="client_id" id="clientSelect" required>
+                                <option value="">Loading clients...</option>
+                            </select>
+                            <small id="clientHelp">Choose a client by name or client code.</small>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="card quotation-form-card">
+                    <h2>Quotation details</h2>
+
+                    <div class="quotation-form-grid">
+                        <label>
+                            Issue date
+                            <input type="date" name="issue_date" id="issueDate" required>
+                        </label>
+
+                        <label>
+                            Valid until
+                            <input type="date" name="valid_until" id="validUntil" required>
+                        </label>
+
+                        <label>
+                            Payment terms (days)
+                            <input type="number" name="terms" id="terms"
+                                min="0" value="30" required>
+                        </label>
+
+                        <label>
+                            Status
+                            <select name="status" id="status">
+                                <option value="Draft">Draft</option>
+                                <option value="Sent">Sent</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Accepted">Accepted</option>
+                                <option value="Declined">Declined</option>
+                                <option value="Expired">Expired</option>
+                            </select>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="card quotation-form-card">
+                    <h2>Quotation items</h2>
+                    <p>Add the products or services included in this quotation.</p>
+
+                    <div class="quotation-items-heading">
+                        <span>Description</span>
+                        <span>Details</span>
+                        <span>Quantity</span>
+                        <span>Unit price (Rs.)</span>
+                        <span></span>
+                    </div>
+
+                    <div id="quotationItems"></div>
+
+                    <button type="button" class="btn sm" id="addItem">
+                        <i class="fa-solid fa-plus"></i>
+                        Add item
+                    </button>
+
+                    <div class="quotation-form-grid" style="margin-top:25px">
+                        <label>
+                            Tax rate (%)
+                            <input type="number" id="taxRate" name="tax_rate"
+                                min="0" max="100" step="0.01" value="0">
+                        </label>
+
+                        <label>
+                            Discount (Rs.)
+                            <input type="number" id="discount" name="discount"
+                                min="0" step="0.01" value="0">
+                        </label>
+                    </div>
+
+                    <div class="quotation-summary">
+                        <div>
+                            <span>Subtotal</span>
+                            <strong id="subtotalDisplay">Rs. 0.00</strong>
+                        </div>
+                        <div>
+                            <span>Discount</span>
+                            <strong id="discountDisplay">Rs. 0.00</strong>
+                        </div>
+                        <div>
+                            <span>Tax</span>
+                            <strong id="taxDisplay">Rs. 0.00</strong>
+                        </div>
+                        <div class="grand-total">
+                            <span>Total</span>
+                            <strong id="totalDisplay">Rs. 0.00</strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card quotation-form-card">
+                    <h2>Additional notes</h2>
+                    <div class="quotation-form-grid">
+                        <label class="quotation-full">
+                            Notes
+                            <textarea name="notes" id="notes"
+                                placeholder="Add any additional information or conditions..."></textarea>
+                        </label>
+                    </div>
+                </section>
+
+                <div class="quotation-form-actions">
+                    <a href="quotations.html" class="btn">Cancel</a>
+
+                    <button type="submit" class="btn primary" id="saveButton">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Save quotation
+                    </button>
+                </div>
+
+            </form>
+        </main>
+    </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+<script src="app.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+
+    const form = document.getElementById("quotation-form");
+    const clientSelect = document.getElementById("clientSelect");
+    const itemsContainer = document.getElementById("quotationItems");
+    const message = document.getElementById("formMessage");
+    const saveButton = document.getElementById("saveButton");
+
+    const params = new URLSearchParams(window.location.search);
+    const quotationId = params.get("id");
+
+    let isEditing = Boolean(quotationId);
+    let clientsLoaded = false;
+
+    function showMessage(text, type) {
+        message.textContent = text;
+        message.className = type;
+        message.style.display = "block";
+        message.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function hideMessage() {
+        message.textContent = "";
+        message.className = "";
+        message.style.display = "none";
+    }
+
+    function money(value) {
+        return "Rs. " + Number(value || 0).toLocaleString("en-PK", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function localDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
+    function setDefaultDates() {
+        const today = new Date();
+        const validDate = new Date(today);
+        validDate.setDate(validDate.getDate() + 30);
+
+        document.getElementById("issueDate").value = localDate(today);
+        document.getElementById("validUntil").value = localDate(validDate);
+    }
+
+    function apiError(result, fallback) {
+        return result?.error || result?.message || fallback;
+    }
+
+    async function loadClients() {
+        clientSelect.innerHTML = '<option value="">Loading clients...</option>';
+
+        const result = await SG.api("clients.php", "GET");
+
+        if (!result || !result.ok) {
+            throw new Error(apiError(result, "Unable to load clients."));
+        }
+
+        const clients = result.clients || [];
+
+        clientSelect.innerHTML = '<option value="">Select a client</option>';
+
+        clients.forEach(function (client) {
+            const option = document.createElement("option");
+
+            // clients.php returns the client code in the id property.
+            option.value = client.id;
+            option.textContent = `${client.name} (${client.id})`;
+
+            clientSelect.appendChild(option);
+        });
+
+        clientsLoaded = true;
+
+        if (clients.length === 0) {
+            clientSelect.innerHTML =
+                '<option value="">No active clients found</option>';
+            document.getElementById("clientHelp").textContent =
+                "Please add a client on the Clients page first.";
+        }
+    }
+
+    function addItem(item = {}) {
+        const row = document.createElement("div");
+        row.className = "quotation-item-row";
+
+        row.innerHTML = `
+            <label class="description-field">
+                Description
+                <input type="text" class="item-description"
+                    placeholder="Product or service" required>
+            </label>
+
+            <label class="details-field">
+                Details
+                <input type="text" class="item-details"
+                    placeholder="Optional details">
+            </label>
+
+            <label>
+                Quantity
+                <input type="number" class="item-quantity"
+                    min="0.01" step="0.01" value="1" required>
+            </label>
+
+            <label>
+                Unit price
+                <input type="number" class="item-price"
+                    min="0" step="0.01" value="0" required>
+            </label>
+
+            <button type="button" class="remove-item"
+                title="Remove item" aria-label="Remove item">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+
+        row.querySelector(".item-description").value = item.d || "";
+        row.querySelector(".item-details").value = item.s || "";
+        row.querySelector(".item-quantity").value = item.q ?? 1;
+        row.querySelector(".item-price").value = item.p ?? 0;
+
+        row.querySelectorAll("input").forEach(function (input) {
+            input.addEventListener("input", calculateTotals);
+        });
+
+        row.querySelector(".remove-item").addEventListener("click", function () {
+            row.remove();
+
+            if (!itemsContainer.querySelector(".quotation-item-row")) {
+                addItem();
+            }
+
+            calculateTotals();
+        });
+
+        itemsContainer.appendChild(row);
+        calculateTotals();
+    }
+
+    function getItems() {
+        const rows = [...itemsContainer.querySelectorAll(".quotation-item-row")];
+
+        return rows.map(function (row) {
+            return {
+                d: row.querySelector(".item-description").value.trim(),
+                s: row.querySelector(".item-details").value.trim(),
+                q: Number(row.querySelector(".item-quantity").value),
+                p: Number(row.querySelector(".item-price").value)
+            };
+        });
+    }
+
+    function calculateTotals() {
+        const items = getItems();
+
+        const subtotal = items.reduce(function (sum, item) {
+            return sum + (item.q * item.p);
+        }, 0);
+
+        const discountInput = Number(
+            document.getElementById("discount").value || 0
+        );
+
+        const discount = Math.min(Math.max(0, discountInput), subtotal);
+
+        const taxRate = Math.max(
+            0,
+            Number(document.getElementById("taxRate").value || 0)
+        );
+
+        const taxableAmount = Math.max(0, subtotal - discount);
+        const tax = taxableAmount * taxRate / 100;
+        const total = taxableAmount + tax;
+
+        document.getElementById("subtotalDisplay").textContent = money(subtotal);
+        document.getElementById("discountDisplay").textContent = money(discount);
+        document.getElementById("taxDisplay").textContent = money(tax);
+        document.getElementById("totalDisplay").textContent = money(total);
+    }
+
+    async function loadQuotation() {
+        const result = await SG.api("quotations.php", "GET");
+
+        if (!result || !result.ok) {
+            throw new Error(apiError(result, "Unable to load quotation."));
+        }
+
+        const quotation = (result.quotations || []).find(function (item) {
+            return String(item.id) === String(quotationId);
+        });
+
+        if (!quotation) {
+            throw new Error("Quotation not found.");
+        }
+
+        form.elements.client_id.value = quotation.clientId || "";
+        form.elements.issue_date.value = quotation.issue || "";
+        form.elements.valid_until.value = quotation.validUntil || "";
+        form.elements.terms.value = quotation.terms ?? 30;
+        form.elements.status.value = quotation.status || "Draft";
+        form.elements.tax_rate.value = quotation.taxRate ?? 0;
+        form.elements.discount.value = quotation.discount ?? 0;
+        form.elements.notes.value = quotation.notes || "";
+
+        itemsContainer.innerHTML = "";
+
+        if (quotation.items && quotation.items.length) {
+            quotation.items.forEach(addItem);
+        } else {
+            addItem();
+        }
+
+        calculateTotals();
+    }
+
+    document.getElementById("addItem").addEventListener("click", function () {
+        addItem();
+    });
+
+    document.getElementById("taxRate").addEventListener("input", calculateTotals);
+    document.getElementById("discount").addEventListener("input", calculateTotals);
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        hideMessage();
+
+        if (!clientsLoaded) {
+            showMessage("Clients have not loaded yet. Please try again.", "error");
+            return;
+        }
+
+        const items = getItems();
+
+        if (!clientSelect.value) {
+            showMessage("Please select a client.", "error");
+            return;
+        }
+
+        if (!items.length || items.some(item =>
+            !item.d || !Number.isFinite(item.q) ||
+            item.q <= 0 || !Number.isFinite(item.p) || item.p < 0
+        )) {
+            showMessage(
+                "Please enter a description, valid quantity and valid price for every item.",
+                "error"
+            );
+            return;
+        }
+
+        const issueDate = form.elements.issue_date.value;
+        const validUntil = form.elements.valid_until.value;
+
+        if (!issueDate || !validUntil || validUntil < issueDate) {
+            showMessage(
+                "Please enter valid dates. The valid-until date cannot be earlier than the issue date.",
+                "error"
+            );
+            return;
+        }
+
+        const payload = {
+            clientId: clientSelect.value,
+            issue: issueDate,
+            validUntil: validUntil,
+            terms: Number(form.elements.terms.value || 30),
+            taxRate: Number(form.elements.tax_rate.value || 0),
+            discount: Number(form.elements.discount.value || 0),
+            status: form.elements.status.value,
+            notes: form.elements.notes.value.trim(),
+            items: items
+        };
+
+        saveButton.disabled = true;
+        saveButton.innerHTML =
+            '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+        try {
+            const method = isEditing ? "PUT" : "POST";
+
+            if (isEditing) {
+                payload.id = Number(quotationId);
+            }
+
+            const result = await SG.api("quotations.php", method, payload);
+
+            if (!result || !result.ok) {
+                throw new Error(apiError(result, "Unable to save quotation."));
+            }
+
+            showMessage(
+                isEditing
+                    ? "Quotation updated successfully."
+                    : "Quotation saved successfully.",
+                "success"
+            );
+
+            window.location.href = "quotations.html";
+
+        } catch (error) {
+            showMessage(error.message || "An error occurred while saving.", "error");
+
+            saveButton.disabled = false;
+            saveButton.innerHTML =
+                '<i class="fa-solid fa-floppy-disk"></i> Save quotation';
+        }
+    });
+
+    try {
+        setDefaultDates();
+        addItem();
+
+        await loadClients();
+
+        if (isEditing) {
+            document.getElementById("pageHeading").textContent = "Edit quotation";
+            document.getElementById("topbarHeading").textContent = "Edit quotation";
+            document.getElementById("breadcrumbHeading").textContent = "Edit quotation";
+            saveButton.innerHTML =
+                '<i class="fa-solid fa-floppy-disk"></i> Update quotation';
+
+            await loadQuotation();
+        }
+
+    } catch (error) {
+        showMessage(error.message || "Unable to load the quotation form.", "error");
+        clientSelect.disabled = true;
+    }
+});
+</script>
+
+<script src="enhancements.js"></script>
+
+</body>
+</html>
+

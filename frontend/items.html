@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="style.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Items Management | TechSG Invoicing</title>
@@ -655,10 +656,23 @@
 </head>
 
 <body>
+<div id="root"></div>
+<script>
+SG.ready(function () {
+    var content = document.querySelector(".page-wrapper");
+    var view = SG.shell({
+        eyebrow: "CATALOG",
+        title: "Items Management",
+        sub: "Manage your products, service items, pricing and stock levels."
+    });
+    if (content && view) view.appendChild(content);
+});
+</script>
 
     <main class="page-wrapper">
 
         <header class="page-header">
+<link rel="stylesheet" href="style.css">
             <div class="page-heading">
                 <h1>Items Management</h1>
                 <p>Manage your products, service items, pricing and stock levels.</p>
@@ -666,7 +680,7 @@
 
             <div class="header-actions">
                 <button type="button" class="btn" id="exportItemsBtn">
-                    ↓ Export CSV
+                    â†“ Export CSV
                 </button>
 
                 <button type="button" class="btn btn-primary" id="addItemBtn">
@@ -682,7 +696,7 @@
                     <div class="stat-label">Total Items</div>
                     <div class="stat-value" id="totalItems">0</div>
                 </div>
-                <div class="stat-icon">▦</div>
+                <div class="stat-icon">â–¦</div>
             </article>
 
             <article class="stat-card">
@@ -690,7 +704,7 @@
                     <div class="stat-label">Inventory Value</div>
                     <div class="stat-value" id="inventoryValue">Rs 0</div>
                 </div>
-                <div class="stat-icon green">₨</div>
+                <div class="stat-icon green">â‚¨</div>
             </article>
 
             <article class="stat-card">
@@ -698,7 +712,7 @@
                     <div class="stat-label">Low Stock Items</div>
                     <div class="stat-value" id="lowStockItems">0</div>
                 </div>
-                <div class="stat-icon orange">⚠</div>
+                <div class="stat-icon orange">âš </div>
             </article>
 
             <article class="stat-card">
@@ -723,7 +737,7 @@
             <div class="toolbar">
 
                 <div class="search-box">
-                    <span class="search-icon">⌕</span>
+                    <span class="search-icon">âŒ•</span>
                     <input
                         type="search"
                         id="itemSearch"
@@ -817,7 +831,7 @@
                     id="closeItemModal"
                     aria-label="Close modal"
                 >
-                    ×
+                    Ã—
                 </button>
             </div>
 
@@ -1374,7 +1388,7 @@ async function loadItems() {
 
 
                 $("itemsCount").textContent = filteredItems.length
-                    ? `Showing ${start + 1}–${Math.min(
+                    ? `Showing ${start + 1}â€“${Math.min(
                         start + PAGE_SIZE,
                         filteredItems.length
                     )} of ${filteredItems.length} items`
@@ -1441,7 +1455,7 @@ async function loadItems() {
                             <span class="stock-badge ${stockClass}">
                                 ${Number(item.stock) || 0}
                                 ${escapeHTML(item.unit || "Piece")}
-                                · ${escapeHTML(status)}
+                                Â· ${escapeHTML(status)}
                             </span>
                         </td>
 
@@ -1507,7 +1521,7 @@ async function loadItems() {
 
                 previous.type = "button";
                 previous.className = "page-btn";
-                previous.textContent = "‹";
+                previous.textContent = "â€¹";
                 previous.disabled = currentPage <= 1;
                 previous.setAttribute("aria-label", "Previous page");
 
@@ -1555,7 +1569,7 @@ async function loadItems() {
 
                 next.type = "button";
                 next.className = "page-btn";
-                next.textContent = "›";
+                next.textContent = "â€º";
                 next.disabled = currentPage >= totalPages;
                 next.setAttribute("aria-label", "Next page");
 

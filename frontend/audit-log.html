@@ -500,13 +500,7 @@
             </div>
 
 
-            <button
-                class="btn btn-light"
-                id="clearAuditBtn"
-                type="button"
-            >
-                Clear Log
-            </button>
+         
 
         </section>
 
@@ -824,42 +818,41 @@
     ></div>
 
 </div>
-<script>
-(function () {
+ <script>
 
+(function () {
     "use strict";
 
-    const STORAGE_KEY = "techsg_audit_log_v1";
     const PAGE_SIZE = 10;
 
     let auditLogs = [];
     let currentPage = 1;
-    let noticeTimer;
 
     const $ = (id) => document.getElementById(id);
 
-
     function escapeHTML(value) {
-
-        return String(value ?? "")
-            .replace(/[&<>"']/g, (char) => ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#39;"
-            })[char]);
-
+        return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]);
     }
 
+    function parseDate(value) {
+        if (!value) return null;
+
+        // MySQL datetime: convert to a format JavaScript can parse locally.
+        const date = new Date(String(value).replace(" ", "T"));
+
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
 
     function formatDateTime(value) {
+        const date = parseDate(value);
 
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return String(value || "");
-        }
+        if (!date) return String(value || "");
 
         return new Intl.DateTimeFormat("en-SG", {
             day: "2-digit",
@@ -868,17 +861,12 @@
             hour: "2-digit",
             minute: "2-digit"
         }).format(date);
-
     }
 
-
     function isToday(value) {
+        const date = parseDate(value);
 
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return false;
-        }
+        if (!date) return false;
 
         const today = new Date();
 
@@ -887,371 +875,45 @@
             date.getMonth() === today.getMonth() &&
             date.getFullYear() === today.getFullYear()
         );
-
     }
-
 
     function getActionClass(action) {
-
         const value = String(action || "").toLowerCase();
 
-        if (value === "create") {
-            return "badge-create";
-        }
-
-        if (value === "update") {
-            return "badge-update";
-        }
-
-        if (value === "delete") {
-            return "badge-delete";
-        }
-
-        if (value === "login") {
-            return "badge-login";
-        }
+        if (value === "create") return "badge-create";
+        if (value === "update") return "badge-update";
+        if (value === "delete") return "badge-delete";
+        if (value === "login") return "badge-login";
 
         return "badge-system";
-
     }
-
 
     function getActivityIcon(action) {
-
         const value = String(action || "").toLowerCase();
 
-        if (value === "create") {
-            return "＋";
-        }
-
-        if (value === "update") {
-            return "✎";
-        }
-
-        if (value === "delete") {
-            return "×";
-        }
-
-        if (value === "login") {
-            return "↪";
-        }
+        if (value === "create") return "＋";
+        if (value === "update") return "✎";
+        if (value === "delete") return "×";
+        if (value === "login") return "↪";
 
         return "⚙";
-
     }
 
+    function showError(message) {
+        const tbody = $("auditTableBody");
 
-    function seedAuditLogs() {
-
-        const now = new Date();
-
-        return [
-
-            {
-                id: "AUD-1001",
-                activity: "Invoice INV-2026-0052 created",
-                details: "New invoice was created for Acme Corporation.",
-                user: "Admin",
-                email: "admin@techsg.com",
-                action: "Create",
-                date: new Date(
-                    now.getTime() - 18 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.10"
-            },
-
-            {
-                id: "AUD-1002",
-                activity: "Invoice INV-2026-0051 updated",
-                details: "Invoice amount and payment terms were updated.",
-                user: "Admin",
-                email: "admin@techsg.com",
-                action: "Update",
-                date: new Date(
-                    now.getTime() - 42 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.10"
-            },
-
-            {
-                id: "AUD-1003",
-                activity: "Client Meridian Digital added",
-                details: "A new company client was added.",
-                user: "Admin",
-                email: "admin@techsg.com",
-                action: "Create",
-                date: new Date(
-                    now.getTime() - 2 * 60 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.10"
-            },
-
-            {
-                id: "AUD-1004",
-                activity: "Quotation QT-2026-0048 updated",
-                details: "Quotation status changed to Accepted.",
-                user: "Sarah Lee",
-                email: "sarah@techsg.com",
-                action: "Update",
-                date: new Date(
-                    now.getTime() - 4 * 60 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.15"
-            },
-
-            {
-                id: "AUD-1005",
-                activity: "User signed in",
-                details: "Administrator successfully signed in.",
-                user: "Admin",
-                email: "admin@techsg.com",
-                action: "Login",
-                date: new Date(
-                    now.getTime() - 6 * 60 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.10"
-            },
-
-            {
-                id: "AUD-1006",
-                activity: "Invoice INV-2026-0047 deleted",
-                details: "Invoice was removed from the invoice records.",
-                user: "Admin",
-                email: "admin@techsg.com",
-                action: "Delete",
-                date: new Date(
-                    now.getTime() - 24 * 60 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.10"
-            },
-
-            {
-                id: "AUD-1007",
-                activity: "Payment recorded for INV-2026-0046",
-                details: "Payment of Rs. 2,450.00 was recorded.",
-                user: "Sarah Lee",
-                email: "sarah@techsg.com",
-                action: "Create",
-                date: new Date(
-                    now.getTime() - 2 * 24 * 60 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.15"
-            },
-
-            {
-                id: "AUD-1008",
-                activity: "Quotation QT-2026-0042 sent",
-                details: "Quotation was sent to the client by email.",
-                user: "Admin",
-                email: "admin@techsg.com",
-                action: "System",
-                date: new Date(
-                    now.getTime() - 3 * 24 * 60 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.10"
-            },
-
-            {
-                id: "AUD-1009",
-                activity: "Client account updated",
-                details: "Billing contact information was updated.",
-                user: "Sarah Lee",
-                email: "sarah@techsg.com",
-                action: "Update",
-                date: new Date(
-                    now.getTime() - 4 * 24 * 60 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.15"
-            },
-
-            {
-                id: "AUD-1010",
-                activity: "System backup completed",
-                details: "Application data backup completed successfully.",
-                user: "System",
-                email: "system",
-                action: "System",
-                date: new Date(
-                    now.getTime() - 5 * 24 * 60 * 60 * 1000
-                ).toISOString(),
-                ip: "127.0.0.1"
-            },
-
-            {
-                id: "AUD-1011",
-                activity: "Invoice INV-2026-0040 marked paid",
-                details: "Invoice payment status was changed to Paid.",
-                user: "Admin",
-                email: "admin@techsg.com",
-                action: "Update",
-                date: new Date(
-                    now.getTime() - 6 * 24 * 60 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.10"
-            },
-
-            {
-                id: "AUD-1012",
-                activity: "New quotation created",
-                details: "Quotation QT-2026-0039 was created.",
-                user: "Sarah Lee",
-                email: "sarah@techsg.com",
-                action: "Create",
-                date: new Date(
-                    now.getTime() - 7 * 24 * 60 * 60 * 1000
-                ).toISOString(),
-                ip: "192.168.1.15"
-            }
-
-        ];
-
-    }
-
-
-    function saveAuditLogs() {
-
-        try {
-
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(auditLogs)
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Unable to save audit log:",
-                error
-            );
-
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="empty-row">
+                        ${escapeHTML(message)}
+                    </td>
+                </tr>
+            `;
         }
-
     }
-
-
-    function loadAuditLogs() {
-
-        try {
-
-            const saved = localStorage.getItem(
-                STORAGE_KEY
-            );
-
-            if (saved !== null) {
-
-                const parsed = JSON.parse(saved);
-
-                if (Array.isArray(parsed)) {
-
-                    auditLogs = parsed;
-
-                } else {
-
-                    auditLogs = seedAuditLogs();
-                    saveAuditLogs();
-
-                }
-
-            } else {
-
-                auditLogs = seedAuditLogs();
-                saveAuditLogs();
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Unable to load audit log:",
-                error
-            );
-
-            auditLogs = seedAuditLogs();
-
-        }
-
-    }
-
-
-    function showNotice(message) {
-
-        const notice = $("auditNotice");
-
-        if (!notice) {
-            return;
-        }
-
-        notice.textContent = message;
-        notice.classList.add("show");
-
-        clearTimeout(noticeTimer);
-
-        noticeTimer = setTimeout(() => {
-
-            notice.classList.remove("show");
-
-        }, 2800);
-
-    }
-
-
-    function getFilteredLogs() {
-
-        const searchInput = $("auditSearch");
-        const actionInput = $("auditActionFilter");
-        const userInput = $("auditUserFilter");
-
-        const search = String(
-            searchInput ? searchInput.value : ""
-        ).trim().toLowerCase();
-
-        const action = String(
-            actionInput ? actionInput.value : ""
-        ).trim();
-
-        const user = String(
-            userInput ? userInput.value : ""
-        ).trim();
-
-        return auditLogs.filter((log) => {
-
-            const searchable = [
-                log.activity,
-                log.details,
-                log.user,
-                log.email,
-                log.action,
-                log.ip,
-                log.id
-            ]
-                .join(" ")
-                .toLowerCase();
-
-            const matchesSearch =
-                !search ||
-                searchable.includes(search);
-
-            const matchesAction =
-                !action ||
-                log.action === action;
-
-            const matchesUser =
-                !user ||
-                log.user === user;
-
-            return (
-                matchesSearch &&
-                matchesAction &&
-                matchesUser
-            );
-
-        });
-
-    }
-
 
     function updateStats() {
-
         const total = auditLogs.length;
 
         const today = auditLogs.filter(
@@ -1264,26 +926,19 @@
 
         const changes = auditLogs.filter(
             (log) =>
-                log.action === "Create" ||
-                log.action === "Update" ||
-                log.action === "Delete"
+                ["Create", "Update", "Delete"].includes(log.action)
         ).length;
 
         $("totalEvents").textContent = total;
         $("todayEvents").textContent = today;
         $("loginEvents").textContent = logins;
         $("changeEvents").textContent = changes;
-
     }
 
-
     function populateUserFilter() {
-
         const select = $("auditUserFilter");
 
-        if (!select) {
-            return;
-        }
+        if (!select) return;
 
         const currentValue = select.value;
 
@@ -1293,40 +948,53 @@
                     .map((log) => log.user)
                     .filter(Boolean)
             )
-        ].sort((a, b) =>
-            String(a).localeCompare(String(b))
-        );
+        ].sort((a, b) => a.localeCompare(b));
 
-        select.innerHTML = `
-            <option value="">All Users</option>
-        `;
+        select.innerHTML = '<option value="">All Users</option>';
 
         users.forEach((user) => {
-
-            const option =
-                document.createElement("option");
-
+            const option = document.createElement("option");
             option.value = user;
             option.textContent = user;
-
             select.appendChild(option);
-
         });
 
         if (users.includes(currentValue)) {
             select.value = currentValue;
         }
-
     }
 
+    function getFilteredLogs() {
+        const search = String($("auditSearch").value || "")
+            .trim()
+            .toLowerCase();
+
+        const action = $("auditActionFilter").value;
+        const user = $("auditUserFilter").value;
+
+        return auditLogs.filter((log) => {
+            const searchable = [
+                log.activity,
+                log.details,
+                log.user,
+                log.email,
+                log.action,
+                log.ip,
+                log.id
+            ].join(" ").toLowerCase();
+
+            return (
+                (!search || searchable.includes(search)) &&
+                (!action || log.action === action) &&
+                (!user || log.user === user)
+            );
+        });
+    }
 
     function renderTable() {
-
         const tbody = $("auditTableBody");
 
-        if (!tbody) {
-            return;
-        }
+        if (!tbody) return;
 
         const filtered = getFilteredLogs();
 
@@ -1339,534 +1007,267 @@
             currentPage = totalPages;
         }
 
-        const start =
-            (currentPage - 1) * PAGE_SIZE;
+        const start = (currentPage - 1) * PAGE_SIZE;
 
-        const pageItems =
-            filtered.slice(
-                start,
-                start + PAGE_SIZE
-            );
+        const pageItems = filtered.slice(
+            start,
+            start + PAGE_SIZE
+        );
 
         if (pageItems.length === 0) {
-
             tbody.innerHTML = `
                 <tr>
-                    <td
-                        colspan="5"
-                        class="empty-row"
-                    >
+                    <td colspan="5" class="empty-row">
                         No audit activity found.
                     </td>
                 </tr>
             `;
-
         } else {
+            tbody.innerHTML = pageItems.map((log) => {
+                const actionClass = getActionClass(log.action);
+                const icon = getActivityIcon(log.action);
 
-            tbody.innerHTML = pageItems
-                .map((log) => {
-
-                    const actionClass =
-                        getActionClass(log.action);
-
-                    const icon =
-                        getActivityIcon(log.action);
-
-                    return `
-                        <tr data-id="${escapeHTML(log.id)}">
-
-                            <td>
-
-                                <div class="activity">
-
-                                    <div
-                                        class="activity-icon"
-                                        aria-hidden="true"
-                                    >
-                                        ${icon}
-                                    </div>
-
-                                    <div class="activity-text">
-
-                                        <strong>
-                                            ${escapeHTML(log.activity)}
-                                        </strong>
-
-                                        <span>
-                                            ${escapeHTML(log.details)}
-                                        </span>
-
-                                    </div>
-
+                return `
+                    <tr>
+                        <td>
+                            <div class="activity">
+                                <div class="activity-icon" aria-hidden="true">
+                                    ${icon}
                                 </div>
 
-                            </td>
-
-
-                            <td>
-
-                                <div class="user-cell">
-
-                                    <strong>
-                                        ${escapeHTML(log.user)}
-                                    </strong>
-
-                                    <span>
-                                        ${escapeHTML(log.email)}
-                                    </span>
-
+                                <div class="activity-text">
+                                    <strong>${escapeHTML(log.activity)}</strong>
+                                    <span>${escapeHTML(log.details)}</span>
                                 </div>
+                            </div>
+                        </td>
 
-                            </td>
+                        <td>
+                            <div class="user-cell">
+                                <strong>${escapeHTML(log.user)}</strong>
+                                <span>${escapeHTML(log.email)}</span>
+                            </div>
+                        </td>
 
+                        <td>
+                            <span class="badge ${actionClass}">
+                                ${escapeHTML(log.action)}
+                            </span>
+                        </td>
 
-                            <td>
+                        <td class="date-cell">
+                            ${escapeHTML(formatDateTime(log.date))}
+                        </td>
 
-                                <span
-                                    class="badge ${actionClass}"
-                                >
-                                    ${escapeHTML(log.action)}
-                                </span>
-
-                            </td>
-
-
-                            <td class="date-cell">
-                                ${escapeHTML(
-                                    formatDateTime(log.date)
-                                )}
-                            </td>
-
-
-                            <td class="ip-cell">
-                                ${escapeHTML(log.ip)}
-                            </td>
-
-                        </tr>
-                    `;
-
-                })
-                .join("");
-
+                        <td class="ip-cell">
+                            ${escapeHTML(log.ip)}
+                        </td>
+                    </tr>
+                `;
+            }).join("");
         }
 
-        const from =
-            filtered.length === 0
-                ? 0
-                : start + 1;
-
-        const to =
-            Math.min(
-                start + PAGE_SIZE,
-                filtered.length
-            );
+        const from = filtered.length === 0 ? 0 : start + 1;
+        const to = Math.min(start + PAGE_SIZE, filtered.length);
 
         $("auditCount").textContent =
             `Showing ${from}–${to} of ${filtered.length} events`;
 
         renderPagination(totalPages);
-
     }
+
     function renderPagination(totalPages) {
+        const pagination = $("auditPagination");
 
-            const pagination = $("auditPagination");
+        if (!pagination) return;
 
-            if (!pagination) {
-                return;
+        pagination.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        function addButton(label, page, disabled, active, ariaLabel) {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "page-btn";
+
+            if (active) button.classList.add("active");
+
+            button.textContent = label;
+            button.disabled = disabled;
+
+            if (ariaLabel) {
+                button.setAttribute("aria-label", ariaLabel);
             }
 
-            pagination.innerHTML = "";
-
-            if (totalPages <= 1) {
-                return;
+            if (active) {
+                button.setAttribute("aria-current", "page");
             }
 
+            button.addEventListener("click", () => {
+                currentPage = page;
+                renderTable();
+            });
 
-            const previousButton =
-                document.createElement("button");
+            pagination.appendChild(button);
+        }
 
-            previousButton.type = "button";
-            previousButton.className = "page-btn";
-            previousButton.textContent = "‹";
-            previousButton.setAttribute(
-                "aria-label",
-                "Previous page"
-            );
+        addButton(
+            "‹",
+            currentPage - 1,
+            currentPage === 1,
+            false,
+            "Previous page"
+        );
 
-            previousButton.disabled =
-                currentPage === 1;
+        const maxVisiblePages = 5;
 
-            previousButton.addEventListener(
-                "click",
-                () => {
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(
+            totalPages,
+            startPage + maxVisiblePages - 1
+        );
 
-                    if (currentPage > 1) {
-
-                        currentPage -= 1;
-                        renderTable();
-
-                    }
-
-                }
-            );
-
-            pagination.appendChild(previousButton);
-
-
-            const maxVisiblePages = 5;
-
-            let startPage = Math.max(
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(
                 1,
-                currentPage - 2
+                endPage - maxVisiblePages + 1
             );
+        }
 
-            let endPage = Math.min(
+        if (startPage > 1) {
+            addButton("1", 1, false, false, "Go to page 1");
+
+            if (startPage > 2) {
+                const dots = document.createElement("span");
+                dots.textContent = "…";
+                dots.style.display = "grid";
+                dots.style.placeItems = "center";
+                dots.style.minWidth = "25px";
+                pagination.appendChild(dots);
+            }
+        }
+
+        for (let page = startPage; page <= endPage; page++) {
+            addButton(
+                String(page),
+                page,
+                false,
+                page === currentPage,
+                `Go to page ${page}`
+            );
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement("span");
+                dots.textContent = "…";
+                dots.style.display = "grid";
+                dots.style.placeItems = "center";
+                dots.style.minWidth = "25px";
+                pagination.appendChild(dots);
+            }
+
+            addButton(
+                String(totalPages),
                 totalPages,
-                startPage + maxVisiblePages - 1
+                false,
+                false,
+                `Go to page ${totalPages}`
             );
-
-            if (
-                endPage - startPage + 1 <
-                maxVisiblePages
-            ) {
-
-                startPage = Math.max(
-                    1,
-                    endPage - maxVisiblePages + 1
-                );
-
-            }
-
-
-            if (startPage > 1) {
-
-                const firstButton =
-                    document.createElement("button");
-
-                firstButton.type = "button";
-                firstButton.className = "page-btn";
-                firstButton.textContent = "1";
-
-                firstButton.addEventListener(
-                    "click",
-                    () => {
-
-                        currentPage = 1;
-                        renderTable();
-
-                    }
-                );
-
-                pagination.appendChild(firstButton);
-
-
-                if (startPage > 2) {
-
-                    const dots =
-                        document.createElement("span");
-
-                    dots.textContent = "…";
-                    dots.style.display = "grid";
-                    dots.style.placeItems = "center";
-                    dots.style.minWidth = "25px";
-                    dots.style.color = "#8993a7";
-
-                    pagination.appendChild(dots);
-
-                }
-
-            }
-
-
-            for (
-                let page = startPage;
-                page <= endPage;
-                page += 1
-            ) {
-
-                const pageButton =
-                    document.createElement("button");
-
-                pageButton.type = "button";
-                pageButton.className = "page-btn";
-
-                if (page === currentPage) {
-                    pageButton.classList.add("active");
-                    pageButton.setAttribute(
-                        "aria-current",
-                        "page"
-                    );
-                }
-
-                pageButton.textContent =
-                    String(page);
-
-                pageButton.setAttribute(
-                    "aria-label",
-                    `Go to page ${page}`
-                );
-
-                pageButton.addEventListener(
-                    "click",
-                    () => {
-
-                        currentPage = page;
-                        renderTable();
-
-                    }
-                );
-
-                pagination.appendChild(pageButton);
-
-            }
-
-
-            if (endPage < totalPages) {
-
-                if (endPage < totalPages - 1) {
-
-                    const dots =
-                        document.createElement("span");
-
-                    dots.textContent = "…";
-                    dots.style.display = "grid";
-                    dots.style.placeItems = "center";
-                    dots.style.minWidth = "25px";
-                    dots.style.color = "#8993a7";
-
-                    pagination.appendChild(dots);
-
-                }
-
-
-                const lastButton =
-                    document.createElement("button");
-
-                lastButton.type = "button";
-                lastButton.className = "page-btn";
-                lastButton.textContent =
-                    String(totalPages);
-
-                lastButton.addEventListener(
-                    "click",
-                    () => {
-
-                        currentPage = totalPages;
-                        renderTable();
-
-                    }
-                );
-
-                pagination.appendChild(lastButton);
-
-            }
-
-
-            const nextButton =
-                document.createElement("button");
-
-            nextButton.type = "button";
-            nextButton.className = "page-btn";
-            nextButton.textContent = "›";
-
-            nextButton.setAttribute(
-                "aria-label",
-                "Next page"
-            );
-
-            nextButton.disabled =
-                currentPage === totalPages;
-
-            nextButton.addEventListener(
-                "click",
-                () => {
-
-                    if (currentPage < totalPages) {
-
-                        currentPage += 1;
-                        renderTable();
-
-                    }
-
-                }
-            );
-
-            pagination.appendChild(nextButton);
-
         }
 
+        addButton(
+            "›",
+            currentPage + 1,
+            currentPage === totalPages,
+            false,
+            "Next page"
+        );
+    }
 
-        function resetFilters() {
+    function resetFilters() {
+        $("auditSearch").value = "";
+        $("auditActionFilter").value = "";
+        $("auditUserFilter").value = "";
 
-            $("auditSearch").value = "";
-            $("auditActionFilter").value = "";
-            $("auditUserFilter").value = "";
+        currentPage = 1;
+        renderTable();
+    }
 
-            currentPage = 1;
+    async function loadAuditLogs() {
+        showError("Loading activity...");
 
-            renderTable();
+        try {
+            const result = await SG.api("audit.php");
 
-        }
-
-
-        function clearAuditLog() {
-
-            if (auditLogs.length === 0) {
-
-                showNotice(
-                    "Audit log is already empty."
+            if (!result || !result.ok) {
+                throw new Error(
+                    result?.error || "Unable to load audit history."
                 );
-
-                return;
-
             }
 
-
-            const confirmed = window.confirm(
-                "Are you sure you want to clear the entire audit log? This action cannot be undone."
-            );
-
-            if (!confirmed) {
-                return;
-            }
-
-
-            auditLogs = [];
-
-            saveAuditLogs();
-
-            currentPage = 1;
+            auditLogs = Array.isArray(result.logs)
+                ? result.logs
+                : [];
 
             updateStats();
-
             populateUserFilter();
 
+            currentPage = 1;
             renderTable();
 
-            showNotice(
-                "Audit log cleared successfully."
+        } catch (error) {
+            console.error("Audit log error:", error);
+
+            showError(
+                error.message || "Unable to load audit history."
             );
 
+            $("totalEvents").textContent = "—";
+            $("todayEvents").textContent = "—";
+            $("loginEvents").textContent = "—";
+            $("changeEvents").textContent = "—";
+            $("auditCount").textContent = "Unable to load events";
         }
+    }
 
-
-        function bindEvents() {
-
-            const search =
-                $("auditSearch");
-
-            const actionFilter =
-                $("auditActionFilter");
-
-            const userFilter =
-                $("auditUserFilter");
-
-            const resetButton =
-                $("resetAuditBtn");
-
-            const clearButton =
-                $("clearAuditBtn");
-
-
-            if (search) {
-
-                search.addEventListener(
-                    "input",
-                    () => {
-
-                        currentPage = 1;
-                        renderTable();
-
-                    }
-                );
-
-            }
-
-
-            if (actionFilter) {
-
-                actionFilter.addEventListener(
-                    "change",
-                    () => {
-
-                        currentPage = 1;
-                        renderTable();
-
-                    }
-                );
-
-            }
-
-
-            if (userFilter) {
-
-                userFilter.addEventListener(
-                    "change",
-                    () => {
-
-                        currentPage = 1;
-                        renderTable();
-
-                    }
-                );
-
-            }
-
-
-            if (resetButton) {
-
-                resetButton.addEventListener(
-                    "click",
-                    resetFilters
-                );
-
-            }
-
-
-            if (clearButton) {
-
-                clearButton.addEventListener(
-                    "click",
-                    clearAuditLog
-                );
-
-            }
-
-        }
-
-
-        function init() {
-
-            loadAuditLogs();
-
-            updateStats();
-
-            populateUserFilter();
-
+    function bindEvents() {
+        $("auditSearch").addEventListener("input", () => {
+            currentPage = 1;
             renderTable();
+        });
 
-            bindEvents();
+        $("auditActionFilter").addEventListener("change", () => {
+            currentPage = 1;
+            renderTable();
+        });
 
-        }
+        $("auditUserFilter").addEventListener("change", () => {
+            currentPage = 1;
+            renderTable();
+        });
+
+        $("resetAuditBtn").addEventListener(
+            "click",
+            resetFilters
+        );
+    }
+
+    function init() {
+        bindEvents();
+        loadAuditLogs();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
+})();
 
 
-        if (
-            document.readyState === "loading"
-        ) {
-
-            document.addEventListener(
-                "DOMContentLoaded",
-                init
-            );
-
-        } else {
-
-            init();
-
-        }
-
-    })();
-    </script>
+</script>
 
 
     <script src="enhancements.js"></script>
